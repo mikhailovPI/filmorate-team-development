@@ -6,7 +6,6 @@ import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 
 import javax.validation.Valid;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -28,16 +27,11 @@ public class UserController {
         if (users.containsKey(user.getId())) {
             log.error("Такой пользователь уже существует.");
             throw new ValidationException("Такой пользователь уже существует.");
-        } else if (user.getBirthday().isAfter(LocalDate.now())) {
-            log.error("Введите корректную дату рождения.");
-            throw new ValidationException("Введите корректную дату рождения.");
-        } else if (user.getLogin().isEmpty() || user.getLogin().isBlank() || user.getLogin().contains(" ")) {
-            log.error("Логин не может быть пустым или содержать пробелы.");
-            throw new ValidationException("Логин пользователя не может быть пустым или содержать пробелы.");
         } else if (user.getName().isEmpty() || user.getName().isBlank()) {
             log.debug("Имя не указано. В качестве имени используется логин: " + user.getLogin() + ".");
             user.setName(user.getLogin());
-        } user.setId(++id);
+        }
+        user.setId(++id);
         users.put(user.getId(), user);
         log.info("Создали пользователя: " + user.toString() + ".");
         return users.get(user.getId());
