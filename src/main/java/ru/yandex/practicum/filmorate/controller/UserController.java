@@ -43,8 +43,8 @@ public class UserController {
             log.info("Обновили пользователя: " + user.toString() + ".");
             users.put(user.getId(), user);
         } else {
-            log.error("Id пользователя не может быть пустым.");
-            throw new ValidationException("Id пользователя не может быть пустым.");
+            log.error("Id пользователя не найдено.");
+            throw new ValidationException("Id пользователя не найдено.");
         }
         return users.get(user.getId());
     }

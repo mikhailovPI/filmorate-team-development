@@ -43,8 +43,8 @@ public class FilmController {
             films.put(film.getId(), film);
             log.info("Обновили фильм: " + film.toString() + ".");
         } else {
-            log.error("Название фильма не может быть пустым.");
-            throw new ValidationException("Название фильма не может быть пустым.");
+            log.error("Id фильма не найден.");
+            throw new ValidationException("Id фильма не найден.");
         }
         return films.get(film.getId());
     }
