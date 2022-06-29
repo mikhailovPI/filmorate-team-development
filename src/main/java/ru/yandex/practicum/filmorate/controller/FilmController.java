@@ -23,7 +23,7 @@ public class FilmController {
     }
 
     @PostMapping(value = "/films")
-    public Film creat(@Valid @RequestBody Film film) throws ValidationException {
+    public Film create(@Valid @RequestBody Film film) throws ValidationException {
         if (films.containsKey(film.getId())) {
             log.error("Фильм: " + film.getName() + " уже существует.");
             throw new ValidationException("Фильм: " + film.getName() + " уже существует.");

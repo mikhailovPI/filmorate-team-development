@@ -7,9 +7,9 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 
 @WebMvcTest(controllers = UserController.class)
@@ -28,17 +28,18 @@ class UserControllerTest {
                 .andReturn();
 
         String response = "[{\"id\":1,\"email\":\"mail_mail3@mail.ru\",\"login\":\"login3\"," +
-                "\"name\":\"Name name3\",\"birthday\":\"2002-03-24\"},{\"id\":2,\"email\":\"mail_mail@mail.ru\"," +
-                "\"login\":\"login1\",\"name\":\"Name name\",\"birthday\":\"2002-12-24\"}," +
-                "{\"id\":3,\"email\":\"mail_mail2@mail.ru\",\"login\":\"login2\"," +
-                "\"name\":\"Name name2\",\"birthday\":\"2002-02-24\"}]";
+                "\"name\":\"name3\",\"birthday\":\"2002-03-24\"}," +
+                "{\"id\":2,\"email\":\"mail_mail@mail.ru\",\"login\":\"login1\",\"name\":\"Name name\"," +
+                "\"birthday\":\"2002-12-24\"}," +
+                "{\"id\":3,\"email\":\"mail_mail2@mail.ru\",\"login\":\"login2\",\"name\":\"Name name2\"," +
+                "\"birthday\":\"2002-02-24\"}]";
 
         assertEquals(response, mvcResult.getResponse().getContentAsString());
     }
 
     @Test
     @DisplayName("Создание пользователя")
-    void creatUserTest() throws Exception {
+    void createUserTest() throws Exception {
 
         mockMvc.perform((post("/users"))
                         .contentType(MediaType.APPLICATION_JSON)
@@ -64,26 +65,38 @@ class UserControllerTest {
     @Test
     @DisplayName("Обновление пользователя")
     void updateUserTest() throws Exception {
+
+        mockMvc.perform((post("/users"))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\n" +
+                                "  \"login\": \"login2\",\n" +
+                                "  \"name\": \"Name name2\",\n" +
+                                "  \"email\": \"mail_mail2@mail.ru\",\n" +
+                                "  \"birthday\": \"2002-02-24\"\n" +
+                                "}"))
+                .andExpect(status().isOk());
+
         MvcResult mvcResult = mockMvc.perform((put("/users"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\n" +
                                 " \"id\" : \"1\",\n" +
                                 " \"login\": \"login3\",\n" +
-                                " \"name\": \"Name name3\",\n" +
+                                " \"name\": \"name3\",\n" +
                                 " \"email\": \"mail_mail3@mail.ru\",\n" +
                                 " \"birthday\": \"2002-03-24\"\n" +
                                 "}"))
                 .andReturn();
 
         String response = "{\"id\":1,\"email\":\"mail_mail3@mail.ru\",\"login\":\"login3\"," +
-                "\"name\":\"Name name3\",\"birthday\":\"2002-03-24\"}";
+                "\"name\":\"name3\",\"birthday\":\"2002-03-24\"}";
 
         assertEquals(response, mvcResult.getResponse().getContentAsString());
     }
 
     @Test
     @DisplayName("Обновление пользователя с неверным id")
-    void updateUserNotTrueIdTest() throws Exception {
+    void updateUserNotValidIdTest() throws Exception {
+
         mockMvc.perform((put("/users"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\n" +
@@ -100,11 +113,11 @@ class UserControllerTest {
 
     @Test
     @DisplayName("Создание пользователя без логина")
-    void createUserNotLoginTest() throws Exception {
+    void createUserWithoutLoginTest() throws Exception {
         mockMvc.perform((post("/users"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\n" +
-                                " \"login\": \"\",\n" +
+                                " \"login\": ,\n" +
                                 "  \"name\": \"Name name2\",\n" +
                                 "  \"email\": \"mail_mail2@mail.ru\",\n" +
                                 "  \"birthday\": \"2002-02-24\"\n" +
@@ -127,8 +140,8 @@ class UserControllerTest {
     }
 
     @Test
-    @DisplayName("Создание пользователя с пробелом в логине")
-    void createUserWithSymbolInTheLoginTest() throws Exception {
+    @DisplayName("Создание пользователя с символом в логине")
+    void createUserWithSymbolInLoginTest() throws Exception {
         mockMvc.perform((post("/users"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\n" +
@@ -142,9 +155,8 @@ class UserControllerTest {
 
     @Test
     @DisplayName("Создание пользователя без имени")
-    void createUserNotNameTest() throws Exception {
-        mockMvc.perform((post("/users"))
-                        .contentType(MediaType.APPLICATION_JSON)
+    void createUserWithoutNameTest() throws Exception {
+        mockMvc.perform((post("/users")).contentType(MediaType.APPLICATION_JSON)
                         .content("{\n" +
                                 " \"login\": \"login\",\n" +
                                 " \"name\": \"\",\n" +
@@ -161,8 +173,8 @@ class UserControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\n" +
                                 " \"login\": \"login\",\n" +
-                                " \"name\": \"\",\n" +
-                                " \"email\": \"\",\n" +
+                                " \"name\": \"Name\",\n" +
+                                " \"email\": ,\n" +
                                 " \"birthday\": \"2002-10-24\"\n" +
                                 "}"))
                 .andExpect(status().isBadRequest());
@@ -170,35 +182,35 @@ class UserControllerTest {
 
     @Test
     @DisplayName("Создание пользователя с некорректным email")
-    void createUserNotTrueEmailTest() throws Exception {
+    void createUserNotValidEmailTest() throws Exception {
         mockMvc.perform((post("/users"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\n" +
                                 " \"login\": \"login\",\n" +
                                 " \"name\": \"Name name\",\n" +
-                                " \"email\": \"mail_яяя?@mail.ru\",\n" +
-                                " \"birthday\": \"\"\n" +
+                                " \"email\": \"фыыфяяя?mail.ru\",\n" +
+                                " \"birthday\": \"2002-10-24\"\n" +
                                 "}"))
                 .andExpect(status().isBadRequest());
     }
 
     @Test
     @DisplayName("Создание пользователя без указанного дня рождения")
-    void createUserNotBirthbayTest() throws Exception {
+    void createUserNotBirthdayTest() throws Exception {
         mockMvc.perform((post("/users"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\n" +
                                 " \"login\": \"login\",\n" +
                                 " \"name\": \"Name name\",\n" +
                                 " \"email\": \"mail_mail@mail.ru\",\n" +
-                                " \"birthday\": \"\"\n" +
+                                " \"birthday\": \n" +
                                 "}"))
                 .andExpect(status().isBadRequest());
     }
 
     @Test
     @DisplayName("Создание пользователя c неверной датой рождения")
-    void creatUserWithAnIncorrectBirthbayTest() throws Exception {
+    void createUserWithAnIncorrectBirthdayTest() throws Exception {
         mockMvc.perform((post("/users"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\n" +

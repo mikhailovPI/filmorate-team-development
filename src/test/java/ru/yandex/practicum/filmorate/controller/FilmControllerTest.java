@@ -10,8 +10,7 @@ import org.springframework.test.web.servlet.MvcResult;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(controllers = FilmController.class)
 class FilmControllerTest {
@@ -82,7 +81,7 @@ class FilmControllerTest {
 
     @Test
     @DisplayName("Обновление фильма с неверным id")
-    void updateFilmNotTrueIdTest() throws Exception {
+    void updateFilmNotWithoutIdTest() throws Exception {
         mockMvc.perform((put("/films"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\n" +

@@ -23,25 +23,26 @@ public class UserController {
     }
 
     @PostMapping(value = "/users")
-    public User creat(@Valid @RequestBody User user) throws ValidationException {
+    public User create(@Valid @RequestBody User user) throws ValidationException {
         if (users.containsKey(user.getId())) {
             log.error("Такой пользователь уже существует.");
             throw new ValidationException("Такой пользователь уже существует.");
         } else if (user.getName().isEmpty() || user.getName().isBlank()) {
             log.debug("Имя не указано. В качестве имени используется логин: " + user.getLogin() + ".");
             user.setName(user.getLogin());
+        } else {
+            user.setId(++id);
+            users.put(user.getId(), user);
+            log.info("Создали пользователя: " + user.toString() + ".");
         }
-        user.setId(++id);
-        users.put(user.getId(), user);
-        log.info("Создали пользователя: " + user.toString() + ".");
-        return users.get(user.getId());
+        return user;
     }
 
     @PutMapping(value = "/users")
     public User update(@Valid @RequestBody User user) throws ValidationException {
         if (users.containsKey(user.getId())) {
-            log.info("Обновили пользователя: " + user.toString() + ".");
             users.put(user.getId(), user);
+            log.info("Обновили пользователя: " + user.toString() + ".");
         } else {
             log.error("Id пользователя не найдено.");
             throw new ValidationException("Id пользователя не найдено.");

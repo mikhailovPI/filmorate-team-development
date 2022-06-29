@@ -11,13 +11,12 @@ public class Film {
     private long id;
 
     @NotNull(message = "Необходимо указать название фильма.")
-    @NotBlank(message = "Необходимо указать название фильма.")
-    @Length(min = 1)
+    @NotBlank(message = "Название фильма не может быть пустым.")
     private String name;
 
     @NotNull(message = "Необходимо указать описание фильма.")
-    @NotBlank(message = "Необходимо указать описание фильма.")
-    @Length(min = 1, max = 200)
+    @NotBlank(message = "Описание фильма не может быть пустым.")
+    @Length(max = 200)
     private String description;
 
     @NotNull(message = "Необходимо указать дату релиза фильма.")
