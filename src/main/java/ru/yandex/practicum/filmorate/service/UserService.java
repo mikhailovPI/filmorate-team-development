@@ -6,6 +6,7 @@ import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -34,7 +35,25 @@ public class UserService {
         return userStorage.deleteUser(user);
     }
 
-    public void addFriends() {
+    public void addFriends(User user1, User user2) {
+        user1.getFriends().add(user2.getId());
+        user2.getFriends().add(user1.getId());
+    }
 
+    public void removeFriends(User user1, User user2) {
+        user1.getFriends().remove(user2.getId());
+        user2.getFriends().remove(user1.getId());
+    }
+
+    public List<User> getCommonFriends (User user1, User user2) {
+        List<User> commonFriends = new ArrayList<>();
+        for (Long id1: user1.getFriends()) {
+            for (Long id2: user2.getFriends()) {
+                if (id1 == id2) {
+                    commonFriends.add(user1);
+                }
+            }
+        }
+        return commonFriends;
     }
 }
