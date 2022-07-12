@@ -1,10 +1,11 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.user.InMemoryUserStorage;
+import ru.yandex.practicum.filmorate.service.UserService;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -12,28 +13,30 @@ import java.util.List;
 @RestController
 @Slf4j
 public class UserController {
-    private InMemoryUserStorage userStorage;
-    public UserController(InMemoryUserStorage userStorage) {
-        this.userStorage = userStorage;
+    private UserService userService;
+
+    @Autowired
+    public UserController(UserService userService) {
+        this.userService = userService;
     }
 
     @GetMapping("/users")
     public List<User> get() {
-        return userStorage.getUser();
+        return userService.get();
     }
 
     @PostMapping(value = "/users")
     public User create(@Valid @RequestBody User user) throws ValidationException {
-        return  userStorage.createUser(user);
+        return userService.create(user);
     }
 
     @PutMapping(value = "/users")
     public User update(@Valid @RequestBody User user) throws ValidationException {
-        return userStorage.updateUser(user);
+        return userService.update(user);
     }
 
     @DeleteMapping(value = "/users")
-    public User delete (@Valid @RequestBody User user) throws ValidationException {
-        return userStorage.deleteUser(user);
+    public User delete(@Valid @RequestBody User user) throws ValidationException {
+        return userService.delete(user);
     }
 }
