@@ -11,7 +11,7 @@ public interface FilmStorage {
 
     public Film updateFilm (Film film);
 
-    public Film deleteFilm (Film film);
+    public void deleteFilm (Film film);
 
     public List<Film> getFilms ();
 }

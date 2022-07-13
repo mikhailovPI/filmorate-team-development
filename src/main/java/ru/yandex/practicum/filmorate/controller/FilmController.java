@@ -38,7 +38,7 @@ public class FilmController {
     }
 
     @DeleteMapping(value = "/films")
-    public Film delete(@Valid @RequestBody Film film) throws ValidationException {
-        return filmService.delete(film);
+    public void delete(@Valid @RequestBody Film film) throws ValidationException {
+        filmService.delete(film);
     }
 }

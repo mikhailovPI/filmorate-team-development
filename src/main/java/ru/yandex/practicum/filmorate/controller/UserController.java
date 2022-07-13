@@ -21,22 +21,22 @@ public class UserController {
     }
 
     @GetMapping("/users")
-    public List<User> get() {
+    public List<User> getUser() {
         return userService.get();
     }
 
     @PostMapping(value = "/users")
-    public User create(@Valid @RequestBody User user) throws ValidationException {
+    public User createUser(@Valid @RequestBody User user) throws ValidationException {
         return userService.create(user);
     }
 
     @PutMapping(value = "/users")
-    public User update(@Valid @RequestBody User user) throws ValidationException {
+    public User updateUser(@Valid @RequestBody User user) throws ValidationException {
         return userService.update(user);
     }
 
     @DeleteMapping(value = "/users")
-    public User delete(@Valid @RequestBody User user) throws ValidationException {
+    public User removeUser(@Valid @RequestBody User user) throws ValidationException {
         return userService.delete(user);
     }
 }
