@@ -21,9 +21,16 @@ public class UserService {
     }
 
     public List<User> get() {
-
         return userStorage.getUser();
     }
+
+    public User getUserId(long userId) {
+        if (userId<0) {
+            throw new ValidationException("Введен не верный id = " + userId);
+        }
+        return userStorage.getUserId(userId);
+    }
+
     public User create(User user) throws ValidationException {
         return userStorage.createUser(user);
     }
@@ -63,6 +70,8 @@ public class UserService {
         }
         return commonFriends;
     }
+
+
 
 /*    public List<User> getFriends(User user1, User user2) {
         List<User> filteredList;

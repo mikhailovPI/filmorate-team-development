@@ -11,6 +11,7 @@ import java.util.Set;
 
 @Data
 public class User {
+
     private long id;
 
     @NotNull(message = "Необходимо указать email.")
