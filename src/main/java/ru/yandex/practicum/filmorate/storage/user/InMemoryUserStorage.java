@@ -46,14 +46,13 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public User deleteUser(User user) {
+    public void deleteUser(User user) {
         if (users.containsKey(user.getId())) {
             throw new ValidationException("Такой пользователь уже существует.");
         } else {
             log.info("Удалили фильм: " + user.toString() + ".");
             users.remove(user.getId());
         }
-        return null;
     }
 
     @Override
@@ -62,7 +61,7 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public User getUserId(long id) {
+    public User getUserId(Long id) {
         return users.get(id);
     }
 }

@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.service;
 
+import com.sun.source.doctree.SeeTree;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
@@ -9,6 +10,7 @@ import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class UserService {
@@ -20,27 +22,36 @@ public class UserService {
         this.userStorage = userStorage;
     }
 
-    public List<User> get() {
+    public List<User> getUser() {
         return userStorage.getUser();
     }
 
-    public User getUserId(long userId) {
+    public User getUserId(Long userId) {
         if (userId<0) {
-            throw new ValidationException("Введен не верный id = " + userId);
+            throw new NotFoundException("Введен не верный id = " + userId);
         }
         return userStorage.getUserId(userId);
     }
 
-    public User create(User user) throws ValidationException {
+    public User createUser(User user) throws ValidationException {
+        if (user == null) {
+            throw new NotFoundException("Передан пустой пользователь.");
+        }
         return userStorage.createUser(user);
     }
 
-    public User update(User user) throws ValidationException {
+    public User updateUser(User user) throws ValidationException {
+        if (userStorage.getUserId(user.getId()) == null) {
+            throw new NotFoundException("Пользователь не найден для обновления.");
+        }
         return userStorage.updateUser(user);
     }
 
-    public User delete(User user) throws ValidationException {
-        return userStorage.deleteUser(user);
+    public void removeUser(User user) throws ValidationException {
+        if (userStorage.getUserId(user.getId()) == null) {
+            throw new NotFoundException("Пользователь не найден для удаления.");
+        }
+        userStorage.deleteUser(user);
     }
 
     public void addFriends(User user1, User user2) {
@@ -63,20 +74,20 @@ public class UserService {
         List<User> commonFriends = new ArrayList<>();
         for (Long id1 : user1.getFriends()) {
             for (Long id2 : user2.getFriends()) {
-                if (id1 == id2) {
+                if (id1.equals(id2)) {
                     commonFriends.add(user1);
                 }
             }
         }
+        int size = commonFriends.size();
         return commonFriends;
     }
 
-
-
-/*    public List<User> getFriends(User user1, User user2) {
-        List<User> filteredList;
-       return Stream.of(user1.getFriends())
-                .filter(t -> t)
-                .collect(Collectors.toList());
-    }*/
+    public List<User> getListFriends(Long id) {
+        List<User> userFriendsList = new ArrayList<>();
+        for (Long idi: userStorage.getUserId(id).getFriends()) {
+            userFriendsList.add(userStorage.getUserId(idi));
+        }
+        return userFriendsList;
+    }
 }

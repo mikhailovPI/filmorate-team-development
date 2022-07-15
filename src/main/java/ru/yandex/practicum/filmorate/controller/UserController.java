@@ -23,46 +23,53 @@ public class UserController {
 
     @GetMapping("/users")
     public List<User> getUser() {
-        return userService.get();
+        return userService.getUser();
     }
 
-    @GetMapping (value = "/users/{id}")
-    public User getUserId (@PathVariable long id) throws ValidationException {
+    @GetMapping(value = "/users/{id}")
+    public User getUserId(@PathVariable Long id) {
         return userService.getUserId(id);
     }
 
     @PostMapping(value = "/users")
-    public User createUser(@Valid @RequestBody User user) throws ValidationException {
-        return userService.create(user);
+    public User createUser(@Valid @RequestBody User user) {
+        return userService.createUser(user);
     }
 
     @PutMapping(value = "/users")
-    public User updateUser(@Valid @RequestBody User user) throws ValidationException {
-        return userService.update(user);
+    public User updateUser(@Valid @RequestBody User user) {
+        return userService.updateUser(user);
     }
 
     @DeleteMapping(value = "/users")
-    public User removeUser(@Valid @RequestBody User user) throws ValidationException {
-        return userService.delete(user);
+    public void removeUser(@Valid @RequestBody User user) {
+        userService.removeUser(user);
     }
 
     @PutMapping(value = "/users/{id}/friends/{friendsId}")
-    public void addFriends (@PathVariable long id, @PathVariable long friendsId ) {
+    public void addFriends(
+            @PathVariable Long id,
+            @PathVariable Long friendsId) {
         userService.addFriends(userService.getUserId(id), userService.getUserId(friendsId));
     }
 
     @DeleteMapping(value = "/users/{id}/friends/{friendsId}")
-    public void removeFriends(@PathVariable long id, @PathVariable long friendsId) {
+    public void removeFriends(
+            @PathVariable Long id,
+            @PathVariable Long friendsId) {
         userService.removeFriends(userService.getUserId(id), userService.getUserId(friendsId));
     }
 
     @GetMapping(value = "/users/{id}/friends")
-    public Set<Long> addListFriends (@PathVariable long id) {
-        return userService.getUserId(id).getFriends();
+    public List<User> getListFriends(@PathVariable Long id) {
+        return userService.getListFriends(id);
+
     }
 
     @GetMapping(value = "/users/{id}/friends/common/{otherId}")
-    public List<User> addCommonListFriends (@PathVariable Long id, @PathVariable Long otherId) {
+    public List<User> addCommonListFriends(
+            @PathVariable Long id,
+            @PathVariable Long otherId) {
         return userService.getCommonFriends(userService.getUserId(id), userService.getUserId(otherId));
     }
 }
