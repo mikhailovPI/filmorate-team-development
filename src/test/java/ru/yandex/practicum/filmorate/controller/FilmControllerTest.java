@@ -3,7 +3,9 @@ package ru.yandex.practicum.filmorate.controller;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -12,7 +14,8 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@WebMvcTest(controllers = FilmController.class)
+@SpringBootTest
+@AutoConfigureMockMvc
 class FilmControllerTest {
 
     @Autowired
@@ -28,8 +31,8 @@ class FilmControllerTest {
                 .andReturn();
 
         String response = "[{\"id\":1,\"name\":\"name 3\",\"description\":\"description3\"," +
-                "\"releaseDate\":\"1900-12-24\",\"duration\":21},{\"id\":2,\"name\":\"name2\"," +
-                "\"description\":\"description2\",\"releaseDate\":\"2000-12-24\",\"duration\":20}]";
+                "\"releaseDate\":\"1900-12-24\",\"duration\":21,\"like\":[]},{\"id\":2,\"name\":\"name2\"," +
+                "\"description\":\"description2\",\"releaseDate\":\"2000-12-24\",\"duration\":20,\"like\":[]}]";
 
         assertEquals(response, mvcResult.getResponse().getContentAsString());
     }
@@ -74,7 +77,7 @@ class FilmControllerTest {
                 .andReturn();
 
         String response = "{\"id\":1,\"name\":\"name 3\",\"description\":\"description3\"," +
-                "\"releaseDate\":\"1900-12-24\",\"duration\":21}";
+                "\"releaseDate\":\"1900-12-24\",\"duration\":21,\"like\":[]}";
 
         assertEquals(response, mvcResult.getResponse().getContentAsString());
     }
@@ -92,9 +95,9 @@ class FilmControllerTest {
                                 "  \"releaseDate\": \"1900-12-24\"\n" +
                                 "}"))
 
-                .andExpect(result -> assertEquals("Id фильма не найден.",
+                .andExpect(result -> assertEquals("Фильм не найден для обновления.",
                         result.getResolvedException().getMessage()))
-                .andExpect(status().isInternalServerError());
+                .andExpect(status().isNotFound());
     }
 
     @Test
@@ -174,7 +177,7 @@ class FilmControllerTest {
                                 "}"))
                 .andExpect(result -> assertEquals("Дата релиза фильма не может быть раньше 1895-12-28",
                         result.getResolvedException().getMessage()))
-                .andExpect(status().isInternalServerError());
+                .andExpect(status().isBadRequest());
     }
 
     @Test

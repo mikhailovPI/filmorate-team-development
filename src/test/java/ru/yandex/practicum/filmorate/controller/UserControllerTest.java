@@ -2,7 +2,9 @@ package ru.yandex.practicum.filmorate.controller;
 
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -12,7 +14,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 
-@WebMvcTest(controllers = UserController.class)
+@SpringBootTest
+@AutoConfigureMockMvc
 class UserControllerTest {
 
     @Autowired
@@ -28,11 +31,12 @@ class UserControllerTest {
                 .andReturn();
 
         String response = "[{\"id\":1,\"email\":\"mail_mail3@mail.ru\",\"login\":\"login3\"," +
-                "\"name\":\"name3\",\"birthday\":\"2002-03-24\"}," +
-                "{\"id\":2,\"email\":\"mail_mail@mail.ru\",\"login\":\"login1\",\"name\":\"Name name\"," +
-                "\"birthday\":\"2002-12-24\"}," +
-                "{\"id\":3,\"email\":\"mail_mail2@mail.ru\",\"login\":\"login2\",\"name\":\"Name name2\"," +
-                "\"birthday\":\"2002-02-24\"}]";
+                "\"name\":\"name3\",\"birthday\":\"2002-03-24\",\"friends\":[]}," +
+                "{\"id\":2,\"email\":\"mail_mail2@mail.ru\",\"login\":\"login2\",\"name\":\"Name name2\"," +
+                "\"birthday\":\"2002-02-24\",\"friends\":[]},{\"id\":3,\"email\":\"mail_mail@mail.ru\"," +
+                "\"login\":\"login1\",\"name\":\"Name name\",\"birthday\":\"2002-12-24\",\"friends\":[]}," +
+                "{\"id\":4,\"email\":\"mail_mail2@mail.ru\",\"login\":\"login2\",\"name\":\"Name name2\"," +
+                "\"birthday\":\"2002-02-24\",\"friends\":[]}]";
 
         assertEquals(response, mvcResult.getResponse().getContentAsString());
     }
@@ -88,7 +92,7 @@ class UserControllerTest {
                 .andReturn();
 
         String response = "{\"id\":1,\"email\":\"mail_mail3@mail.ru\",\"login\":\"login3\"," +
-                "\"name\":\"name3\",\"birthday\":\"2002-03-24\"}";
+                "\"name\":\"name3\",\"birthday\":\"2002-03-24\",\"friends\":[]}";
 
         assertEquals(response, mvcResult.getResponse().getContentAsString());
     }
@@ -106,9 +110,9 @@ class UserControllerTest {
                                 " \"email\": \"mail_mail3@mail.ru\",\n" +
                                 " \"birthday\": \"2002-03-24\"\n" +
                                 "}"))
-                .andExpect(result -> assertEquals("Id пользователя не найдено.",
+                .andExpect(result -> assertEquals("Пользователь не найден для обновления.",
                         result.getResolvedException().getMessage()))
-                .andExpect(status().isInternalServerError());
+                .andExpect(status().isNotFound());
     }
 
     @Test
@@ -122,7 +126,7 @@ class UserControllerTest {
                                 "  \"email\": \"mail_mail2@mail.ru\",\n" +
                                 "  \"birthday\": \"2002-02-24\"\n" +
                                 "}"))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isInternalServerError());
     }
 
     @Test
@@ -177,7 +181,7 @@ class UserControllerTest {
                                 " \"email\": ,\n" +
                                 " \"birthday\": \"2002-10-24\"\n" +
                                 "}"))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isInternalServerError());
     }
 
     @Test
@@ -205,7 +209,7 @@ class UserControllerTest {
                                 " \"email\": \"mail_mail@mail.ru\",\n" +
                                 " \"birthday\": \n" +
                                 "}"))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isInternalServerError());
     }
 
     @Test

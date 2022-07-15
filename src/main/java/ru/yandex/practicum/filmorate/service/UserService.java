@@ -71,15 +71,16 @@ public class UserService {
     }
 
     public List<User> getCommonFriends(User user1, User user2) {
+        Set<Long> userFriends1 = user1.getFriends();
+        Set<Long> userFriends2 = user2.getFriends();
         List<User> commonFriends = new ArrayList<>();
-        for (Long id1 : user1.getFriends()) {
-            for (Long id2 : user2.getFriends()) {
+        for (Long id1 : userFriends1) {
+            for (Long id2 : userFriends2) {
                 if (id1.equals(id2)) {
-                    commonFriends.add(user1);
+                    commonFriends.add(userStorage.getUserId(id1));
                 }
             }
         }
-        int size = commonFriends.size();
         return commonFriends;
     }
 
