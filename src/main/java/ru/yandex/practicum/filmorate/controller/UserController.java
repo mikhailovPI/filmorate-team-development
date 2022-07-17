@@ -9,7 +9,6 @@ import ru.yandex.practicum.filmorate.service.UserService;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
-import javax.validation.constraints.Positive;
 import java.util.List;
 
 @RestController
@@ -64,14 +63,14 @@ public class UserController {
 
 
     @GetMapping(value = "/users/{id}/friends")
-    public List<User> getListFriends(@Positive @PathVariable Long id) {
+    public List<User> getListFriends(@PathVariable @Min(1) Long id) {
         return userService.getListFriends(id);
     }
 
     @GetMapping(value = "/users/{id}/friends/common/{otherId}")
     public List<User> addCommonListFriends(
-            @Min(1) @PathVariable Long id,
-            @Min(1) @PathVariable Long otherId) {
+            @PathVariable @Min(1) Long id,
+             @PathVariable @Min(1) Long otherId) {
         return userService.getCommonFriends(id, otherId);
     }
 }
