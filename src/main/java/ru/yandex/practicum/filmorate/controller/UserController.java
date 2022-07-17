@@ -48,11 +48,11 @@ public class UserController {
         userService.removeUser(user);
     }
 
-    @PutMapping(value = "/users/{id}/friends/{friendsId}")
+    @PutMapping(value = "/users/{id}/friends/{friendId}")
     public void addFriends(
             @PathVariable @Min(1) Long id,
-            @PathVariable @Min(1) Long friendsId) {
-        userService.addFriends(id, friendsId);
+            @PathVariable @Min(1) Long friendId) {
+        userService.addFriends(id, friendId);
     }
 
     @DeleteMapping(value = "/users/{id}/friends/{friendId}")
@@ -61,6 +61,7 @@ public class UserController {
             @PathVariable @Min(1) Long friendId) {
         userService.removeFriends(id, friendId);
     }
+
 
     @GetMapping(value = "/users/{id}/friends")
     public List<User> getListFriends(@Positive @PathVariable Long id) {

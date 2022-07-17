@@ -55,8 +55,8 @@ public class UserService {
                 !userStorage.getUser().contains(getUserById(friendId))) {
             throw new NotFoundException("Пользователя не добавить в друзья, т.к. его не существует.");
         }
-        getUserById(id).getFriends().add(id);
-        getUserById(friendId).getFriends().add(friendId);
+        getUserById(id).getFriends().add(friendId);
+        getUserById(friendId).getFriends().add(id);
     }
 
     public void removeFriends(Long id, Long friendId) {
@@ -64,8 +64,8 @@ public class UserService {
                 !userStorage.getUser().contains(getUserById(friendId))) {
             throw new NotFoundException("Пользователя не удалить из друзьей, т.к. его не существует.");
         }
-        getUserById(id).getFriends().remove(id);
-        getUserById(friendId).getFriends().remove(friendId);
+        getUserById(id).getFriends().remove(friendId);
+        getUserById(friendId).getFriends().remove(id);
     }
 
     public List<User> getCommonFriends(Long id, Long otherId) {
@@ -91,4 +91,5 @@ public class UserService {
         }
         return userFriendsList;
     }
+
 }
