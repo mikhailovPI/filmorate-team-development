@@ -22,13 +22,13 @@ public class InMemoryUserStorage implements UserStorage {
         if (users.containsKey(user.getId())) {
             throw new ValidationException("Такой пользователь уже существует.");
         } else {
-            if (user.getName().isEmpty() || user.getName().isBlank()) {
-                log.debug("Имя не указано. В качестве имени используется логин: " + user.getLogin() + ".");
+            if (user.getName().isBlank()) {
+                log.debug("Имя не указано. В качестве имени используется логин.");
                 user.setName(user.getLogin());
             }
             user.setId(++id);
             users.put(user.getId(), user);
-            log.info("Создали пользователя: " + user.toString() + ".");
+            log.info("Создали пользователя: {}.", user);
             return user;
         }
     }
@@ -37,7 +37,7 @@ public class InMemoryUserStorage implements UserStorage {
     public User updateUser(User user) {
         if (users.containsKey(user.getId())) {
             users.put(user.getId(), user);
-            log.info("Обновили пользователя: " + user.toString() + ".");
+            log.info("Обновили пользователя: {}.", user);
             return user;
         } else {
             log.error("Id пользователя не найдено.");
@@ -50,7 +50,8 @@ public class InMemoryUserStorage implements UserStorage {
         if (users.containsKey(user.getId())) {
             throw new ValidationException("Такой пользователь уже существует.");
         } else {
-            log.info("Удалили фильм: " + user.toString() + ".");
+            log.info("Удалили пользователя: {}.", user);
+
             users.remove(user.getId());
         }
     }
@@ -61,7 +62,7 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public User getUserId(Long id) {
+    public User getUserById(Long id) {
         return users.get(id);
     }
 }

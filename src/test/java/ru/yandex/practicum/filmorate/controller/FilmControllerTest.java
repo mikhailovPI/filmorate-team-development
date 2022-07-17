@@ -4,7 +4,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
@@ -21,10 +20,9 @@ class FilmControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
-
     @Test
     @DisplayName("Вызов метода GET: получение всех фильмов")
-    void getFilmTest() throws Exception {
+    void getFilm() throws Exception {
 
         MvcResult mvcResult = mockMvc.perform(get("/films"))
                 .andExpect(status().isOk())
@@ -39,7 +37,7 @@ class FilmControllerTest {
 
     @Test
     @DisplayName("Создание фильмов")
-    void creatFilmTest() throws Exception {
+    void creatFilm() throws Exception {
 
         mockMvc.perform((post("/films"))
                         .contentType(MediaType.APPLICATION_JSON)
@@ -64,7 +62,7 @@ class FilmControllerTest {
 
     @Test
     @DisplayName("Обновление фильма")
-    void updateFilmTest() throws Exception {
+    void updateFilm() throws Exception {
         MvcResult mvcResult = mockMvc.perform((put("/films"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\n" +
@@ -84,7 +82,7 @@ class FilmControllerTest {
 
     @Test
     @DisplayName("Обновление фильма с неверным id")
-    void updateFilmNotWithoutIdTest() throws Exception {
+    void updateFilmNotWithoutId() throws Exception {
         mockMvc.perform((put("/films"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\n" +
@@ -102,7 +100,7 @@ class FilmControllerTest {
 
     @Test
     @DisplayName("Создание фильма без имени")
-    void createFilmNotNameTest() throws Exception {
+    void createFilmNotName() throws Exception {
         mockMvc.perform((post("/films"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\n" +
@@ -116,7 +114,7 @@ class FilmControllerTest {
 
     @Test
     @DisplayName("Создание фильма без описания")
-    void createFilmNotDescriptionTest() throws Exception {
+    void createFilmNotDescription() throws Exception {
         mockMvc.perform((post("/films"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\n" +
@@ -130,7 +128,7 @@ class FilmControllerTest {
 
     @Test
     @DisplayName("Создание фильма с описанием более 200 символов")
-    void createFilmMaxSymbolDescriptionTest() throws Exception {
+    void createFilmMaxSymbolDescription() throws Exception {
         mockMvc.perform((post("/films"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\n" +
@@ -152,7 +150,7 @@ class FilmControllerTest {
 
     @Test
     @DisplayName("Создание пользователя без даты релиза")
-    void createFilmNotReleaseDateTest() throws Exception {
+    void createFilmNotReleaseDate() throws Exception {
         mockMvc.perform((post("/films"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\n" +
@@ -166,7 +164,7 @@ class FilmControllerTest {
 
     @Test
     @DisplayName("Создание фильма с неверной датой релиза")
-    void createFilmOldReleaseDateTest() throws Exception {
+    void createFilmOldReleaseDate() throws Exception {
         mockMvc.perform((post("/films"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\n" +
@@ -182,7 +180,7 @@ class FilmControllerTest {
 
     @Test
     @DisplayName("Создание фильма без продолжительности")
-    void createFilmNotDurationTest() throws Exception {
+    void createFilmNotDuration() throws Exception {
         mockMvc.perform((post("/films"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\n" +
@@ -196,7 +194,7 @@ class FilmControllerTest {
 
     @Test
     @DisplayName("Создание фильма с нулевой продолжительностью")
-    void createFilmZeroDurationTest() throws Exception {
+    void createFilmZeroDuration() throws Exception {
         mockMvc.perform((post("/films"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\n" +
@@ -207,5 +205,4 @@ class FilmControllerTest {
                                 "}"))
                 .andExpect(status().isBadRequest());
     }
-
 }

@@ -14,5 +14,5 @@ public interface UserStorage {
 
     public List<User> getUser();
 
-    public User getUserId(Long id);
+    public User getUserById(Long id);
 }

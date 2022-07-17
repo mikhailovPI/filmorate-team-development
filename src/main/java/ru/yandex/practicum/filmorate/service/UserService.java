@@ -1,10 +1,9 @@
 package ru.yandex.practicum.filmorate.service;
 
-import com.sun.source.doctree.SeeTree;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
@@ -26,11 +25,8 @@ public class UserService {
         return userStorage.getUser();
     }
 
-    public User getUserId(Long userId) {
-        if (userId<0) {
-            throw new NotFoundException("Введен не верный id = " + userId);
-        }
-        return userStorage.getUserId(userId);
+    public User getUserById(Long userId) {
+        return userStorage.getUserById(userId);
     }
 
     public User createUser(User user) throws ValidationException {
@@ -41,43 +37,46 @@ public class UserService {
     }
 
     public User updateUser(User user) throws ValidationException {
-        if (userStorage.getUserId(user.getId()) == null) {
+        if (userStorage.getUserById(user.getId()) == null) {
             throw new NotFoundException("Пользователь не найден для обновления.");
         }
         return userStorage.updateUser(user);
     }
 
     public void removeUser(User user) throws ValidationException {
-        if (userStorage.getUserId(user.getId()) == null) {
+        if (userStorage.getUserById(user.getId()) == null) {
             throw new NotFoundException("Пользователь не найден для удаления.");
         }
         userStorage.deleteUser(user);
     }
 
-    public void addFriends(User user1, User user2) {
-        if (!userStorage.getUser().contains(user1) || !userStorage.getUser().contains(user2)) {
+    public void addFriends(Long id, Long friendId) {
+        if (!userStorage.getUser().contains(getUserById(id)) ||
+                !userStorage.getUser().contains(getUserById(friendId))) {
             throw new NotFoundException("Пользователя не добавить в друзья, т.к. его не существует.");
         }
-        user1.getFriends().add(user2.getId());
-        user2.getFriends().add(user1.getId());
+        getUserById(id).getFriends().add(id);
+        getUserById(friendId).getFriends().add(friendId);
     }
 
-    public void removeFriends(User user1, User user2) {
-        if (!userStorage.getUser().contains(user1) || !userStorage.getUser().contains(user2)) {
+    public void removeFriends(Long id, Long friendId) {
+        if (!userStorage.getUser().contains(getUserById(id)) ||
+                !userStorage.getUser().contains(getUserById(friendId))) {
             throw new NotFoundException("Пользователя не удалить из друзьей, т.к. его не существует.");
         }
-        user1.getFriends().remove(user2.getId());
-        user2.getFriends().remove(user1.getId());
+        getUserById(id).getFriends().remove(id);
+        getUserById(friendId).getFriends().remove(friendId);
     }
 
-    public List<User> getCommonFriends(User user1, User user2) {
-        Set<Long> userFriends1 = user1.getFriends();
-        Set<Long> userFriends2 = user2.getFriends();
+    public List<User> getCommonFriends(Long id, Long otherId) {
+        Set<Long> userFriends1 = userStorage.getUserById(id).getFriends();
+        Set<Long> userFriends2 = userStorage.getUserById(otherId).getFriends();
         List<User> commonFriends = new ArrayList<>();
+
         for (Long id1 : userFriends1) {
             for (Long id2 : userFriends2) {
                 if (id1.equals(id2)) {
-                    commonFriends.add(userStorage.getUserId(id1));
+                    commonFriends.add(userStorage.getUserById(id1));
                 }
             }
         }
@@ -86,8 +85,9 @@ public class UserService {
 
     public List<User> getListFriends(Long id) {
         List<User> userFriendsList = new ArrayList<>();
-        for (Long idi: userStorage.getUserId(id).getFriends()) {
-            userFriendsList.add(userStorage.getUserId(idi));
+
+        for (Long id1 : userStorage.getUserById(id).getFriends()) {
+            userFriendsList.add(userStorage.getUserById(id1));
         }
         return userFriendsList;
     }
