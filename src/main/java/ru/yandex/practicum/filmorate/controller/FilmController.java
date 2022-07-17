@@ -29,7 +29,7 @@ public class FilmController {
     }
 
     @GetMapping("/films/{filmId}")
-    public Film getFilmById(@PathVariable(value = "filmId") @Min(1) Long filmId) {
+    public Film getFilmById(@PathVariable @Min(1) Long filmId) {
         return filmService.getFilmById(filmId);
     }
 
@@ -50,16 +50,16 @@ public class FilmController {
 
     @PutMapping(value = "/films/{id}/like/{userId}")
     public Integer putLikeFilm(
-            @PathVariable("id") @Min(1) Long filmId,
-            @PathVariable("userId") @Min(1) Long userId) {
-        return filmService.putLike(filmService.getFilmById(filmId).getId(), userId);
+            @PathVariable @Min(1) Long id,
+            @PathVariable @Min(1) Long userId) {
+        return filmService.putLike(id, userId);
     }
 
     @DeleteMapping(value = "/films/{id}/like/{userId}")
     public Integer removeLike(
-            @PathVariable("id") @Min(1) Long filmId,
-            @PathVariable("userId") @Min(1) Long userId) {
-        return filmService.removeLike(filmService.getFilmById(filmId).getId(), userId);
+            @PathVariable @Min(1) Long id,
+            @PathVariable @Min(1) Long userId) {
+        return filmService.removeLike(filmService.getFilmById(id).getId(), userId);
     }
 
     @GetMapping(value = "/films/popular")

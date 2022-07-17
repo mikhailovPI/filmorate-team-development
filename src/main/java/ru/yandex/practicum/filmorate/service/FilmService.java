@@ -52,19 +52,22 @@ public class FilmService {
         filmStorage.deleteFilm(film);
     }
 
-    public Integer putLike(Long idFilm, Long id) {
-        if (filmStorage.getFilmById(idFilm).getLike().contains(id)) {
-            throw new ValidationException("Пользователь " + userStorage.getUserById(id) + " уже оценивал этот фильм.");
+    public Integer putLike(Long idFilm, Long idUser) {
+        if (filmStorage.getFilmById(idFilm).getLike().contains(idUser)) {
+            throw new ValidationException("Пользователь " + userStorage.getUserById(idUser) +
+                    " уже оценивал этот фильм.");
         }
-        filmStorage.getFilmById(idFilm).getLike().add(id);
+        filmStorage.getFilmById(idFilm).getLike().add(idUser);
         return filmStorage.getFilmById(idFilm).getLike().size();
     }
 
-    public Integer removeLike(Long idFilm, Long id) {
-        if (!filmStorage.getFilmById(idFilm).getLike().contains(id)) {
-            throw new ValidationException("Пользователь " + userStorage.getUserById(id) + " не оценивал этот фильм.");
+    public Integer removeLike(Long idFilm, Long idUser) {
+        if (!filmStorage.getFilmById(idFilm).getLike().contains(idUser)) {
+            throw new ValidationException("Пользователь " + userStorage.getUserById(idUser) +
+                    " не оценивал этот фильм.");
         }
-        filmStorage.getFilmById(idFilm).getLike().remove(id);
+        filmStorage.getFilmById(idFilm).getLike().remove(idUser);
+
         return filmStorage.getFilmById(idFilm).getLike().size();
     }
 

@@ -28,12 +28,9 @@ class UserControllerTest {
                 .andReturn();
 
         String response = "[{\"id\":1,\"email\":\"mail_mail3@mail.ru\",\"login\":\"login3\"," +
-                "\"name\":\"name3\",\"birthday\":\"2002-03-24\",\"friends\":[]}," +
-                "{\"id\":2,\"email\":\"mail_mail2@mail.ru\",\"login\":\"login2\",\"name\":\"Name name2\"," +
-                "\"birthday\":\"2002-02-24\",\"friends\":[]},{\"id\":3,\"email\":\"mail_mail@mail.ru\"," +
-                "\"login\":\"login1\",\"name\":\"Name name\",\"birthday\":\"2002-12-24\",\"friends\":[]}," +
-                "{\"id\":4,\"email\":\"mail_mail2@mail.ru\",\"login\":\"login2\",\"name\":\"Name name2\"," +
-                "\"birthday\":\"2002-02-24\",\"friends\":[]}]";
+                "\"name\":\"name3\",\"birthday\":\"2002-03-24\",\"friends\":[]},{\"id\":2," +
+                "\"email\":\"mail_mail@mail.ru\",\"login\":\"login\",\"name\":\"login\"," +
+                "\"birthday\":\"2002-10-24\",\"friends\":[]}]";
 
         assertEquals(response, mvcResult.getResponse().getContentAsString());
     }

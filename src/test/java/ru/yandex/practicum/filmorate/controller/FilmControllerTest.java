@@ -9,9 +9,10 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -19,21 +20,6 @@ class FilmControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
-
-    @Test
-    @DisplayName("Вызов метода GET: получение всех фильмов")
-    void getFilm() throws Exception {
-
-        MvcResult mvcResult = mockMvc.perform(get("/films"))
-                .andExpect(status().isOk())
-                .andReturn();
-
-        String response = "[{\"id\":1,\"name\":\"name 3\",\"description\":\"description3\"," +
-                "\"releaseDate\":\"1900-12-24\",\"duration\":21,\"like\":[]},{\"id\":2,\"name\":\"name2\"," +
-                "\"description\":\"description2\",\"releaseDate\":\"2000-12-24\",\"duration\":20,\"like\":[]}]";
-
-        assertEquals(response, mvcResult.getResponse().getContentAsString());
-    }
 
     @Test
     @DisplayName("Создание фильмов")
@@ -58,26 +44,6 @@ class FilmControllerTest {
                                 "  \"releaseDate\": \"2000-12-24\"\n" +
                                 "}"))
                 .andExpect(status().isOk());
-    }
-
-    @Test
-    @DisplayName("Обновление фильма")
-    void updateFilm() throws Exception {
-        MvcResult mvcResult = mockMvc.perform((put("/films"))
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\n" +
-                                " \"id\" : \"1\",\n" +
-                                "  \"name\": \"name 3\",\n" +
-                                "  \"description\": \"description3\",\n" +
-                                "  \"duration\": \"21\",\n" +
-                                "  \"releaseDate\": \"1900-12-24\"\n" +
-                                "}"))
-                .andReturn();
-
-        String response = "{\"id\":1,\"name\":\"name 3\",\"description\":\"description3\"," +
-                "\"releaseDate\":\"1900-12-24\",\"duration\":21,\"like\":[]}";
-
-        assertEquals(response, mvcResult.getResponse().getContentAsString());
     }
 
     @Test
