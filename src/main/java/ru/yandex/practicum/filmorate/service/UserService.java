@@ -2,7 +2,7 @@ package ru.yandex.practicum.filmorate.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
@@ -31,21 +31,21 @@ public class UserService {
 
     public User createUser(User user) throws ValidationException {
         if (user == null) {
-            throw new NotFoundException("Передан пустой пользователь.");
+            throw new EntityNotFoundException("Передан пустой пользователь.");
         }
         return userStorage.createUser(user);
     }
 
     public User updateUser(User user) throws ValidationException {
         if (userStorage.getUserById(user.getId()) == null) {
-            throw new NotFoundException("Пользователь не найден для обновления.");
+            throw new EntityNotFoundException("Пользователь не найден для обновления.");
         }
         return userStorage.updateUser(user);
     }
 
     public void removeUser(User user) throws ValidationException {
         if (userStorage.getUserById(user.getId()) == null) {
-            throw new NotFoundException("Пользователь не найден для удаления.");
+            throw new EntityNotFoundException("Пользователь не найден для удаления.");
         }
         userStorage.deleteUser(user);
     }
@@ -53,7 +53,7 @@ public class UserService {
     public void addFriends(Long id, Long friendId) {
         if (!userStorage.getUser().contains(getUserById(id)) ||
                 !userStorage.getUser().contains(getUserById(friendId))) {
-            throw new NotFoundException("Пользователя не добавить в друзья, т.к. его не существует.");
+            throw new EntityNotFoundException("Пользователя не добавить в друзья, т.к. его не существует.");
         }
         getUserById(id).getFriends().add(friendId);
         getUserById(friendId).getFriends().add(id);
@@ -62,7 +62,7 @@ public class UserService {
     public void removeFriends(Long id, Long friendId) {
         if (!userStorage.getUser().contains(getUserById(id)) ||
                 !userStorage.getUser().contains(getUserById(friendId))) {
-            throw new NotFoundException("Пользователя не удалить из друзьей, т.к. его не существует.");
+            throw new EntityNotFoundException("Пользователя не удалить из друзьей, т.к. его не существует.");
         }
         getUserById(id).getFriends().remove(friendId);
         getUserById(friendId).getFriends().remove(id);

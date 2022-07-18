@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.storage.film;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 
@@ -17,7 +18,7 @@ public class InMemoryFilmStorage implements FilmStorage {
 
     private long id = 0;
     private static final LocalDate DATE_RELEASE = LocalDate.of(1895, 12, 28);
-    private Map<Long, Film> films = new HashMap<>();
+    private final Map<Long, Film> films = new HashMap<>();
 
     @Override
     public Film createFilm(Film film) {
@@ -41,14 +42,14 @@ public class InMemoryFilmStorage implements FilmStorage {
             return film;
         } else {
             log.error("Id фильма не найден.");
-            throw new ValidationException("Id фильма не найден.");
+            throw new EntityNotFoundException("Id фильма не найден.");
         }
     }
 
     @Override
     public void deleteFilm(Film film) {
-        if (films.containsKey(film.getId())) {
-            throw new ValidationException("Фильм: " + film.getName() + " уже существует.");
+        if (!films.containsKey(film.getId())) {
+            throw new EntityNotFoundException ("Фильм: " + film.getName() + " не существует.");
         } else {
             log.info("Удалили фильм: {}.", film);
             films.remove(film.getId());
