@@ -7,6 +7,7 @@ import org.hibernate.validator.constraints.Length;
 import javax.validation.constraints.*;
 import java.time.LocalDate;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Data
@@ -32,4 +33,9 @@ public class Film {
 
     private final Set<Long> like = new HashSet<>();
 
+    @NotNull(message = "Необходимо указать возрастное ограничение фильма.")
+    private String mpa;
+
+    @NotNull(message = "Необходимо указать жанр фильма.")
+    private List<String> genreFilm;
 }
