@@ -1,13 +1,18 @@
 package ru.yandex.practicum.filmorate.model;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.*;
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 @Data
+@AllArgsConstructor
 public class Film {
+
     private long id;
 
     @NotNull(message = "Необходимо указать название фильма.")
@@ -24,4 +29,7 @@ public class Film {
 
     @Min(1)
     private long duration;
+
+    private final Set<Long> like = new HashSet<>();
+
 }

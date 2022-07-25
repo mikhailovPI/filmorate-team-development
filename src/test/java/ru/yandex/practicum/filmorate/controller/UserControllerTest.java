@@ -2,7 +2,8 @@ package ru.yandex.practicum.filmorate.controller;
 
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -11,35 +12,32 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-
-@WebMvcTest(controllers = UserController.class)
+@SpringBootTest
+@AutoConfigureMockMvc
 class UserControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
 
-
     @Test
     @DisplayName("Вызов метода GET: получение всех пользователей")
-    void getUserTest() throws Exception {
+    void getUser() throws Exception {
 
         MvcResult mvcResult = mockMvc.perform(get("/users"))
                 .andExpect(status().isOk())
                 .andReturn();
 
         String response = "[{\"id\":1,\"email\":\"mail_mail3@mail.ru\",\"login\":\"login3\"," +
-                "\"name\":\"name3\",\"birthday\":\"2002-03-24\"}," +
-                "{\"id\":2,\"email\":\"mail_mail@mail.ru\",\"login\":\"login1\",\"name\":\"Name name\"," +
-                "\"birthday\":\"2002-12-24\"}," +
-                "{\"id\":3,\"email\":\"mail_mail2@mail.ru\",\"login\":\"login2\",\"name\":\"Name name2\"," +
-                "\"birthday\":\"2002-02-24\"}]";
+                "\"name\":\"name3\",\"birthday\":\"2002-03-24\",\"friends\":[]},{\"id\":2," +
+                "\"email\":\"mail_mail@mail.ru\",\"login\":\"login\",\"name\":\"login\"," +
+                "\"birthday\":\"2002-10-24\",\"friends\":[]}]";
 
         assertEquals(response, mvcResult.getResponse().getContentAsString());
     }
 
     @Test
     @DisplayName("Создание пользователя")
-    void createUserTest() throws Exception {
+    void createUser() throws Exception {
 
         mockMvc.perform((post("/users"))
                         .contentType(MediaType.APPLICATION_JSON)
@@ -64,7 +62,7 @@ class UserControllerTest {
 
     @Test
     @DisplayName("Обновление пользователя")
-    void updateUserTest() throws Exception {
+    void updateUser() throws Exception {
 
         mockMvc.perform((post("/users"))
                         .contentType(MediaType.APPLICATION_JSON)
@@ -88,14 +86,14 @@ class UserControllerTest {
                 .andReturn();
 
         String response = "{\"id\":1,\"email\":\"mail_mail3@mail.ru\",\"login\":\"login3\"," +
-                "\"name\":\"name3\",\"birthday\":\"2002-03-24\"}";
+                "\"name\":\"name3\",\"birthday\":\"2002-03-24\",\"friends\":[]}";
 
         assertEquals(response, mvcResult.getResponse().getContentAsString());
     }
 
     @Test
     @DisplayName("Обновление пользователя с неверным id")
-    void updateUserNotValidIdTest() throws Exception {
+    void updateUserNotValidId() throws Exception {
 
         mockMvc.perform((put("/users"))
                         .contentType(MediaType.APPLICATION_JSON)
@@ -106,14 +104,14 @@ class UserControllerTest {
                                 " \"email\": \"mail_mail3@mail.ru\",\n" +
                                 " \"birthday\": \"2002-03-24\"\n" +
                                 "}"))
-                .andExpect(result -> assertEquals("Id пользователя не найдено.",
+                .andExpect(result -> assertEquals("Пользователь не найден для обновления.",
                         result.getResolvedException().getMessage()))
-                .andExpect(status().isInternalServerError());
+                .andExpect(status().isNotFound());
     }
 
     @Test
     @DisplayName("Создание пользователя без логина")
-    void createUserWithoutLoginTest() throws Exception {
+    void createUserWithoutLogin() throws Exception {
         mockMvc.perform((post("/users"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\n" +
@@ -122,12 +120,12 @@ class UserControllerTest {
                                 "  \"email\": \"mail_mail2@mail.ru\",\n" +
                                 "  \"birthday\": \"2002-02-24\"\n" +
                                 "}"))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isInternalServerError());
     }
 
     @Test
     @DisplayName("Создание пользователя с пробелом в логине")
-    void createUserWithSpaceInTheLoginTest() throws Exception {
+    void createUserWithSpaceInTheLogin() throws Exception {
         mockMvc.perform((post("/users"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\n" +
@@ -141,7 +139,7 @@ class UserControllerTest {
 
     @Test
     @DisplayName("Создание пользователя с символом в логине")
-    void createUserWithSymbolInLoginTest() throws Exception {
+    void createUserWithSymbolInLogin() throws Exception {
         mockMvc.perform((post("/users"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\n" +
@@ -155,7 +153,7 @@ class UserControllerTest {
 
     @Test
     @DisplayName("Создание пользователя без имени")
-    void createUserWithoutNameTest() throws Exception {
+    void createUserWithoutName() throws Exception {
         mockMvc.perform((post("/users")).contentType(MediaType.APPLICATION_JSON)
                         .content("{\n" +
                                 " \"login\": \"login\",\n" +
@@ -168,7 +166,7 @@ class UserControllerTest {
 
     @Test
     @DisplayName("Создание пользователя без email")
-    void createUserNotEmailTest() throws Exception {
+    void createUserNotEmail() throws Exception {
         mockMvc.perform((post("/users"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\n" +
@@ -177,12 +175,12 @@ class UserControllerTest {
                                 " \"email\": ,\n" +
                                 " \"birthday\": \"2002-10-24\"\n" +
                                 "}"))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isInternalServerError());
     }
 
     @Test
     @DisplayName("Создание пользователя с некорректным email")
-    void createUserNotValidEmailTest() throws Exception {
+    void createUserNotValidEmail() throws Exception {
         mockMvc.perform((post("/users"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\n" +
@@ -196,7 +194,7 @@ class UserControllerTest {
 
     @Test
     @DisplayName("Создание пользователя без указанного дня рождения")
-    void createUserNotBirthdayTest() throws Exception {
+    void createUserNotBirthday() throws Exception {
         mockMvc.perform((post("/users"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\n" +
@@ -205,12 +203,12 @@ class UserControllerTest {
                                 " \"email\": \"mail_mail@mail.ru\",\n" +
                                 " \"birthday\": \n" +
                                 "}"))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isInternalServerError());
     }
 
     @Test
     @DisplayName("Создание пользователя c неверной датой рождения")
-    void createUserWithAnIncorrectBirthdayTest() throws Exception {
+    void createUserWithAnIncorrectBirthday() throws Exception {
         mockMvc.perform((post("/users"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\n" +
