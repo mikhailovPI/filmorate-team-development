@@ -38,4 +38,5 @@ public class Film {
 
     @NotNull(message = "Необходимо указать жанр фильма.")
     private List<String> genreFilm;
+
 }
