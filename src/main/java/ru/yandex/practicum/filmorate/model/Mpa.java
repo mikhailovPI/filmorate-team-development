@@ -8,10 +8,11 @@ import javax.validation.constraints.NotBlank;
 
 @Data
 @AllArgsConstructor
-@EqualsAndHashCode(of = "id")
+@EqualsAndHashCode(of = "mpaId")
 public class Mpa {
 
     private final Integer mpaId;
+
     @NotBlank(message = "Возрастное ограничение не может быть пустым.")
     private final String mpaName;
 }

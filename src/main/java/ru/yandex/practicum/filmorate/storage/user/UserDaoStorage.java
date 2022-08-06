@@ -6,13 +6,16 @@ import java.util.List;
 
 public interface UserDaoStorage {
 
-    public User createUser(User user);
+    User getUserById(Long id);
 
-    public User updateUser(User user);
+    List<User> getAllUser();
 
-    public void deleteUser(User user);
+    User createUser(User user);
 
-    public List<User> getAllUser();
+    User updateUser(User user);
 
-    public User getUserById(Long id);
+    void deleteUser(User user);
+
+    User saveUser(User user);
+
 }

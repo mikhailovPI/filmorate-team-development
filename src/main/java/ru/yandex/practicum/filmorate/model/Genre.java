@@ -6,9 +6,10 @@ import lombok.EqualsAndHashCode;
 
 @Data
 @AllArgsConstructor
-@EqualsAndHashCode(of = "id")
+@EqualsAndHashCode(of = "genreId")
 public class Genre {
 
     private final Integer genreId;
+
     private final String genreName;
 }

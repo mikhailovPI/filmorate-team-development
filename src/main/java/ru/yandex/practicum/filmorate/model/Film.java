@@ -13,7 +13,7 @@ import java.util.Set;
 
 @Data
 @AllArgsConstructor
-@EqualsAndHashCode(of = "id")
+@EqualsAndHashCode(of = "filmId")
 public class Film {
 
     private Long filmId;
@@ -35,10 +35,13 @@ public class Film {
 
     private final Set<Long> like = new HashSet<>();
 
+    @NotNull(message = "Необходимо указать жанр фильма.")
+    private List<Genre> genreFilm;
+
+
     @NotNull(message = "Необходимо указать возрастное ограничение фильма.")
     private Mpa mpa;
 
-    @NotNull(message = "Необходимо указать жанр фильма.")
-    private List<Genre> genreFilm;
+
 
 }

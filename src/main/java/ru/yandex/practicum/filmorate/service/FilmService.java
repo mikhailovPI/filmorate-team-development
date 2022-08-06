@@ -24,7 +24,7 @@ public class FilmService {
     }
 
     public List<Film> getFilm() {
-        return filmDaoStorage.getFilms();
+        return filmDaoStorage.getAllFilms();
     }
 
     public Film getFilmById(Long filmId) {
@@ -72,7 +72,7 @@ public class FilmService {
     }
 
     public List<Film> getTopLikeFilm(Integer count) {
-        return filmDaoStorage.getFilms().stream().sorted((p0, p1) ->
+        return filmDaoStorage.getAllFilms().stream().sorted((p0, p1) ->
                         p1.getLike().size() - (p0.getLike().size())).
                 limit(count).collect(Collectors.toList());
     }

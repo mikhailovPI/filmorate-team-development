@@ -7,14 +7,19 @@ import java.util.List;
 
 public interface FilmDaoStorage {
 
-    public Film createFilm(Film film);
-
-    public Film updateFilm(Film film);
-
-    public void deleteFilm(Film film);
-
-    public List<Film> getFilms();
-
     Film getFilmById(Long filmId);
+
+    List<Film> getAllFilms();
+
+    Film createFilm(Film film);
+
+    Film updateFilm(Film film);
+
+    void deleteFilm(Film film);
+    Film saveFilm (Film film);
+
+
+
+
 }
 

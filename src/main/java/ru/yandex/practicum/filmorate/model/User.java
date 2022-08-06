@@ -12,7 +12,7 @@ import java.util.Set;
 
 @Data
 @AllArgsConstructor
-@EqualsAndHashCode(of = "id")
+@EqualsAndHashCode(of = "userId")
 public class User {
 
     private Long userId;
@@ -33,7 +33,7 @@ public class User {
     @PastOrPresent(message = "Дата рождения не должна быть больше текущей.")
     private LocalDate birthday;
 
-    private final Set<Long> friends = new HashSet<>();
+    //private final Set<Long> friends = new HashSet<>();
 
-    private Map<User, Boolean> friendStatus;
+    //private Map<User, Boolean> friendStatus;
 }
