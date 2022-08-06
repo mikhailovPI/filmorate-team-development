@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.*;
@@ -12,13 +13,14 @@ import java.util.Set;
 
 @Data
 @AllArgsConstructor
+@EqualsAndHashCode(of = "id")
 public class Film {
 
-    private long id;
+    private Long filmId;
 
     @NotNull(message = "Необходимо указать название фильма.")
     @NotBlank(message = "Название фильма не может быть пустым.")
-    private String name;
+    private String filmName;
 
     @NotNull(message = "Необходимо указать описание фильма.")
     @NotBlank(message = "Описание фильма не может быть пустым.")
@@ -29,14 +31,14 @@ public class Film {
     private LocalDate releaseDate;
 
     @Min(1)
-    private long duration;
+    private Long duration;
 
     private final Set<Long> like = new HashSet<>();
 
     @NotNull(message = "Необходимо указать возрастное ограничение фильма.")
-    private String mpa;
+    private Mpa mpa;
 
     @NotNull(message = "Необходимо указать жанр фильма.")
-    private List<String> genreFilm;
+    private List<Genre> genreFilm;
 
 }

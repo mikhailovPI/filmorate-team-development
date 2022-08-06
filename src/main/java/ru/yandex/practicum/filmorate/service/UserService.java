@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.user.UserStorage;
+import ru.yandex.practicum.filmorate.storage.user.UserDaoStorage;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,45 +14,45 @@ import java.util.Set;
 @Service
 public class UserService {
 
-    private UserStorage userStorage;
+    private UserDaoStorage userDaoStorage;
 
     @Autowired
-    public UserService(UserStorage userStorage) {
-        this.userStorage = userStorage;
+    public UserService(UserDaoStorage userDaoStorage) {
+        this.userDaoStorage = userDaoStorage;
     }
 
-    public List<User> getUser() {
-        return userStorage.getUser();
+    public List<User> getAllUser() {
+        return userDaoStorage.getAllUser();
     }
 
     public User getUserById(Long userId) {
-        return userStorage.getUserById(userId);
+        return userDaoStorage.getUserById(userId);
     }
 
     public User createUser(User user) throws ValidationException {
         if (user == null) {
             throw new EntityNotFoundException("Передан пустой пользователь.");
         }
-        return userStorage.createUser(user);
+        return userDaoStorage.createUser(user);
     }
 
     public User updateUser(User user) throws ValidationException {
-        if (userStorage.getUserById(user.getId()) == null) {
+        if (userDaoStorage.getUserById(user.getUserId()) == null) {
             throw new EntityNotFoundException("Пользователь не найден для обновления.");
         }
-        return userStorage.updateUser(user);
+        return userDaoStorage.updateUser(user);
     }
 
     public void removeUser(User user) throws ValidationException {
-        if (userStorage.getUserById(user.getId()) == null) {
+        if (userDaoStorage.getUserById(user.getUserId()) == null) {
             throw new EntityNotFoundException("Пользователь не найден для удаления.");
         }
-        userStorage.deleteUser(user);
+        userDaoStorage.deleteUser(user);
     }
 
     public void addFriends(Long id, Long friendId) {
-        if (!userStorage.getUser().contains(getUserById(id)) ||
-                !userStorage.getUser().contains(getUserById(friendId))) {
+        if (!userDaoStorage.getAllUser().contains(getUserById(id)) ||
+                !userDaoStorage.getAllUser().contains(getUserById(friendId))) {
             throw new EntityNotFoundException("Пользователя не добавить в друзья, т.к. его не существует.");
         }
         getUserById(id).getFriends().add(friendId);
@@ -60,8 +60,8 @@ public class UserService {
     }
 
     public void removeFriends(Long id, Long friendId) {
-        if (!userStorage.getUser().contains(getUserById(id)) ||
-                !userStorage.getUser().contains(getUserById(friendId))) {
+        if (!userDaoStorage.getAllUser().contains(getUserById(id)) ||
+                !userDaoStorage.getAllUser().contains(getUserById(friendId))) {
             throw new EntityNotFoundException("Пользователя не удалить из друзьей, т.к. его не существует.");
         }
         getUserById(id).getFriends().remove(friendId);
@@ -69,14 +69,14 @@ public class UserService {
     }
 
     public List<User> getCommonFriends(Long id, Long otherId) {
-        Set<Long> userFriends1 = userStorage.getUserById(id).getFriends();
-        Set<Long> userFriends2 = userStorage.getUserById(otherId).getFriends();
+        Set<Long> userFriends1 = userDaoStorage.getUserById(id).getFriends();
+        Set<Long> userFriends2 = userDaoStorage.getUserById(otherId).getFriends();
         List<User> commonFriends = new ArrayList<>();
 
         for (Long id1 : userFriends1) {
             for (Long id2 : userFriends2) {
                 if (id1.equals(id2)) {
-                    commonFriends.add(userStorage.getUserById(id1));
+                    commonFriends.add(userDaoStorage.getUserById(id1));
                 }
             }
         }
@@ -86,10 +86,9 @@ public class UserService {
     public List<User> getListFriends(Long id) {
         List<User> userFriendsList = new ArrayList<>();
 
-        for (Long id1 : userStorage.getUserById(id).getFriends()) {
-            userFriendsList.add(userStorage.getUserById(id1));
+        for (Long id1 : userDaoStorage.getUserById(id).getFriends()) {
+            userFriendsList.add(userDaoStorage.getUserById(id1));
         }
         return userFriendsList;
     }
-
 }
