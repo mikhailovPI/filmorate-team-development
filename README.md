@@ -20,7 +20,7 @@
 
 Данные будут храниться в БД. Схема БД представлена ниже.
 https://drawsql.app/yandex-7/diagrams/filmorate/embed
-![This is an image](https://drawsql.app/yandex-7/diagrams/filmorate/embed)
+![This is an image](E:\Yandex\Project_practicum\java-filmorate\java-filmorate\filmorate)
 
 Примеры Endpoint запросов (программа написана на Java):
 
