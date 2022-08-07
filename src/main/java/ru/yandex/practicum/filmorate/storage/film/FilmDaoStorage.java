@@ -17,9 +17,5 @@ public interface FilmDaoStorage {
 
     void deleteFilm(Film film);
     Film saveFilm (Film film);
-
-
-
-
 }
 

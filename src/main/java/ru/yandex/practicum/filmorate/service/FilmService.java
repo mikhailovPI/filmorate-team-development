@@ -6,21 +6,24 @@ import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.film.FilmDaoStorage;
+import ru.yandex.practicum.filmorate.storage.mpa.MpaDaoStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserDaoStorage;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class FilmService {
 
     private final FilmDaoStorage filmDaoStorage;
     private final UserDaoStorage userDaoStorage;
+    private final MpaDaoStorage mpaDaoStorage;
+
 
     @Autowired
-    public FilmService(FilmDaoStorage filmDaoStorage, UserDaoStorage userDaoStorage) {
+    public FilmService(FilmDaoStorage filmDaoStorage, UserDaoStorage userDaoStorage, MpaDaoStorage mpaDaoStorage) {
         this.filmDaoStorage = filmDaoStorage;
         this.userDaoStorage = userDaoStorage;
+        this.mpaDaoStorage = mpaDaoStorage;
     }
 
     public List<Film> getFilm() {
@@ -52,7 +55,7 @@ public class FilmService {
         filmDaoStorage.deleteFilm(film);
     }
 
-    public Integer putLike(Long idFilm, Long idUser) {
+/*    public Integer putLike(Long idFilm, Long idUser) {
         if (filmDaoStorage.getFilmById(idFilm).getLike().contains(idUser)) {
             throw new ValidationException("Пользователь " + userDaoStorage.getUserById(idUser) +
                     " уже оценивал этот фильм.");
@@ -75,5 +78,5 @@ public class FilmService {
         return filmDaoStorage.getAllFilms().stream().sorted((p0, p1) ->
                         p1.getLike().size() - (p0.getLike().size())).
                 limit(count).collect(Collectors.toList());
-    }
+    }*/
 }

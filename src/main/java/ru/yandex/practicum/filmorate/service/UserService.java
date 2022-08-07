@@ -50,7 +50,7 @@ public class UserService {
         userDaoStorage.deleteUser(user);
     }
 
-    public void addFriends(Long id, Long friendId) {
+/*    public void addFriends(Long id, Long friendId) {
         if (!userDaoStorage.getAllUser().contains(getUserById(id)) ||
                 !userDaoStorage.getAllUser().contains(getUserById(friendId))) {
             throw new EntityNotFoundException("Пользователя не добавить в друзья, т.к. его не существует.");
@@ -90,5 +90,5 @@ public class UserService {
             userFriendsList.add(userDaoStorage.getUserById(id1));
         }
         return userFriendsList;
-    }
+    }*/
 }

@@ -33,7 +33,6 @@ public class User {
     @PastOrPresent(message = "Дата рождения не должна быть больше текущей.")
     private LocalDate birthday;
 
-    //private final Set<Long> friends = new HashSet<>();
+    //private Map<User, User> friend;
 
-    //private Map<User, Boolean> friendStatus;
 }

@@ -3,12 +3,14 @@ package ru.yandex.practicum.filmorate.storage.user;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
+import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.sql.*;
 import java.time.LocalDate;
 import java.util.List;
 
+@Component
 public class UserDbStorage implements UserDaoStorage {
 
     private final JdbcTemplate jdbcTemplate;
@@ -66,7 +68,7 @@ public class UserDbStorage implements UserDaoStorage {
             PreparedStatement stmt = connection.prepareStatement(sql, new String[]{"USER_ID"});
             stmt.setString(1, user.getUserName());
             stmt.setString(2, user.getLogin());
-            stmt.setString(4, user.getEmail());
+            stmt.setString(3, user.getEmail());
             final LocalDate birthday = user.getBirthday();
             if (birthday == null) {
                 stmt.setNull(4, Types.DATE);
@@ -81,6 +83,7 @@ public class UserDbStorage implements UserDaoStorage {
     private User makeUser (ResultSet rs) throws SQLException {
         return new User(rs.getLong("USER_ID"), rs.getString("USER_NAME"),
                 rs.getString("LOGIN"), rs.getString("EMAIL"),
-                rs.getDate("BIRTHDAY").toLocalDate());
+                rs.getDate("BIRTHDAY").toLocalDate()
+                );
     }
 }
