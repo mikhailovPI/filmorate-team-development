@@ -4,6 +4,8 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
+import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.sql.*;
@@ -20,10 +22,10 @@ public class UserDbStorage implements UserDaoStorage {
     }
 
     @Override
-    public User getUserById(Long userId) {
+    public User getUserById(Long id) {
         String sql = "SELECT * FROM USERS WHERE USER_ID = ?";
-        return jdbcTemplate.query(sql, (rs, rowNum) -> makeUser(rs), userId)
-                .stream().findAny().orElse(null);
+        return jdbcTemplate.query(sql, (rs, rowNum) -> makeUser(rs), id).stream()
+                .findAny().orElse(null);
     }
 
     @Override
@@ -35,28 +37,28 @@ public class UserDbStorage implements UserDaoStorage {
     @Override
     public User createUser(User user) {
         String sql = "SELECT * FROM USERS WHERE USER_ID = ?";
-        return jdbcTemplate.query(sql, (rs, rowNum) -> makeUser(rs), user.getUserId())
-                .stream().findAny().orElse(null);
+        return jdbcTemplate.query(sql, (rs, rowNum) -> makeUser(rs), user.getId()).stream()
+                .findAny().orElse(null);
     }
 
     @Override
     public User updateUser(User user) {
-        if (user.getUserId() == null) {
+        if (user.getId() == null) {
             return null;
         }
         String sql = "UPDATE USERS SET USER_NAME = ?, LOGIN = ?, EMAIL = ?, BIRTHDAY = ? WHERE USER_ID = ?";
-        jdbcTemplate.update(sql, user.getUserName(), user.getLogin(), user.getEmail(), user.getBirthday(),
-                user.getUserId());
+        jdbcTemplate.update(sql, user.getName(), user.getLogin(), user.getEmail(), user.getBirthday(),
+                user.getId());
         return user;
     }
 
     @Override
     public void deleteUser(User user) {
-        if (user.getUserId() == null) {
+        if (user.getId() == null) {
             return;
         }
-        String sql = "DELETE FROM USER WHERE USER_ID = ?";
-        jdbcTemplate.update(sql, user.getUserId());
+        String sql = "DELETE FROM USERS WHERE USER_ID = ?";
+        jdbcTemplate.update(sql, user.getId());
     }
 
     @Override
@@ -66,7 +68,7 @@ public class UserDbStorage implements UserDaoStorage {
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(connection -> {
             PreparedStatement stmt = connection.prepareStatement(sql, new String[]{"USER_ID"});
-            stmt.setString(1, user.getUserName());
+            stmt.setString(1, user.getName());
             stmt.setString(2, user.getLogin());
             stmt.setString(3, user.getEmail());
             final LocalDate birthday = user.getBirthday();
@@ -74,16 +76,25 @@ public class UserDbStorage implements UserDaoStorage {
                 stmt.setNull(4, Types.DATE);
             } else {
                 stmt.setDate(4, Date.valueOf(birthday));
-            } return stmt;
+            }
+            return stmt;
         }, keyHolder);
-        user.setUserId(keyHolder.getKey().longValue());
+        user.setId(keyHolder.getKey().longValue());
         return user;
     }
 
-    private User makeUser (ResultSet rs) throws SQLException {
-        return new User(rs.getLong("USER_ID"), rs.getString("USER_NAME"),
-                rs.getString("LOGIN"), rs.getString("EMAIL"),
-                rs.getDate("BIRTHDAY").toLocalDate()
-                );
+    private User makeUser(ResultSet rs) throws SQLException {
+        return new User(rs.getString("LOGIN"),
+                rs.getString("USER_NAME"),
+                rs.getLong("USER_ID") ,
+                rs.getString("EMAIL"),
+                rs.getDate("BIRTHDAY").toLocalDate());
     }
+
+//    private User makeUser(ResultSet rs) throws SQLException {
+//        return new User(rs.getLong("USER_ID"),
+//                rs.getString("USER_NAME"), rs.getString("LOGIN"),
+//                rs.getString("EMAIL"),
+//                rs.getDate("BIRTHDAY").toLocalDate());
+//    }
 }

@@ -4,12 +4,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.model.Friends;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
 import java.util.List;
+import java.util.Set;
 
 @RestController
 @Slf4j
@@ -47,7 +49,7 @@ public class UserController {
         userService.removeUser(user);
     }
 
-/*    @PutMapping(value = "/users/{id}/friends/{friendId}")
+    @PutMapping(value = "/users/{id}/friends/{friendId}")
     public void addFriends(
             @PathVariable @Min(1) Long id,
             @PathVariable @Min(1) Long friendId) {
@@ -61,16 +63,15 @@ public class UserController {
         userService.removeFriends(id, friendId);
     }
 
-
     @GetMapping(value = "/users/{id}/friends")
     public List<User> getListFriends(@PathVariable @Min(1) Long id) {
         return userService.getListFriends(id);
     }
 
     @GetMapping(value = "/users/{id}/friends/common/{otherId}")
-    public List<User> addCommonListFriends(
+    public List<User> getCommonListFriends(
             @PathVariable @Min(1) Long id,
              @PathVariable @Min(1) Long otherId) {
         return userService.getCommonFriends(id, otherId);
-    }*/
+    }
 }

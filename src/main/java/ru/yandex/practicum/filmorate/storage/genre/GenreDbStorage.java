@@ -17,20 +17,20 @@ public class GenreDbStorage implements GenreDaoStorage {
 
     @Override
     public Genre getGenreById(Integer genreId) {
-        String sql = "SELECT * FROM GENRE WHERE GENRE_ID = ?";
+        String sql = "SELECT * FROM GENRES WHERE GENRE_ID = ?";
         return jdbcTemplate.query(sql, (rs, rowNum) -> makeGenre(rs), genreId)
                 .stream().findAny().orElse(null);
     }
 
     @Override
     public List<Genre> getAllGenre() {
-        String sql = "SELECT * FROM GENRE";
+        String sql = "SELECT * FROM GENRES";
         return jdbcTemplate.query(sql, (rs, rowNum) -> makeGenre(rs));
     }
 
     @Override
     public Genre createGenre(Genre genre) {
-        String sql = "SELECT * FROM GENRE WHERE GENRE_ID = ?";
+        String sql = "SELECT * FROM GENRES WHERE GENRE_ID = ?";
         return jdbcTemplate.query(sql, (rs, rowNum) -> makeGenre(rs), genre.getGenreId())
                 .stream().findAny().orElse(null);
     }
