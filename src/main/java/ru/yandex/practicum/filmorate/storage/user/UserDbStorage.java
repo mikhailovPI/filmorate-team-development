@@ -23,8 +23,12 @@ public class UserDbStorage implements UserDaoStorage {
 
     @Override
     public User getUserById(Long id) {
+        if(id <= 0) {
+            throw new EntityNotFoundException("Неверный id");
+        }
         String sql = "SELECT * FROM USERS WHERE USER_ID = ?";
-        return jdbcTemplate.query(sql, (rs, rowNum) -> makeUser(rs), id).stream()
+        return jdbcTemplate.query(sql, (rs, rowNum) -> makeUser(rs), id)//.get(0);
+                .stream()
                 .findAny().orElse(null);
     }
 
@@ -35,10 +39,12 @@ public class UserDbStorage implements UserDaoStorage {
     }
 
     @Override
-    public User createUser(User user) {
+    public User saveUser(User user) {
         String sql = "SELECT * FROM USERS WHERE USER_ID = ?";
-        return jdbcTemplate.query(sql, (rs, rowNum) -> makeUser(rs), user.getId()).stream()
-                .findAny().orElse(null);
+        List<User> userList = jdbcTemplate.query(sql, (rs, rowNum) -> makeUser(rs), user.getId());
+        return userList.get(0);
+                //.stream()
+//                .findAny().orElse(null);
     }
 
     @Override
@@ -62,7 +68,7 @@ public class UserDbStorage implements UserDaoStorage {
     }
 
     @Override
-    public User saveUser(User user) {
+    public User createUser(User user) {
         String sql = "INSERT INTO USERS (USER_NAME, LOGIN, EMAIL, BIRTHDAY) VALUES (?, ?, ?, ?)";
 
         KeyHolder keyHolder = new GeneratedKeyHolder();

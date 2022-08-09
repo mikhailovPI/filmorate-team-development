@@ -42,14 +42,14 @@ public class FilmService {
     }
 
     public Film updateFilm(Film film) throws ValidationException {
-        if (filmDaoStorage.getFilmById(film.getFilmId()) == null) {
+        if (filmDaoStorage.getFilmById(film.getId()) == null) {
             throw new EntityNotFoundException("Фильм не найден для обновления.");
         }
         return filmDaoStorage.updateFilm(film);
     }
 
     public void removeFilm(Film film) throws ValidationException {
-        if (filmDaoStorage.getFilmById(film.getFilmId()) == null) {
+        if (filmDaoStorage.getFilmById(film.getId()) == null) {
             throw new EntityNotFoundException("Фильм не найден для удаления.");
         }
         filmDaoStorage.deleteFilm(film);

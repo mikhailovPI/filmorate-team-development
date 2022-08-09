@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface FilmDaoStorage {
 
-    Film getFilmById(Long filmId);
+    Film getFilmById(Long id);
 
     List<Film> getAllFilms();
 

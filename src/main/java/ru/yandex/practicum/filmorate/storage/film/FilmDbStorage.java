@@ -22,9 +22,9 @@ public class FilmDbStorage implements FilmDaoStorage {
     }
 
     @Override
-    public Film getFilmById(Long filmId) {
+    public Film getFilmById(Long id) {
         String sql = "SELECT * FROM FILMS WHERE FILM_ID = ?";
-        return jdbcTemplate.query(sql, (rs, rowNum) -> makeFilm(rs), filmId)
+        return jdbcTemplate.query(sql, (rs, rowNum) -> makeFilm(rs), id)
                 .stream().findAny().orElse(null);
     }
 
@@ -37,29 +37,29 @@ public class FilmDbStorage implements FilmDaoStorage {
     @Override
     public Film createFilm(Film film) {
         String sql = "SELECT * FROM FILMS WHERE FILM_ID = ?";
-        return jdbcTemplate.query(sql, (rs, rowNum) -> makeFilm(rs), film.getFilmId())
+        return jdbcTemplate.query(sql, (rs, rowNum) -> makeFilm(rs), film.getId())
                 .stream().findAny().orElse(null);
     }
 
     @Override
     public Film updateFilm(Film film) {
-        if (film.getFilmId() == null) {
+        if (film.getId() == null) {
             return null;
         }
         String sql = "UPDATE FILMS SET FILM_NAME = ?, DESCRIPTION = ?, DURATION = ?, " +
                 "RELEASE_DATE = ?, MPA_ID =? WHERE FILM_ID = ?";
-        jdbcTemplate.update(sql, film.getFilmName(), film.getDescription(), film.getReleaseDate(),
+        jdbcTemplate.update(sql, film.getName(), film.getDescription(), film.getReleaseDate(),
                 film.getDuration(), film.getMpa());
         return film;
     }
 
     @Override
     public void deleteFilm(Film film) {
-        if (film.getFilmId() == null) {
+        if (film.getId() == null) {
             return;
         }
         String sql = "DELETE FROM FILMS WHERE FILM_ID = ?";
-        jdbcTemplate.update(sql, film.getFilmId());
+        jdbcTemplate.update(sql, film.getId());
     }
 
     @Override
@@ -70,7 +70,7 @@ public class FilmDbStorage implements FilmDaoStorage {
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(connection -> {
             PreparedStatement stmt = connection.prepareStatement(sql, new String[]{"FILM_ID"});
-            stmt.setString(1, film.getFilmName());
+            stmt.setString(1, film.getName());
             stmt.setString(2, film.getDescription());
             stmt.setLong(3, film.getDuration());
             final LocalDate releaseDate = film.getReleaseDate();
@@ -82,7 +82,7 @@ public class FilmDbStorage implements FilmDaoStorage {
             stmt.setObject(5, film.getMpa()); //уточнить правильность метода
             return stmt;
         }, keyHolder);
-        film.setFilmId(keyHolder.getKey().longValue());
+        film.setId(keyHolder.getKey().longValue());
         return film;
     }
 

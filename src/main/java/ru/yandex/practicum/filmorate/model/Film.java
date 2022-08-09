@@ -16,12 +16,12 @@ import java.util.Set;
 @EqualsAndHashCode(of = "filmId")
 public class Film {
 
-    private Long filmId;
+    private Long id;
 
     @NotNull(message = "Необходимо указать название фильма.")@NotBlank(message = "Название фильма не может быть пустым.")
     @NotNull(message = "Необходимо указать название фильма.")
     @NotBlank(message = "Название фильма не может быть пустым.")
-    private String filmName;
+    private String name;
 
     @NotNull(message = "Необходимо указать описание фильма.")@NotBlank(message = "Описание фильма не может быть пустым.")@Length(max = 200)
     @NotNull(message = "Необходимо указать описание фильма.")
@@ -40,7 +40,7 @@ public class Film {
     //private final Set<Long> like = new HashSet<>();
 
    // @NotNull(message = "Необходимо указать жанр фильма.")
-    //private List<Genre> genreFilm;
+    //private List<Genre> genre;
 
     @NotNull(message = "Необходимо указать возрастное ограничение фильма.")
     private Mpa mpa;
