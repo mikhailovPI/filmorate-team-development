@@ -1,18 +1,18 @@
 package ru.yandex.practicum.filmorate.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.*;
 
 import javax.validation.constraints.NotBlank;
 
 @Data
+@Getter
+@Setter
 @AllArgsConstructor
-@EqualsAndHashCode(of = "mpaId")
+@EqualsAndHashCode(of = "id")
 public class Mpa {
 
-    private final Integer mpaId;
+    private Integer id;
 
     @NotBlank(message = "Возрастное ограничение не может быть пустым.")
-    private final String mpaName;
+    private String name;
 }

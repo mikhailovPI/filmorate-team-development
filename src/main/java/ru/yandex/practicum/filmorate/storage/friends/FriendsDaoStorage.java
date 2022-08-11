@@ -6,14 +6,10 @@ import java.util.List;
 
 public interface FriendsDaoStorage {
 
-    List<User> getListFriends(Long userId);
-
-    List<User> getListCommonFriends(Long userId, Long friendId);
+    List<User> getAllFriendsUser(Long userId);
 
     void addFriend(Long userId, Long friendId);
+
     void deleteFriend (Long userId, Long friendId);
-
-    List<User> saveListFriends(Long userId, Long friendId);
-
 
 }

@@ -3,7 +3,16 @@ package ru.yandex.practicum.filmorate.controller;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
+import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
@@ -24,17 +33,18 @@ public class FilmController {
     }
 
     @GetMapping("/films")
-    public List<Film> getFilm() {
-        return filmService.getFilm();
+    public List<Film> getFilms() {
+        return filmService.getFilms();
     }
 
     @GetMapping("/films/{filmId}")
+
     public Film getFilmById(@PathVariable @Min(1) Long filmId) {
         return filmService.getFilmById(filmId);
     }
 
     @PostMapping(value = "/films")
-    public Film createFilm(@Valid @RequestBody Film film) {
+    public Film createFilm(@Valid @RequestBody Film film) throws EntityNotFoundException, ValidationException {
         return filmService.createFilm(film);
     }
 
@@ -48,7 +58,7 @@ public class FilmController {
         filmService.removeFilm(film);
     }
 
-/*    @PutMapping(value = "/films/{id}/like/{userId}")
+    @PutMapping(value = "/films/{id}/like/{userId}")
     public Integer putLikeFilm(
             @PathVariable @Min(1) Long id,
             @PathVariable @Min(1) Long userId) {
@@ -59,12 +69,31 @@ public class FilmController {
     public Integer removeLike(
             @PathVariable @Min(1) Long id,
             @PathVariable @Min(1) Long userId) {
-        return filmService.removeLike(filmService.getFilmById(id).getFilmId(), userId);
+        return filmService.removeLike(filmService.getFilmById(id).getId(), userId);
     }
 
     @GetMapping(value = "/films/popular")
     public List<Film> getTopLikeFilm(
             @RequestParam(defaultValue = "10", required = false) Integer count) {
         return filmService.getTopLikeFilm(count);
-    }*/
+    }
+//    @GetMapping(value = "/genres")
+//    public List<Genre> getAllGenres() {
+//        return filmService.getAllGenres();
+//    }
+//
+//    @GetMapping(value = "/genres/{id}")
+//    public Genre getGenresById(@PathVariable @Min(1) Long id) {
+//        return filmService.getGenreById(id);
+//    }
+//
+//    @GetMapping(value = "/mpa")
+//    public List<Mpa> getAllMpa() {
+//        return filmService.getAllMpa();
+//    }
+//
+//    @GetMapping(value = "/mpa/{id}")
+//    public Mpa getMpaById(@PathVariable @Min(1) Integer id) {
+//        return filmService.getMpaById(id);
+//    }
 }

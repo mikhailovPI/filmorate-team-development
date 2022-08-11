@@ -1,60 +1,102 @@
 package ru.yandex.practicum.filmorate.storage.genre;
 
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.exception.InvalidValueException;
+import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
+import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.film.FilmDaoStorage;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.stream.Collectors;
 
+@Component
 public class GenreDbStorage implements GenreDaoStorage {
 
     private final JdbcTemplate jdbcTemplate;
 
-    public GenreDbStorage(JdbcTemplate jdbcTemplate) {
+    public GenreDbStorage(JdbcTemplate jdbcTemplate, FilmDaoStorage filmDaoStorage) {
         this.jdbcTemplate = jdbcTemplate;
     }
 
     @Override
-    public Genre getGenreById(Integer genreId) {
-        String sql = "SELECT * FROM GENRES WHERE GENRE_ID = ?";
+    public Genre getGenreById(Long genreId) {
+        if (genreId < 1) {
+            throw new InvalidValueException("Неверный id жанра");
+        }
+        String sql =
+                "SELECT * " +
+                        "FROM GENRES " +
+                        "WHERE GENRE_ID = ?";
         return jdbcTemplate.query(sql, (rs, rowNum) -> makeGenre(rs), genreId)
                 .stream().findAny().orElse(null);
     }
 
     @Override
-    public List<Genre> getAllGenre() {
-        String sql = "SELECT * FROM GENRES";
+    public List<Genre> getAllGenres() {
+        String sql =
+                "SELECT * " +
+                        "FROM GENRES";
         return jdbcTemplate.query(sql, (rs, rowNum) -> makeGenre(rs));
     }
 
     @Override
     public Genre createGenre(Genre genre) {
-        String sql = "SELECT * FROM GENRES WHERE GENRE_ID = ?";
-        return jdbcTemplate.query(sql, (rs, rowNum) -> makeGenre(rs), genre.getGenreId())
+        String sql =
+                "SELECT * " +
+                        "FROM GENRES " +
+                        "WHERE GENRE_ID = ?";
+        return jdbcTemplate.query(sql, (rs, rowNum) -> makeGenre(rs), genre.getId())
                 .stream().findAny().orElse(null);
     }
 
     @Override
     public Genre updateGenre(Genre genre) {
-        if (genre.getGenreId() == null) {
+        if (genre == null) {
             return null;
         }
-        String sql = "UPDATE GENRES SET GENRE_NAME = ? WHERE GENRE_ID = ?";
-        jdbcTemplate.update(sql, genre.getGenreName(), genre.getGenreId());
+        if (genre.getId() < 1) {
+            throw new InvalidValueException("Неверный id жанра");
+        }
+        String sql =
+                "UPDATE GENRES " +
+                        "SET GENRE_NAME = ? " +
+                        "WHERE GENRE_ID = ?";
+        jdbcTemplate.update(sql, genre.getName(), genre.getId());
         return genre;
     }
 
     @Override
+    public Set<Genre> getGenresByFilm(Film film) {
+        String sql =
+                "SELECT g.GENRE_ID, g.GENRE_NAME " +
+                        "FROM GENRES g " +
+                        "JOIN GENRE_FILM fg " +
+                        "WHERE fg.FILM_ID = ?";
+        return new TreeSet<>(jdbcTemplate.query(sql, (rs, rowNum) -> makeGenre(rs), film.getId()));
+    }
+
+    @Override
     public void deleteGenre(Genre genre) {
-        if (genre.getGenreId() == null) {
+        if (genre.getId() == null) {
             return;
         }
         String sql = "DELETE FROM GENRES WHERE GENRE_ID = ?";
-        jdbcTemplate.update(sql, genre.getGenreId());
+        jdbcTemplate.update(sql, genre.getId());
     }
 
-    private Genre makeGenre (ResultSet rs) throws SQLException {
+    public void updateGenreFilm(Film film) {
+        String sql = "DELETE FROM GENRE_FILM WHERE FILM_ID = ?";
+        jdbcTemplate.update(sql, film.getId());
+    }
+
+    private Genre makeGenre(ResultSet rs) throws SQLException {
         return new Genre(rs.getInt("GENRE_ID"), rs.getString("GENRE_NAME"));
     }
 }

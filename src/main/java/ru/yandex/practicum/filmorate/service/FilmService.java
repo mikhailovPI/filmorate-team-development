@@ -1,32 +1,27 @@
 package ru.yandex.practicum.filmorate.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.film.FilmDaoStorage;
+import ru.yandex.practicum.filmorate.storage.genre.GenreDaoStorage;
 import ru.yandex.practicum.filmorate.storage.mpa.MpaDaoStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserDaoStorage;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class FilmService {
 
     private final FilmDaoStorage filmDaoStorage;
     private final UserDaoStorage userDaoStorage;
     private final MpaDaoStorage mpaDaoStorage;
+    private final GenreDaoStorage genreDaoStorage;
 
-
-    @Autowired
-    public FilmService(FilmDaoStorage filmDaoStorage, UserDaoStorage userDaoStorage, MpaDaoStorage mpaDaoStorage) {
-        this.filmDaoStorage = filmDaoStorage;
-        this.userDaoStorage = userDaoStorage;
-        this.mpaDaoStorage = mpaDaoStorage;
-    }
-
-    public List<Film> getFilm() {
+    public List<Film> getFilms() {
         return filmDaoStorage.getAllFilms();
     }
 
@@ -35,42 +30,37 @@ public class FilmService {
     }
 
     public Film createFilm(Film film) throws ValidationException {
-        if (film == null) {
-            throw new EntityNotFoundException("Передан пустой фильм.");
-        }
-        return filmDaoStorage.createFilm(film);
+        Film createFilm = filmDaoStorage.createFilm(film);
+        filmDaoStorage.createGenreByFilm(createFilm);
+        return createFilm;
     }
 
     public Film updateFilm(Film film) throws ValidationException {
-        if (filmDaoStorage.getFilmById(film.getId()) == null) {
-            throw new EntityNotFoundException("Фильм не найден для обновления.");
-        }
-        return filmDaoStorage.updateFilm(film);
+        genreDaoStorage.updateGenreFilm(film);
+        filmDaoStorage.createGenreByFilm(film);
+        filmDaoStorage.updateFilm(film);
+        return film;
     }
 
     public void removeFilm(Film film) throws ValidationException {
-        if (filmDaoStorage.getFilmById(film.getId()) == null) {
-            throw new EntityNotFoundException("Фильм не найден для удаления.");
-        }
         filmDaoStorage.deleteFilm(film);
     }
 
-/*    public Integer putLike(Long idFilm, Long idUser) {
-        if (filmDaoStorage.getFilmById(idFilm).getLike().contains(idUser)) {
-            throw new ValidationException("Пользователь " + userDaoStorage.getUserById(idUser) +
+    public Integer putLike(Long filmId, Long userId) {
+/*        if (filmDaoStorage.getFilmById(filmId).getLike().contains(userId)) {
+            throw new ValidationException("Пользователь " + userDaoStorage.getUserById(userId) +
                     " уже оценивал этот фильм.");
         }
-        filmDaoStorage.getFilmById(idFilm).getLike().add(idUser);
-        return filmDaoStorage.getFilmById(idFilm).getLike().size();
+        filmDaoStorage.getFilmById(filmId).getLike().add(userId);*/
+        return filmDaoStorage.putLike(filmId, userId);
     }
 
     public Integer removeLike(Long idFilm, Long idUser) {
-        if (!filmDaoStorage.getFilmById(idFilm).getLike().contains(idUser)) {
-            throw new ValidationException("Пользователь " + userDaoStorage.getUserById(idUser) +
-                    " не оценивал этот фильм.");
-        }
+//        if (!filmDaoStorage.getFilmById(idFilm).getLike().contains(idUser)) {
+//            throw new ValidationException("Пользователь " + userDaoStorage.getUserById(idUser) +
+//                    " не оценивал этот фильм.");
+//        }
         filmDaoStorage.getFilmById(idFilm).getLike().remove(idUser);
-
         return filmDaoStorage.getFilmById(idFilm).getLike().size();
     }
 
@@ -78,5 +68,21 @@ public class FilmService {
         return filmDaoStorage.getAllFilms().stream().sorted((p0, p1) ->
                         p1.getLike().size() - (p0.getLike().size())).
                 limit(count).collect(Collectors.toList());
-    }*/
+    }
+
+//    public List<Genre> getAllGenres() {
+//        return genreDaoStorage.getAllGenres();
+//    }
+//
+//    public Genre getGenreById(Long id) {
+//        return genreDaoStorage.getGenreById(id);
+//    }
+//
+//    public List<Mpa> getAllMpa() {
+//        return mpaDaoStorage.getAllMpa();
+//    }
+//
+//    public Mpa getMpaById(Integer id) {
+//        return mpaDaoStorage.getMpaById(id);
+//    }
 }
