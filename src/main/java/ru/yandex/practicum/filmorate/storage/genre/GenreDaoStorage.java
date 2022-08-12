@@ -20,5 +20,5 @@ public interface GenreDaoStorage {
 
     //void deleteGenre(Genre genre);
 
-    //void updateGenreFilm (Film film);
+    void updateGenreFilm (Film film);
 }

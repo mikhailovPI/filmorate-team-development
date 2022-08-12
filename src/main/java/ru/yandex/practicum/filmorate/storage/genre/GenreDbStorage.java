@@ -88,10 +88,10 @@ public class GenreDbStorage implements GenreDaoStorage {
 //        jdbcTemplate.update(sql, genre.getId());
 //    }
 
-//    public void updateGenreFilm(Film film) {
-//        String sql = "DELETE FROM GENRE_FILM WHERE FILM_ID = ?";
-//        jdbcTemplate.update(sql, film.getId());
-//    }
+    public void updateGenreFilm(Film film) {
+        String sql = "DELETE FROM GENRE_FILM WHERE FILM_ID = ?";
+        jdbcTemplate.update(sql, film.getId());
+    }
 
     private Genre makeGenre(ResultSet rs) throws SQLException {
         return new Genre(rs.getInt("GENRE_ID"), rs.getString("GENRE_NAME"));

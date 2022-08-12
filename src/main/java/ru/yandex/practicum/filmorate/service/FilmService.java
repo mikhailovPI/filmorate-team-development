@@ -39,10 +39,13 @@ public class FilmService {
     }
 
     public Film updateFilm(Film film) throws ValidationException {
-        filmDaoStorage.updateGenre(film);
-        //genreDaoStorage.updateGenreFilm(film);
-        //filmDaoStorage.createGenreByFilm(film);
-        return filmDaoStorage.updateFilm(film);
+        //filmDaoStorage.updateGenre(film);
+
+        genreDaoStorage.updateGenreFilm(film);
+        filmDaoStorage.createGenreByFilm(film);
+
+        Film updateFilm = filmDaoStorage.updateFilm(film);
+        return updateFilm;
     }
 
     public void removeFilm(Film film) throws ValidationException {
