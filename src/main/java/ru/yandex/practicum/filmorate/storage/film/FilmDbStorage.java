@@ -2,8 +2,6 @@ package ru.yandex.practicum.filmorate.storage.film;
 
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
-import org.springframework.jdbc.support.GeneratedKeyHolder;
-import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.exception.InvalidValueException;
@@ -16,10 +14,7 @@ import ru.yandex.practicum.filmorate.storage.user.UserDaoStorage;
 
 import java.sql.*;
 import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 @Component
 public class FilmDbStorage implements FilmDaoStorage {
@@ -63,31 +58,31 @@ public class FilmDbStorage implements FilmDaoStorage {
         if (film == null) {
             throw new EntityNotFoundException("Передан пустой фильм.");
         }
-        KeyHolder keyHolder = new GeneratedKeyHolder();
-        String sql =
-                "INSERT INTO FILMS (FILM_NAME, DESCRIPTION, RELEASE_DATE, DURATION, MPA_ID) " +
-                        "VALUES (?, ?, ?, ?, ?)";
-        jdbcTemplate.update(connection -> {
-            PreparedStatement stmt = connection.prepareStatement(sql, new String[]{"FILM_ID"});
-            stmt.setString(1, film.getName());
-            stmt.setString(2, film.getDescription());
-            stmt.setDate(3, Date.valueOf(film.getReleaseDate()));
-            stmt.setInt(4, film.getDuration());
-            stmt.setInt(5, film.getMpa().getId());
-            return stmt;
-        }, keyHolder);
-        film.setId(keyHolder.getKey().longValue());
+        SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate)
+                .withTableName("FILMS")
+                .usingGeneratedKeyColumns("FILM_ID");
+
+        Map<String, Object> values = new HashMap<>();
+        values.put("NAME", film.getName());
+        values.put("DESCRIPTION", film.getDescription());
+        values.put("RELEASE_DATE", film.getReleaseDate());
+        values.put("DURATION", film.getDuration());
+        values.put("RATING_ID", film.getMpa().getId());
+
+        film.setId(simpleJdbcInsert.executeAndReturnKey(values).longValue());
         return film;
     }
 
     @Override
     public void createGenreByFilm(Film film) {
-        String sql = "INSERT INTO GENRE_FILM (FILM_ID, GENRE_ID) VALUES(?, ?)";
+        String sql =
+                "INSERT INTO GENRE_FILM (FILM_ID, GENRE_ID) " +
+                        "VALUES(?, ?)";
         Set<Genre> genres = film.getGenres();
         if (genres == null) {
             return;
         }
-        for (Genre genre : genres ) {
+        for (Genre genre : genres) {
             jdbcTemplate.update(sql, film.getId(), genre.getId());
         }
     }
@@ -129,18 +124,37 @@ public class FilmDbStorage implements FilmDaoStorage {
         if (getFilmById(filmId).getLike().contains(userId)) {
             throw new ValidationException("Данный пользователь уже оценивал этот фильм.");
         }
-        Film film = getFilmById(filmId);
-        User user = userDaoStorage.getUserById(userId);
-
-        getFilmById(filmId).getLike().add(userId);
-        return getFilmById(filmId).getLike().size();
+        Set<Long> likeSet = getFilmById(filmId).getLike();
+        likeSet.add(userId);
+        return likeSet.size();
     }
-//    @Override
-//    public void updateGenre(Film film) {
-//        String sql = "DELETE FROM GENRE_FILM WHERE FILM_ID = ?";
-//        jdbcTemplate.update(sql, film.getId());
-//        createGenreByFilm(film);
-//    }
+
+    @Override
+    public void updateGenre(Film film) {
+        String sql =
+                "DELETE " +
+                        "FROM GENRE_FILM " +
+                        "WHERE FILM_ID = ?";
+        jdbcTemplate.update(sql, film.getId());
+        createGenreByFilm(film);
+    }
+
+    public Integer removeLike(Long filmId, Long userId) {
+        if (getFilmById(filmId).getLike().contains(userId)) {
+            throw new ValidationException("Пользователь " + userDaoStorage.getUserById(userId) +
+                    " не оценивал этот фильм.");
+        }
+        Set<Long> likeSet = getFilmById(filmId).getLike();
+        likeSet.remove(userId);
+        return likeSet.size();
+    }
+
+    @Override
+    public Integer getLikeFilm() {
+        Film film = new Film();
+        return film.getLike().size();
+    }
+
 
     private Film makeFilm(ResultSet rs) throws SQLException {
         Film film = new Film();
@@ -152,13 +166,6 @@ public class FilmDbStorage implements FilmDaoStorage {
         film.setMpa(new Mpa(rs.getInt("MPA_ID"), rs.getString("MPA_NAME")));
 
         return film;
-                /*new Film(
-                rs.getString("FILM_NAME"),
-                rs.getString("DESCRIPTION"),
-                rs.getLong("FILM_ID"),
-                rs.getDate("RELEASE_DATE").toLocalDate(),
-                rs.getLong("DURATION"),
-                new Mpa(rs.getInt("MPA_ID"), rs.getString("MPA_NAME")));*/
     }
 }
 

@@ -24,7 +24,7 @@ public class MpaDbStorage implements MpaDaoStorage {
     @Override
     public Mpa getMpaById(Integer id) {
         if (id < 1) {
-            throw new InvalidValueException("Некорректный id ограаничения");
+            throw new InvalidValueException("Некорректный идентификатор возрастного ограничения");
         }
         String sql =
                 "SELECT * " +
@@ -38,7 +38,8 @@ public class MpaDbStorage implements MpaDaoStorage {
     public List<Mpa> getAllMpa() {
         String sql =
                 "SELECT * " +
-                        "FROM MPA";
+                        "FROM MPA " +
+                        "ORDER BY MPA_ID";
         return jdbcTemplate.query(sql, (rs, rowNum) -> makeMpa(rs));
     }
 
@@ -65,17 +66,17 @@ public class MpaDbStorage implements MpaDaoStorage {
         return mpa;
     }
 
-    @Override
-    public void deleteMpa(Mpa mpa) {
-        if (getMpaById(mpa.getId()) == null) {
-            throw new EntityNotFoundException("MPA не найден для обновления");
-        }
-        String sql =
-                "DELETE " +
-                        "FROM MPA " +
-                        "WHERE MPA_ID = ?";
-        jdbcTemplate.update(sql, mpa.getId());
-    }
+//    @Override
+//    public void deleteMpa(Mpa mpa) {
+//        if (getMpaById(mpa.getId()) == null) {
+//            throw new EntityNotFoundException("MPA не найден для обновления");
+//        }
+//        String sql =
+//                "DELETE " +
+//                        "FROM MPA " +
+//                        "WHERE MPA_ID = ?";
+//        jdbcTemplate.update(sql, mpa.getId());
+//    }
 
     private Mpa makeMpa(ResultSet rs) throws SQLException {
         return new Mpa(rs.getInt("mpa_id"), rs.getString("mpa_name"));

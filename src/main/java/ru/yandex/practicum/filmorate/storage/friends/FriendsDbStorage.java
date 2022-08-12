@@ -20,7 +20,6 @@ public class FriendsDbStorage implements FriendsDaoStorage {
         this.userDaoStorage = userDaoStorage;
     }
 
-
     @Override
     public void addFriend(Long userId, Long friendId) {
         if (userDaoStorage.getAllUser().stream().noneMatch(u -> Objects.equals(u.getId(), userId))) {
@@ -50,13 +49,13 @@ public class FriendsDbStorage implements FriendsDaoStorage {
     }
 
     @Override
-    public List<User> getAllFriendsUser(Long userId) {
+    public List<User> getAllFriendsUser(Long id) {
         String sql =
                 "SELECT FRIEND_ID " +
                         "FROM FRIENDS " +
                         "WHERE USER_ID=?";
-        List<Long> friendIds = jdbcTemplate.queryForList(sql, Long.class, userId);
-        return friendIds.stream()
+        List<Long> friendsUser = jdbcTemplate.queryForList(sql, Long.class, id);
+        return friendsUser.stream()
                 .map(userDaoStorage::getUserById)
                 .collect(Collectors.toList());
     }

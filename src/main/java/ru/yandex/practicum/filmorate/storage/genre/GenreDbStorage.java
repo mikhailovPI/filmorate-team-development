@@ -42,7 +42,8 @@ public class GenreDbStorage implements GenreDaoStorage {
     public List<Genre> getAllGenres() {
         String sql =
                 "SELECT * " +
-                        "FROM GENRES";
+                        "FROM GENRES " +
+                        "ORDER BY GENRE_ID";
         return jdbcTemplate.query(sql, (rs, rowNum) -> makeGenre(rs));
     }
 
@@ -55,7 +56,6 @@ public class GenreDbStorage implements GenreDaoStorage {
         return jdbcTemplate.query(sql, (rs, rowNum) -> makeGenre(rs), genre.getId())
                 .stream().findAny().orElse(null);
     }
-
     @Override
     public Genre updateGenre(Genre genre) {
         if (genre == null) {
@@ -77,24 +77,24 @@ public class GenreDbStorage implements GenreDaoStorage {
         String sql =
                 "SELECT g.GENRE_ID, g.GENRE_NAME " +
                         "FROM GENRES g " +
-                        "JOIN GENRE_FILM fg " +
+                        "NATURAL JOIN GENRE_FILM fg " +
                         "WHERE fg.FILM_ID = ?";
-        return new TreeSet<>(jdbcTemplate.query(sql, (rs, rowNum) -> makeGenre(rs), film.getId()));
+        return new HashSet<>(jdbcTemplate.query(sql, (rs, rowNum) -> makeGenre(rs), film.getId()));
     }
 
-    @Override
-    public void deleteGenre(Genre genre) {
-        if (genre.getId() == null) {
-            return;
-        }
-        String sql = "DELETE FROM GENRES WHERE GENRE_ID = ?";
-        jdbcTemplate.update(sql, genre.getId());
-    }
+//    @Override
+//    public void deleteGenre(Genre genre) {
+//        if (genre.getId() == null) {
+//            return;
+//        }
+//        String sql = "DELETE FROM GENRES WHERE GENRE_ID = ?";
+//        jdbcTemplate.update(sql, genre.getId());
+//    }
 
-    public void updateGenreFilm(Film film) {
-        String sql = "DELETE FROM GENRE_FILM WHERE FILM_ID = ?";
-        jdbcTemplate.update(sql, film.getId());
-    }
+//    public void updateGenreFilm(Film film) {
+//        String sql = "DELETE FROM GENRE_FILM WHERE FILM_ID = ?";
+//        jdbcTemplate.update(sql, film.getId());
+//    }
 
     private Genre makeGenre(ResultSet rs) throws SQLException {
         return new Genre(rs.getInt("GENRE_ID"), rs.getString("GENRE_NAME"));

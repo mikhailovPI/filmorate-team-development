@@ -43,29 +43,5 @@ public class Film {
     @Min(1)
     private Integer duration;
 
-    //@NotNull(message = "Необходимо указать возрастное ограничение фильма.")
     private Mpa mpa;
-
-
-
-
-
-
-/*    public Film(Long id, String name, LocalDate releaseDate, String description, Long duration, Mpa mpa) {
-        this.id = id;
-        this.name = name;
-        this.description = description;
-        this.releaseDate = releaseDate;
-        this.duration = duration;
-        this.mpa = mpa;
-    }*/
-
-/*    public Film(Long id, String name, String description, LocalDate releaseDate, Long duration, Set<Genre> genres) {
-        this.id = id;
-        this.name = name;
-        this.description = description;
-        this.releaseDate = releaseDate;
-        this.duration = duration;
-        this.genres = genres;
-    }*/
 }

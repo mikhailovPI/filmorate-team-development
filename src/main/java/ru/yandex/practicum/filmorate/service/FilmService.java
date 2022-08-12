@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exception.InvalidValueException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.film.FilmDaoStorage;
@@ -9,6 +10,8 @@ import ru.yandex.practicum.filmorate.storage.genre.GenreDaoStorage;
 import ru.yandex.practicum.filmorate.storage.mpa.MpaDaoStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserDaoStorage;
 
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -36,10 +39,10 @@ public class FilmService {
     }
 
     public Film updateFilm(Film film) throws ValidationException {
-        genreDaoStorage.updateGenreFilm(film);
-        filmDaoStorage.createGenreByFilm(film);
-        filmDaoStorage.updateFilm(film);
-        return film;
+        filmDaoStorage.updateGenre(film);
+        //genreDaoStorage.updateGenreFilm(film);
+        //filmDaoStorage.createGenreByFilm(film);
+        return filmDaoStorage.updateFilm(film);
     }
 
     public void removeFilm(Film film) throws ValidationException {
@@ -69,20 +72,4 @@ public class FilmService {
                         p1.getLike().size() - (p0.getLike().size())).
                 limit(count).collect(Collectors.toList());
     }
-
-//    public List<Genre> getAllGenres() {
-//        return genreDaoStorage.getAllGenres();
-//    }
-//
-//    public Genre getGenreById(Long id) {
-//        return genreDaoStorage.getGenreById(id);
-//    }
-//
-//    public List<Mpa> getAllMpa() {
-//        return mpaDaoStorage.getAllMpa();
-//    }
-//
-//    public Mpa getMpaById(Integer id) {
-//        return mpaDaoStorage.getMpaById(id);
-//    }
 }

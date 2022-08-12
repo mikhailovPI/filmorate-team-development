@@ -138,12 +138,5 @@ public class UserDbStorage implements UserDaoStorage {
         user.setName(rs.getString("USER_NAME"));
         user.setBirthday(rs.getDate("BIRTHDAY").toLocalDate());
         return user;
-
-                /*new User(
-                rs.getLong("USER_ID"),
-                rs.getString("EMAIL"),
-                rs.getString("LOGIN"),
-                rs.getString("USER_NAME"),
-                rs.getDate("BIRTHDAY").toLocalDate());*/
     }
 }

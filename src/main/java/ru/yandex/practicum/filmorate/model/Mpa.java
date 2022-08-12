@@ -13,6 +13,5 @@ public class Mpa {
 
     private Integer id;
 
-    @NotBlank(message = "Возрастное ограничение не может быть пустым.")
     private String name;
 }

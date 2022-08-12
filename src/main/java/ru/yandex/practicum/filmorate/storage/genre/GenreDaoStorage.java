@@ -18,7 +18,7 @@ public interface GenreDaoStorage {
 
     Set<Genre> getGenresByFilm (Film film);
 
-    void deleteGenre(Genre genre);
+    //void deleteGenre(Genre genre);
 
-    void updateGenreFilm (Film film);
+    //void updateGenreFilm (Film film);
 }

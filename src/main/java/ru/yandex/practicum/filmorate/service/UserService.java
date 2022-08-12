@@ -37,20 +37,20 @@ public class UserService {
         userDaoStorage.deleteUser(user);
     }
 
-    public void addFriends(Long id, Long friendId) {
-        friendsDaoStorage.addFriend(id, friendId);
+    public void addFriends(Long userId, Long friendId) {
+        friendsDaoStorage.addFriend(userId, friendId);
     }
 
-    public void removeFriends(Long id, Long friendId) {
-        friendsDaoStorage.deleteFriend(id, friendId);
+    public void removeFriends(Long userId, Long friendId) {
+        friendsDaoStorage.deleteFriend(userId, friendId);
     }
 
     public List<User> getAllFriendsUser(Long id) {
         return friendsDaoStorage.getAllFriendsUser(id);
     }
 
-    public List<User> getCommonFriends(Long id, Long friendId) {
-        List<User> user = getAllFriendsUser(id);
+    public List<User> getCommonFriends(Long userId, Long friendId) {
+        List<User> user = getAllFriendsUser(userId);
         List<User> otherUser = getAllFriendsUser(friendId);
         return user.stream()
                 .filter(otherUser::contains)
