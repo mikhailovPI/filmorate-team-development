@@ -23,9 +23,9 @@ public class FriendsDbStorage implements FriendsDaoStorage {
     @Override
     public void addFriend(Long userId, Long friendId) {
         if (userDaoStorage.getAllUser().stream().noneMatch(u -> Objects.equals(u.getId(), userId))) {
-            throw new EntityNotFoundException("Id пользователя не найден");
+            throw new EntityNotFoundException("Идентификатор пользователя не найден");
         } else if (userDaoStorage.getAllUser().stream().noneMatch(u -> Objects.equals(u.getId(), friendId))) {
-            throw new EntityNotFoundException("Id друга не найден");
+            throw new EntityNotFoundException("Идентификатор друга не найден");
         }
         String sql =
                 "INSERT INTO FRIENDS (USER_ID, FRIEND_ID) " +
@@ -36,9 +36,9 @@ public class FriendsDbStorage implements FriendsDaoStorage {
     @Override
     public void deleteFriend(Long userId, Long friendId) {
         if (userDaoStorage.getAllUser().stream().noneMatch(u -> Objects.equals(u.getId(), userId))) {
-            throw new EntityNotFoundException("Id пользователя не найден");
+            throw new EntityNotFoundException("Идентификатор пользователя не найден");
         } else if (userDaoStorage.getAllUser().stream().noneMatch(u -> Objects.equals(u.getId(), friendId))) {
-            throw new EntityNotFoundException("Id друга не найден");
+            throw new EntityNotFoundException("Идентификатор друга не найден");
         }
         String sql =
                 "DELETE " +

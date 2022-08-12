@@ -27,20 +27,20 @@ public class Film {
 
     private Long id;
 
-    @NotNull(message = "Необходимо указать название фильма.")
-    @NotBlank(message = "Название фильма не может быть пустым.")
+//    @NotNull(message = "Необходимо указать название фильма.")
+//    @NotBlank(message = "Название фильма не может быть пустым.")
     private String name;
 
-    @NotNull(message = "Необходимо указать описание фильма.")
-    @NotBlank(message = "Описание фильма не может быть пустым.")
-    @Length(max = 200)
+//    @NotNull(message = "Необходимо указать описание фильма.")
+//    @NotBlank(message = "Описание фильма не может быть пустым.")
+//    @Length(max = 200)
     private String description;
 
 
-    @NotNull(message = "Необходимо указать дату релиза фильма.")
+//    @NotNull(message = "Необходимо указать дату релиза фильма.")
     private LocalDate releaseDate;
 
-    @Min(1)
+//    @Min(1)
     private Integer duration;
 
     private Mpa mpa;

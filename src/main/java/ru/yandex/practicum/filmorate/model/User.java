@@ -24,21 +24,21 @@ public class User {
 
     private Long id;
 
-    @NotNull(message = "Необходимо указать email.")
-    @NotBlank(message = "Email не может быть пустым.")
-    @Email(message = "Email должен быть корректным адресом электронной почты.")
+//    @NotNull(message = "Необходимо указать email.")
+//    @NotBlank(message = "Email не может быть пустым.")
+//    @Email(message = "Email должен быть корректным адресом электронной почты.")
     private String email;
 
-    @NotNull(message = "Необходимо указать Login.")
-    @NotBlank(message = "Login не может быть пустым.")
-    @Pattern(regexp = "^\\S*$")
-    @Pattern(regexp = "[a-zA-Z\\d]+", message = "Логин должен состоять из букв и цифр.")
+//    @NotNull(message = "Необходимо указать Login.")
+//    @NotBlank(message = "Login не может быть пустым.")
+//    @Pattern(regexp = "^\\S*$")
+//    @Pattern(regexp = "[a-zA-Z\\d]+", message = "Логин должен состоять из букв и цифр.")
     private String login;
 
     private String name;
 
-    @NotNull(message = "Необходимо указать дату рождения.")
-    @PastOrPresent(message = "Дата рождения не должна быть больше текущей.")
+//    @NotNull(message = "Необходимо указать дату рождения.")
+//    @PastOrPresent(message = "Дата рождения не должна быть больше текущей.")
     private LocalDate birthday;
 
     private Set<Long> friends = new HashSet<>();

@@ -9,11 +9,10 @@ import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
-import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.Validator;
 import ru.yandex.practicum.filmorate.storage.user.UserDaoStorage;
 
 import java.sql.*;
-import java.time.LocalDate;
 import java.util.*;
 
 @Component
@@ -21,10 +20,12 @@ public class FilmDbStorage implements FilmDaoStorage {
 
     private final JdbcTemplate jdbcTemplate;
     private final UserDaoStorage userDaoStorage;
+    private final Validator validator;
 
-    public FilmDbStorage(JdbcTemplate jdbcTemplate, UserDaoStorage userDaoStorage) {
+    public FilmDbStorage(JdbcTemplate jdbcTemplate, UserDaoStorage userDaoStorage, Validator validator) {
         this.jdbcTemplate = jdbcTemplate;
         this.userDaoStorage = userDaoStorage;
+        this.validator = validator;
     }
 
     @Override
@@ -55,6 +56,7 @@ public class FilmDbStorage implements FilmDaoStorage {
 
     @Override
     public Film createFilm(Film film) {
+        validator.filmValidator(film);
         if (film == null) {
             throw new EntityNotFoundException("Передан пустой фильм.");
         }
@@ -75,6 +77,7 @@ public class FilmDbStorage implements FilmDaoStorage {
 
     @Override
     public void createGenreByFilm(Film film) {
+        validator.filmValidator(film);
         String sql =
                 "INSERT INTO GENRE_FILM (FILM_ID, GENRE_ID) " +
                         "VALUES(?, ?)";
@@ -89,6 +92,7 @@ public class FilmDbStorage implements FilmDaoStorage {
 
     @Override
     public Film updateFilm(Film film) {
+        validator.filmValidator(film);
         if (getFilmById(film.getId()) == null) {
             throw new EntityNotFoundException("Фильм не найден для обновления.");
         }
@@ -107,7 +111,8 @@ public class FilmDbStorage implements FilmDaoStorage {
 
     @Override
     public void deleteFilm(Film film) {
-        if (film == null) {
+        validator.filmValidator(film);
+        if (getFilmById(film.getId()) == null) {
             throw new EntityNotFoundException("Фильм не найден для удаления.");
         }
         if (film.getId() < 1) {

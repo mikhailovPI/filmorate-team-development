@@ -5,7 +5,6 @@ import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.InvalidValueException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
-import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.film.FilmDaoStorage;
 
 import java.sql.ResultSet;
@@ -13,8 +12,6 @@ import java.sql.SQLException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.TreeSet;
-import java.util.stream.Collectors;
 
 @Component
 public class GenreDbStorage implements GenreDaoStorage {
@@ -28,7 +25,7 @@ public class GenreDbStorage implements GenreDaoStorage {
     @Override
     public Genre getGenreById(Long genreId) {
         if (genreId < 1) {
-            throw new InvalidValueException("Неверный id жанра");
+            throw new InvalidValueException("Введен некорректный идентификатор жанра.");
         }
         String sql =
                 "SELECT * " +
@@ -62,7 +59,7 @@ public class GenreDbStorage implements GenreDaoStorage {
             return null;
         }
         if (genre.getId() < 1) {
-            throw new InvalidValueException("Неверный id жанра");
+            throw new InvalidValueException("Введен некорректный идентификатор жанра.");
         }
         String sql =
                 "UPDATE GENRES " +

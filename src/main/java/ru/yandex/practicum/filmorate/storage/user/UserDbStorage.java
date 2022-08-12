@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.exception.InvalidValueException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.Validator;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -16,9 +17,11 @@ import java.util.List;
 public class UserDbStorage implements UserDaoStorage {
 
     private final JdbcTemplate jdbcTemplate;
+    private final Validator validator;
 
-    public UserDbStorage(JdbcTemplate jdbcTemplate) {
+    public UserDbStorage(JdbcTemplate jdbcTemplate, Validator validator) {
         this.jdbcTemplate = jdbcTemplate;
+        this.validator = validator;
     }
 
     @Override
@@ -44,13 +47,12 @@ public class UserDbStorage implements UserDaoStorage {
 
     @Override
     public User createUser(User user) {
+        validator.userValidator(user);
         if (user == null) {
             throw new EntityNotFoundException("Передан пустой пользователь.");
         }
         KeyHolder keyHolder = new GeneratedKeyHolder();
-        String sql =
-                "INSERT INTO USERS (EMAIL, LOGIN, USER_NAME, BIRTHDAY) " +
-                        "VALUES (?, ?, ?, ?)";
+        final String sql = "INSERT INTO USERS(EMAIL, LOGIN, USER_NAME, BIRTHDAY) values (?, ?, ?, ?)";
         jdbcTemplate.update(connection -> {
             PreparedStatement stmt = connection.prepareStatement(sql, new String[]{"USER_ID"});
             stmt.setString(1, user.getEmail());
@@ -65,6 +67,7 @@ public class UserDbStorage implements UserDaoStorage {
 
     @Override
     public User updateUser(User user) {
+        validator.userValidator(user);
         if (getUserById(user.getId()) == null) {
             throw new EntityNotFoundException("Пользователь не найден для обновления.");
         }
@@ -82,6 +85,7 @@ public class UserDbStorage implements UserDaoStorage {
 
     @Override
     public void deleteUser(User user) {
+        validator.userValidator(user);
         if (getUserById(user.getId()) == null) {
             throw new EntityNotFoundException("Пользователь не найден для удаления.");
         }
