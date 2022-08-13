@@ -68,7 +68,7 @@ public class UserDbStorage implements UserDaoStorage {
     @Override
     public User updateUser(User user) {
         validator.userValidator(user);
-        if (getUserById(user.getId()) == null) {
+        if (getAllUser().contains(user.getId())) {
             throw new EntityNotFoundException("Пользователь не найден для обновления.");
         }
         if (user.getId() < 1) {
@@ -86,7 +86,7 @@ public class UserDbStorage implements UserDaoStorage {
     @Override
     public void deleteUser(User user) {
         validator.userValidator(user);
-        if (getUserById(user.getId()) == null) {
+        if (getAllUser().contains(user.getId())) {
             throw new EntityNotFoundException("Пользователь не найден для удаления.");
         }
         if (user.getId() < 1) {

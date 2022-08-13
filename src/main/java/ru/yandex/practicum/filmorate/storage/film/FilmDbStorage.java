@@ -69,7 +69,7 @@ public class FilmDbStorage implements FilmDaoStorage {
         values.put("DESCRIPTION", film.getDescription());
         values.put("RELEASE_DATE", film.getReleaseDate());
         values.put("DURATION", film.getDuration());
-        values.put("RATING_ID", film.getMpa().getId());
+        values.put("MPA_ID", film.getMpa().getId());
 
         film.setId(simpleJdbcInsert.executeAndReturnKey(values).longValue());
         return film;
@@ -93,7 +93,7 @@ public class FilmDbStorage implements FilmDaoStorage {
     @Override
     public Film updateFilm(Film film) {
         validator.filmValidator(film);
-        if (getFilmById(film.getId()) == null) {
+        if (!getAllFilms().contains(film.getId())) {
             throw new EntityNotFoundException("Фильм не найден для обновления.");
         }
         if (film.getId() < 1) {
@@ -112,7 +112,7 @@ public class FilmDbStorage implements FilmDaoStorage {
     @Override
     public void deleteFilm(Film film) {
         validator.filmValidator(film);
-        if (getFilmById(film.getId()) == null) {
+        if (!getAllFilms().contains(film.getId())) {
             throw new EntityNotFoundException("Фильм не найден для удаления.");
         }
         if (film.getId() < 1) {
@@ -175,16 +175,3 @@ public class FilmDbStorage implements FilmDaoStorage {
 }
 
 
-/*        SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate)
-                .withTableName("FILMS")
-                .usingGeneratedKeyColumns("FILM_ID");
-
-        Map<String, Object> values = new HashMap<>();
-        values.put("NAME", film.getName());
-        values.put("DESCRIPTION", film.getDescription());
-        values.put("RELEASE_DATE", film.getReleaseDate());
-        values.put("DURATION", film.getDuration());
-        values.put("RATING_ID", film.getMpa().getId());
-
-        film.setId(simpleJdbcInsert.executeAndReturnKey(values).longValue());
-        return film;*/
