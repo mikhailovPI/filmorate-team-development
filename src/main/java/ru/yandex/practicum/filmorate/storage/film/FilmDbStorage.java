@@ -1,7 +1,6 @@
 package ru.yandex.practicum.filmorate.storage.film;
 
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
@@ -43,7 +42,7 @@ public class FilmDbStorage implements FilmDaoStorage {
                         "JOIN RATINGS AS R ON F.RATING_ID = R.RATING_ID " +
                         "WHERE F.FILM_ID = ?";
         return jdbcTemplate.query(sql, (rs, rowNum) -> makeFilm(rs), id)
-               .stream().findAny().orElse(null);
+                .stream().findAny().orElse(null);
     }
 
     @Override
@@ -130,31 +129,24 @@ public class FilmDbStorage implements FilmDaoStorage {
         jdbcTemplate.update(sql, film.getId());
     }
 
-    public Integer putLike(Long filmId, Long userId) {
-        if (getFilmById(filmId).getLikes().contains(userId)) {
-            throw new ValidationException("Данный пользователь уже оценивал этот фильм.");
-        }
-        Set<Long> likeSet = getFilmById(filmId).getLikes();
-        likeSet.add(userId);
-        return likeSet.size();
-    }
-
-    public Integer removeLike(Long filmId, Long userId) {
-        if (getFilmById(filmId).getLikes().contains(userId)) {
-            throw new ValidationException("Пользователь " + userDaoStorage.getUserById(userId) +
-                    " не оценивал этот фильм.");
-        }
-        Set<Long> likeSet = getFilmById(filmId).getLikes();
-        likeSet.remove(userId);
-        return likeSet.size();
-    }
-
-    @Override
-    public Integer getLikeFilm() {
-        Film film = new Film();
-        return film.getLikes().size();
-    }
-
+//    @Override
+//    public void putLike(Long id, Long userId) {
+//        if (getFilmById(id).getLikes().contains(userId)) {
+//            throw new ValidationException("Данный пользователь уже оценивал этот фильм.");
+//        }
+//        Set<Long> likeSet = getFilmById(id).getLikes();
+//        likeSet.add(userId);
+//    }
+//
+//    @Override
+//    public void removeLike(Long id, Long userId) {
+//        if (getFilmById(id).getLikes().contains(userId)) {
+//            throw new ValidationException("Пользователь " + userDaoStorage.getUserById(userId) +
+//                    " не оценивал этот фильм.");
+//        }
+//        Set<Long> likeSet = getFilmById(id).getLikes();
+//        likeSet.remove(userId);
+//    }
 
     private Film makeFilm(ResultSet rs) throws SQLException {
         Film film = new Film();
@@ -164,9 +156,6 @@ public class FilmDbStorage implements FilmDaoStorage {
         film.setDescription(rs.getString("DESCRIPTION"));
         film.setDuration(rs.getInt("DURATION"));
         film.setMpa(new Mpa(rs.getInt("RATING_ID"), rs.getString("RATING_NAME")));
-
         return film;
     }
 }
-
-

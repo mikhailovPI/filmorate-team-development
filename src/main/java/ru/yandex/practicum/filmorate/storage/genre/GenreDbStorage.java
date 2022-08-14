@@ -79,15 +79,6 @@ public class GenreDbStorage implements GenreDaoStorage {
         return new HashSet<>(jdbcTemplate.query(sql, (rs, rowNum) -> makeGenre(rs), film.getId()));
     }
 
-//    @Override
-//    public void deleteGenre(Genre genre) {
-//        if (genre.getId() == null) {
-//            return;
-//        }
-//        String sql = "DELETE FROM GENRES WHERE GENRE_ID = ?";
-//        jdbcTemplate.update(sql, genre.getId());
-//    }
-
     public void updateGenreFilm(Film film) {
         String sql = "DELETE FROM FILMS_GENRES WHERE FILM_ID = ?";
         jdbcTemplate.update(sql, film.getId());

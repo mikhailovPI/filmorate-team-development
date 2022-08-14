@@ -1,7 +1,6 @@
 
 package ru.yandex.practicum.filmorate.storage.film;
 
-import org.springframework.data.relational.core.sql.In;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import java.util.List;
@@ -20,10 +19,8 @@ public interface FilmDaoStorage {
 
     void createGenreByFilm(Film film);
 
-    Integer putLike (Long filmId, Long userId);
-
-    Integer removeLike(Long idFilm, Long idUser);
-
-    Integer getLikeFilm();
+//    void putLike (Long filmId, Long userId);
+//
+//    void removeLike(Long id, Long userId);
 }
 

@@ -29,4 +29,12 @@ public class Film {
     private Integer duration;
 
     private Mpa mpa;
+
+//    public void addLike(Long userId) {
+//        likes.add(userId);
+//    }
+
+    public Long getLikeCount() {
+        return (long) likes.size();
+    }
 }
