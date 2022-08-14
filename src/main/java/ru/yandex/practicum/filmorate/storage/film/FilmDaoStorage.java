@@ -20,8 +20,6 @@ public interface FilmDaoStorage {
 
     void createGenreByFilm(Film film);
 
-    void updateGenre(Film film);
-
     Integer putLike (Long filmId, Long userId);
 
     Integer removeLike(Long idFilm, Long idUser);

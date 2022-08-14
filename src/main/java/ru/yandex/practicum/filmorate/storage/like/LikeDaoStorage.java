@@ -1,16 +1,14 @@
-package ru.yandex.practicum.filmorate.storage.like;
-
-import ru.yandex.practicum.filmorate.model.Film;
-
-import java.io.File;
-
-public interface LikeDaoStorage {
-
-    void addLike(Long filmId, Long userId);
-    void deleteLike(Long filmId, Long userId);
-
-    Long getAllLikeFilm(Film film);
-
-
-
-}
+//package ru.yandex.practicum.filmorate.storage.like;
+//
+//import ru.yandex.practicum.filmorate.model.Film;
+//
+//
+//public interface LikeDaoStorage {
+//
+//    void saveLikes(Film film);
+//
+//    void loadLikes(Film film);
+//
+//
+//
+//}

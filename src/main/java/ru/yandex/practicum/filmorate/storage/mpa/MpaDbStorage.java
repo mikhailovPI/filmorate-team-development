@@ -1,9 +1,7 @@
 package ru.yandex.practicum.filmorate.storage.mpa;
 
-import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.exception.InvalidValueException;
 import ru.yandex.practicum.filmorate.model.Mpa;
@@ -28,8 +26,8 @@ public class MpaDbStorage implements MpaDaoStorage {
         }
         String sql =
                 "SELECT * " +
-                        "FROM MPA " +
-                        "WHERE MPA_ID = ?";
+                        "FROM RATINGS " +
+                        "WHERE RATING_ID = ?";
         return jdbcTemplate.query(sql, (rs, rowNum) -> makeMpa(rs), id)
                 .stream().findAny().orElse(null);
     }
@@ -38,8 +36,8 @@ public class MpaDbStorage implements MpaDaoStorage {
     public List<Mpa> getAllMpa() {
         String sql =
                 "SELECT * " +
-                        "FROM MPA " +
-                        "ORDER BY MPA_ID";
+                        "FROM RATINGS " +
+                        "ORDER BY RATING_ID";
         return jdbcTemplate.query(sql, (rs, rowNum) -> makeMpa(rs));
     }
 
@@ -47,8 +45,8 @@ public class MpaDbStorage implements MpaDaoStorage {
     public Mpa createMpa(Mpa mpa) {
         String sql =
                 "SELECT * " +
-                        "FROM MPA " +
-                        "WHERE MPA_ID = ?";
+                        "FROM RATINGS " +
+                        "WHERE RATING_ID = ?";
         return jdbcTemplate.query(sql, (rs, rowNum) -> makeMpa(rs), mpa.getName())
                 .stream().findAny().orElse(null);
     }
@@ -59,26 +57,14 @@ public class MpaDbStorage implements MpaDaoStorage {
             throw new EntityNotFoundException("MPA не найден для обновления");
         }
         String sql =
-                "UPDATE MPA " +
-                        "SET MPA_NAME = ? " +
-                        "WHERE MPA_ID = ?";
+                "UPDATE RATINGS " +
+                        "SET NAME = ? " +
+                        "WHERE RATING_ID = ?";
         jdbcTemplate.update(sql, mpa.getName(), mpa.getId());
         return mpa;
     }
 
-//    @Override
-//    public void deleteMpa(Mpa mpa) {
-//        if (getMpaById(mpa.getId()) == null) {
-//            throw new EntityNotFoundException("MPA не найден для обновления");
-//        }
-//        String sql =
-//                "DELETE " +
-//                        "FROM MPA " +
-//                        "WHERE MPA_ID = ?";
-//        jdbcTemplate.update(sql, mpa.getId());
-//    }
-
     private Mpa makeMpa(ResultSet rs) throws SQLException {
-        return new Mpa(rs.getInt("MPA_ID"), rs.getString("MPA_NAME"));
+        return new Mpa(rs.getInt("RATING_ID"), rs.getString("NAME"));
     }
 }

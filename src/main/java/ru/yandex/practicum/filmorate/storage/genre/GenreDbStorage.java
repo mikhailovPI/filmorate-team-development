@@ -63,7 +63,7 @@ public class GenreDbStorage implements GenreDaoStorage {
         }
         String sql =
                 "UPDATE GENRES " +
-                        "SET GENRE_NAME = ? " +
+                        "SET NAME = ? " +
                         "WHERE GENRE_ID = ?";
         jdbcTemplate.update(sql, genre.getName(), genre.getId());
         return genre;
@@ -72,9 +72,9 @@ public class GenreDbStorage implements GenreDaoStorage {
     @Override
     public Set<Genre> getGenresByFilm(Film film) {
         String sql =
-                "SELECT g.GENRE_ID, g.GENRE_NAME " +
+                "SELECT g.GENRE_ID, g.NAME " +
                         "FROM GENRES g " +
-                        "NATURAL JOIN GENRE_FILM fg " +
+                        "NATURAL JOIN FILMS_GENRES fg " +
                         "WHERE fg.FILM_ID = ?";
         return new HashSet<>(jdbcTemplate.query(sql, (rs, rowNum) -> makeGenre(rs), film.getId()));
     }
@@ -89,12 +89,12 @@ public class GenreDbStorage implements GenreDaoStorage {
 //    }
 
     public void updateGenreFilm(Film film) {
-        String sql = "DELETE FROM GENRE_FILM WHERE FILM_ID = ?";
+        String sql = "DELETE FROM FILMS_GENRES WHERE FILM_ID = ?";
         jdbcTemplate.update(sql, film.getId());
     }
 
     private Genre makeGenre(ResultSet rs) throws SQLException {
-        return new Genre(rs.getInt("GENRE_ID"), rs.getString("GENRE_NAME"));
+        return new Genre(rs.getInt("GENRE_ID"), rs.getString("NAME"));
     }
 }
 

@@ -2,16 +2,13 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.exception.InvalidValueException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.film.FilmDaoStorage;
 import ru.yandex.practicum.filmorate.storage.genre.GenreDaoStorage;
+//import ru.yandex.practicum.filmorate.storage.like.LikeDaoStorage;
 import ru.yandex.practicum.filmorate.storage.mpa.MpaDaoStorage;
-import ru.yandex.practicum.filmorate.storage.user.UserDaoStorage;
 
-import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -20,7 +17,7 @@ import java.util.stream.Collectors;
 public class FilmService {
 
     private final FilmDaoStorage filmDaoStorage;
-    private final UserDaoStorage userDaoStorage;
+    //private final LikeDaoStorage likeDaoStorage;
     private final MpaDaoStorage mpaDaoStorage;
     private final GenreDaoStorage genreDaoStorage;
 
@@ -39,13 +36,10 @@ public class FilmService {
     }
 
     public Film updateFilm(Film film) throws ValidationException {
-        //filmDaoStorage.updateGenre(film);
-
         genreDaoStorage.updateGenreFilm(film);
         filmDaoStorage.createGenreByFilm(film);
 
-        Film updateFilm = filmDaoStorage.updateFilm(film);
-        return updateFilm;
+        return filmDaoStorage.updateFilm(film);
     }
 
     public void removeFilm(Film film) throws ValidationException {
@@ -66,13 +60,14 @@ public class FilmService {
 //            throw new ValidationException("Пользователь " + userDaoStorage.getUserById(idUser) +
 //                    " не оценивал этот фильм.");
 //        }
-        filmDaoStorage.getFilmById(idFilm).getLike().remove(idUser);
-        return filmDaoStorage.getFilmById(idFilm).getLike().size();
+//        filmDaoStorage.getFilmById(idFilm).getLikes().remove(idUser);
+        return filmDaoStorage.getFilmById(idFilm).getLikes().size();
     }
 
     public List<Film> getTopLikeFilm(Integer count) {
         return filmDaoStorage.getAllFilms().stream().sorted((p0, p1) ->
-                        p1.getLike().size() - (p0.getLike().size())).
+                        p1.getLikes().size() - (p0.getLikes().size())).
                 limit(count).collect(Collectors.toList());
     }
+
 }

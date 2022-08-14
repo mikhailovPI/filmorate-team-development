@@ -2,6 +2,8 @@ package ru.yandex.practicum.filmorate.storage.film;
 
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.exception.InvalidValueException;
@@ -13,6 +15,7 @@ import ru.yandex.practicum.filmorate.storage.Validator;
 import ru.yandex.practicum.filmorate.storage.user.UserDaoStorage;
 
 import java.sql.*;
+import java.sql.Date;
 import java.util.*;
 
 @Component
@@ -34,10 +37,10 @@ public class FilmDbStorage implements FilmDaoStorage {
             throw new InvalidValueException("Введен некорректный идентификатор фильма.");
         }
         String sql =
-                "SELECT f.FILM_ID, f.FILM_NAME, f.DESCRIPTION, f.RELEASE_DATE, " +
-                        "f.DURATION, f.MPA_ID, m.MPA_NAME " +
+                "SELECT f.FILM_ID, f.NAME, f.DESCRIPTION, f.RELEASE_DATE,  " +
+                        "f.DURATION, f.RATING_ID, m.NAME " +
                         "FROM FILMS f " +
-                        "JOIN MPA AS m ON f.MPA_ID = m.MPA_ID " +
+                        "JOIN RATINGS AS m ON f.RATING_ID = m.RATING_ID " +
                         "WHERE f.FILM_ID = ?";
         return jdbcTemplate.query(sql, (rs, rowNum) -> makeFilm(rs), id)
                 .stream().findAny().orElse(null);
@@ -46,10 +49,10 @@ public class FilmDbStorage implements FilmDaoStorage {
     @Override
     public List<Film> getAllFilms() {
         String sql =
-                "SELECT f.FILM_ID, f.FILM_NAME, f.DESCRIPTION, f.RELEASE_DATE, " +
-                        "f.DURATION, f.MPA_ID, m.MPA_NAME " +
+                "SELECT f.FILM_ID, f.NAME, f.RELEASE_DATE, f.DESCRIPTION,  " +
+                        "f.DURATION, f.RATING_ID, m.NAME " +
                         "FROM FILMS f " +
-                        "JOIN MPA AS m ON f.MPA_ID = m.MPA_ID " +
+                        "JOIN RATINGS AS m ON f.RATING_ID = m.RATING_ID " +
                         "ORDER BY f.FILM_ID";
         return jdbcTemplate.query(sql, (rs, rowNum) -> makeFilm(rs));
     }
@@ -58,20 +61,22 @@ public class FilmDbStorage implements FilmDaoStorage {
     public Film createFilm(Film film) {
         validator.filmValidator(film);
         if (film == null) {
-            throw new EntityNotFoundException("Передан пустой фильм.");
+            throw new EntityNotFoundException("Невозможно создать фильм. Передан пустой фильм.");
         }
-        SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate)
-                .withTableName("FILMS")
-                .usingGeneratedKeyColumns("FILM_ID");
 
-        Map<String, Object> values = new HashMap<>();
-        values.put("NAME", film.getName());
-        values.put("DESCRIPTION", film.getDescription());
-        values.put("RELEASE_DATE", film.getReleaseDate());
-        values.put("DURATION", film.getDuration());
-        values.put("MPA_ID", film.getMpa().getId());
-
-        film.setId(simpleJdbcInsert.executeAndReturnKey(values).longValue());
+        String sqlQuery = "INSERT INTO films (NAME, RELEASE_DATE, DESCRIPTION, DURATION, RATING_ID) " +
+                "VALUES (?, ?, ?, ?, ?);";
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+        jdbcTemplate.update(connection -> {
+            PreparedStatement ps = connection.prepareStatement(sqlQuery, new String[]{"FILM_ID"});
+            ps.setString(1, film.getName());
+            ps.setDate(2, Date.valueOf(film.getReleaseDate()));
+            ps.setString(3, film.getDescription());
+            ps.setLong(4, film.getDuration());
+            ps.setLong(5, film.getMpa().getId());
+            return ps;
+        }, keyHolder);
+        film.setId(keyHolder.getKey().longValue());
         return film;
     }
 
@@ -79,7 +84,7 @@ public class FilmDbStorage implements FilmDaoStorage {
     public void createGenreByFilm(Film film) {
         validator.filmValidator(film);
         String sql =
-                "INSERT INTO GENRE_FILM (FILM_ID, GENRE_ID) " +
+                "INSERT INTO FILMS_GENRES (FILM_ID, GENRE_ID) " +
                         "VALUES(?, ?)";
         Set<Genre> genres = film.getGenres();
         if (genres == null) {
@@ -93,7 +98,7 @@ public class FilmDbStorage implements FilmDaoStorage {
     @Override
     public Film updateFilm(Film film) {
         validator.filmValidator(film);
-        if (!getAllFilms().contains(film.getId())) {
+        if (!getAllFilms().contains(film)) {
             throw new EntityNotFoundException("Фильм не найден для обновления.");
         }
         if (film.getId() < 1) {
@@ -101,10 +106,10 @@ public class FilmDbStorage implements FilmDaoStorage {
         }
         String sql =
                 "UPDATE FILMS " +
-                        "SET FILM_NAME = ?, DESCRIPTION = ?, RELEASE_DATE = ?, " +
-                        "DURATION = ?, MPA_ID =? " +
+                        "SET NAME = ?, RELEASE_DATE = ?, DESCRIPTION = ?, " +
+                        "DURATION = ?, RATING_ID =? " +
                         "WHERE FILM_ID = ?";
-        jdbcTemplate.update(sql, film.getName(), film.getDescription(), film.getReleaseDate(),
+        jdbcTemplate.update(sql, film.getName(), film.getReleaseDate(), film.getDescription(),
                 film.getDuration(), film.getMpa().getId(), film.getId());
         return film;
     }
@@ -112,7 +117,7 @@ public class FilmDbStorage implements FilmDaoStorage {
     @Override
     public void deleteFilm(Film film) {
         validator.filmValidator(film);
-        if (!getAllFilms().contains(film.getId())) {
+        if (!getAllFilms().contains(film)) {
             throw new EntityNotFoundException("Фильм не найден для удаления.");
         }
         if (film.getId() < 1) {
@@ -126,30 +131,20 @@ public class FilmDbStorage implements FilmDaoStorage {
     }
 
     public Integer putLike(Long filmId, Long userId) {
-        if (getFilmById(filmId).getLike().contains(userId)) {
+        if (getFilmById(filmId).getLikes().contains(userId)) {
             throw new ValidationException("Данный пользователь уже оценивал этот фильм.");
         }
-        Set<Long> likeSet = getFilmById(filmId).getLike();
+        Set<Long> likeSet = getFilmById(filmId).getLikes();
         likeSet.add(userId);
         return likeSet.size();
     }
 
-    @Override
-    public void updateGenre(Film film) {
-        String sql =
-                "DELETE " +
-                        "FROM GENRE_FILM " +
-                        "WHERE FILM_ID = ?";
-        jdbcTemplate.update(sql, film.getId());
-        createGenreByFilm(film);
-    }
-
     public Integer removeLike(Long filmId, Long userId) {
-        if (getFilmById(filmId).getLike().contains(userId)) {
+        if (getFilmById(filmId).getLikes().contains(userId)) {
             throw new ValidationException("Пользователь " + userDaoStorage.getUserById(userId) +
                     " не оценивал этот фильм.");
         }
-        Set<Long> likeSet = getFilmById(filmId).getLike();
+        Set<Long> likeSet = getFilmById(filmId).getLikes();
         likeSet.remove(userId);
         return likeSet.size();
     }
@@ -157,18 +152,18 @@ public class FilmDbStorage implements FilmDaoStorage {
     @Override
     public Integer getLikeFilm() {
         Film film = new Film();
-        return film.getLike().size();
+        return film.getLikes().size();
     }
 
 
     private Film makeFilm(ResultSet rs) throws SQLException {
         Film film = new Film();
         film.setId(rs.getLong("FILM_ID"));
-        film.setName(rs.getString("FILM_NAME"));
-        film.setDescription(rs.getString("DESCRIPTION"));
+        film.setName(rs.getString("NAME"));
         film.setReleaseDate(rs.getDate("RELEASE_DATE").toLocalDate());
+        film.setDescription(rs.getString("DESCRIPTION"));
         film.setDuration(rs.getInt("DURATION"));
-        film.setMpa(new Mpa(rs.getInt("MPA_ID"), rs.getString("MPA_NAME")));
+        film.setMpa(new Mpa(rs.getInt("RATING_ID"), rs.getString("NAME")));
 
         return film;
     }
