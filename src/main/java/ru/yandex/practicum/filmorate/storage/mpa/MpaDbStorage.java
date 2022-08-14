@@ -58,13 +58,13 @@ public class MpaDbStorage implements MpaDaoStorage {
         }
         String sql =
                 "UPDATE RATINGS " +
-                        "SET NAME = ? " +
+                        "SET RATING_NAME = ? " +
                         "WHERE RATING_ID = ?";
         jdbcTemplate.update(sql, mpa.getName(), mpa.getId());
         return mpa;
     }
 
     private Mpa makeMpa(ResultSet rs) throws SQLException {
-        return new Mpa(rs.getInt("RATING_ID"), rs.getString("NAME"));
+        return new Mpa(rs.getInt("RATING_ID"), rs.getString("RATING_NAME"));
     }
 }

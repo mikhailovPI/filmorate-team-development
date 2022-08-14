@@ -12,13 +12,11 @@ public interface GenreDaoStorage {
 
     List<Genre> getAllGenres();
 
+    void updateGenreFilm (Film film);
+
     Genre createGenre(Genre genre);
 
     Genre updateGenre(Genre genre);
 
     Set<Genre> getGenresByFilm (Film film);
-
-    //void deleteGenre(Genre genre);
-
-    void updateGenreFilm (Film film);
 }

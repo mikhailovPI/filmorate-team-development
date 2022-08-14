@@ -7,6 +7,7 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.film.FilmDaoStorage;
 import ru.yandex.practicum.filmorate.storage.genre.GenreDaoStorage;
 //import ru.yandex.practicum.filmorate.storage.like.LikeDaoStorage;
+import ru.yandex.practicum.filmorate.storage.like.LikeDaoStorage;
 import ru.yandex.practicum.filmorate.storage.mpa.MpaDaoStorage;
 
 import java.util.List;
@@ -17,9 +18,14 @@ import java.util.stream.Collectors;
 public class FilmService {
 
     private final FilmDaoStorage filmDaoStorage;
-    //private final LikeDaoStorage likeDaoStorage;
+    private final LikeDaoStorage likeDaoStorage;
     private final MpaDaoStorage mpaDaoStorage;
     private final GenreDaoStorage genreDaoStorage;
+
+    private void loadData(Film film) {
+        film.setGenres(genreDaoStorage.getGenresByFilm(film));
+        likeDaoStorage.loadLikes(film);
+    }
 
     public List<Film> getFilms() {
         return filmDaoStorage.getAllFilms();

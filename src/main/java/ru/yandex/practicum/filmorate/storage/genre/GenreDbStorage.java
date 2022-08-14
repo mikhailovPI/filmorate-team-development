@@ -72,8 +72,8 @@ public class GenreDbStorage implements GenreDaoStorage {
     @Override
     public Set<Genre> getGenresByFilm(Film film) {
         String sql =
-                "SELECT g.GENRE_ID, g.NAME " +
-                        "FROM GENRES g " +
+                "SELECT GEN.GENRE_ID, GEN.NAME " +
+                        "FROM GENRES GEN " +
                         "NATURAL JOIN FILMS_GENRES fg " +
                         "WHERE fg.FILM_ID = ?";
         return new HashSet<>(jdbcTemplate.query(sql, (rs, rowNum) -> makeGenre(rs), film.getId()));

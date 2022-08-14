@@ -37,23 +37,23 @@ public class FilmDbStorage implements FilmDaoStorage {
             throw new InvalidValueException("Введен некорректный идентификатор фильма.");
         }
         String sql =
-                "SELECT f.FILM_ID, f.NAME, f.DESCRIPTION, f.RELEASE_DATE,  " +
-                        "f.DURATION, f.RATING_ID, m.NAME " +
-                        "FROM FILMS f " +
-                        "JOIN RATINGS AS m ON f.RATING_ID = m.RATING_ID " +
-                        "WHERE f.FILM_ID = ?";
+                "SELECT F.FILM_ID, F.NAME, F.DESCRIPTION, F.RELEASE_DATE,  " +
+                        "F.DURATION, F.RATING_ID, R.RATING_NAME " +
+                        "FROM FILMS F " +
+                        "JOIN RATINGS AS R ON F.RATING_ID = R.RATING_ID " +
+                        "WHERE F.FILM_ID = ?";
         return jdbcTemplate.query(sql, (rs, rowNum) -> makeFilm(rs), id)
-                .stream().findAny().orElse(null);
+               .stream().findAny().orElse(null);
     }
 
     @Override
     public List<Film> getAllFilms() {
         String sql =
-                "SELECT f.FILM_ID, f.NAME, f.RELEASE_DATE, f.DESCRIPTION,  " +
-                        "f.DURATION, f.RATING_ID, m.NAME " +
+                "SELECT F.FILM_ID, F.NAME, F.RELEASE_DATE, F.DESCRIPTION,  " +
+                        "F.DURATION, F.RATING_ID, R.RATING_NAME " +
                         "FROM FILMS f " +
-                        "JOIN RATINGS AS m ON f.RATING_ID = m.RATING_ID " +
-                        "ORDER BY f.FILM_ID";
+                        "JOIN RATINGS AS R ON f.RATING_ID = R.RATING_ID " +
+                        "ORDER BY F.FILM_ID";
         return jdbcTemplate.query(sql, (rs, rowNum) -> makeFilm(rs));
     }
 
@@ -163,7 +163,7 @@ public class FilmDbStorage implements FilmDaoStorage {
         film.setReleaseDate(rs.getDate("RELEASE_DATE").toLocalDate());
         film.setDescription(rs.getString("DESCRIPTION"));
         film.setDuration(rs.getInt("DURATION"));
-        film.setMpa(new Mpa(rs.getInt("RATING_ID"), rs.getString("NAME")));
+        film.setMpa(new Mpa(rs.getInt("RATING_ID"), rs.getString("RATING_NAME")));
 
         return film;
     }
