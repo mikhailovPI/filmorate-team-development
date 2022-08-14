@@ -15,10 +15,4 @@ public interface UserDaoStorage {
     User updateUser(User user);
 
     void deleteUser(User user);
-
-    void addFriend(Long userId, Long friendId);
-
-    void deleteFriend(Long userId, Long friendId);
-
-    List<User> getAllFriendsUser(Long userId);
-    }
+}

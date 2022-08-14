@@ -14,9 +14,5 @@ public interface GenreDaoStorage {
 
     void updateGenreFilm (Film film);
 
-    Genre createGenre(Genre genre);
-
-    Genre updateGenre(Genre genre);
-
     Set<Genre> getGenresByFilm (Film film);
 }

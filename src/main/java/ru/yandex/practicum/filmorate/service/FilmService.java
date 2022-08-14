@@ -8,9 +8,7 @@ import ru.yandex.practicum.filmorate.storage.film.FilmDaoStorage;
 import ru.yandex.practicum.filmorate.storage.genre.GenreDaoStorage;
 import ru.yandex.practicum.filmorate.storage.like.LikeDaoStorage;
 
-import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -22,7 +20,6 @@ public class FilmService {
 
     private void loadData(Film film) {
         film.setGenres(genreDaoStorage.getGenresByFilm(film));
-//        likeDaoStorage.loadLikes(film);
     }
 
     public List<Film> getFilms() {
@@ -64,9 +61,6 @@ public class FilmService {
     }
 
     public List<Film> getTopLikeFilm(Integer count) {
-        return filmDaoStorage.getAllFilms().stream()
-                .sorted(Comparator.comparing(Film::getLikeCount).reversed())
-                .limit(count)
-                .collect(Collectors.toList());
+        return filmDaoStorage.getTopLikeFilm(count);
     }
 }

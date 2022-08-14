@@ -15,7 +15,4 @@ public interface MpaDaoStorage {
 
     Mpa updateMpa(Mpa mpa);
 
-    //void deleteMpa(Mpa mpa);
-
-    //Mpa getMpa(Film film);
 }

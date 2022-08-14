@@ -19,8 +19,7 @@ public interface FilmDaoStorage {
 
     void createGenreByFilm(Film film);
 
-//    void putLike (Long filmId, Long userId);
-//
-//    void removeLike(Long id, Long userId);
+    List<Film> getTopLikeFilm(Integer count);
+
 }
 

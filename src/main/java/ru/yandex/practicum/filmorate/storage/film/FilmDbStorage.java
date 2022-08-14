@@ -6,7 +6,6 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.exception.InvalidValueException;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
@@ -129,24 +128,19 @@ public class FilmDbStorage implements FilmDaoStorage {
         jdbcTemplate.update(sql, film.getId());
     }
 
-//    @Override
-//    public void putLike(Long id, Long userId) {
-//        if (getFilmById(id).getLikes().contains(userId)) {
-//            throw new ValidationException("Данный пользователь уже оценивал этот фильм.");
-//        }
-//        Set<Long> likeSet = getFilmById(id).getLikes();
-//        likeSet.add(userId);
-//    }
-//
-//    @Override
-//    public void removeLike(Long id, Long userId) {
-//        if (getFilmById(id).getLikes().contains(userId)) {
-//            throw new ValidationException("Пользователь " + userDaoStorage.getUserById(userId) +
-//                    " не оценивал этот фильм.");
-//        }
-//        Set<Long> likeSet = getFilmById(id).getLikes();
-//        likeSet.remove(userId);
-//    }
+    @Override
+    public List<Film> getTopLikeFilm(Integer count) {
+        String sql =
+                "SELECT F.FILM_ID, F.NAME, F.RELEASE_DATE, F.DESCRIPTION,  " +
+                        "F.DURATION, F.RATING_ID, R.RATING_NAME " +
+                        "FROM FILMS F " +
+                        "JOIN RATINGS AS R ON f.RATING_ID = R.RATING_ID " +
+                        "LEFT JOIN FILMS_LIKES L on F.FILM_ID = L.FILM_ID " +
+                        "GROUP BY F.FILM_ID " +
+                        "ORDER BY COUNT(L.USER_ID) DESC " +
+                        "limit ?";
+        return jdbcTemplate.query(sql, (rs, rowNum) -> makeFilm(rs), count);
+    }
 
     private Film makeFilm(ResultSet rs) throws SQLException {
         Film film = new Film();

@@ -98,42 +98,6 @@ public class UserDbStorage implements UserDaoStorage {
         jdbcTemplate.update(sql, user.getId());
     }
 
-    @Override
-    public void addFriend(Long userId, Long friendId) {
-        String sql =
-                "INSERT INTO FRIENDS (USER_ID, FRIEND_ID) " +
-                        "VALUES (?, ?)";
-        jdbcTemplate.update(sql, userId, friendId);
-    }
-
-    @Override
-    public void deleteFriend(Long userId, Long friendId) {
-        if (getUserById(friendId) == null) {
-            return;
-        }
-        String sql =
-                "DELETE " +
-                        "FROM FRIENDS " +
-                        "WHERE USER_ID = ? " +
-                        "AND FRIEND_ID = ?";
-        jdbcTemplate.update(sql, userId, friendId);
-    }
-
-    @Override
-    public List<User> getAllFriendsUser(Long userId) {
-        String sql =
-                "SELECT FRIEND_ID " +
-                        "FROM FRIENDS " +
-                        "WHERE USER_ID=?";
-        List<Long> friendIds = jdbcTemplate.queryForList(sql, Long.class, userId);
-        List<User> list = new ArrayList<>();
-        for (Long friendId : friendIds) {
-            User userById = getUserById(friendId);
-            list.add(userById);
-        }
-        return list;
-    }
-
     private User makeUser(ResultSet rs) throws SQLException {
         User user = new User();
         user.setId(rs.getLong("USER_ID"));

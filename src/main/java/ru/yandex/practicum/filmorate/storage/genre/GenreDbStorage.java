@@ -45,31 +45,6 @@ public class GenreDbStorage implements GenreDaoStorage {
     }
 
     @Override
-    public Genre createGenre(Genre genre) {
-        String sql =
-                "SELECT * " +
-                        "FROM GENRES " +
-                        "WHERE GENRE_ID = ?";
-        return jdbcTemplate.query(sql, (rs, rowNum) -> makeGenre(rs), genre.getId())
-                .stream().findAny().orElse(null);
-    }
-    @Override
-    public Genre updateGenre(Genre genre) {
-        if (genre == null) {
-            return null;
-        }
-        if (genre.getId() < 1) {
-            throw new InvalidValueException("Введен некорректный идентификатор жанра.");
-        }
-        String sql =
-                "UPDATE GENRES " +
-                        "SET NAME = ? " +
-                        "WHERE GENRE_ID = ?";
-        jdbcTemplate.update(sql, genre.getName(), genre.getId());
-        return genre;
-    }
-
-    @Override
     public Set<Genre> getGenresByFilm(Film film) {
         String sql =
                 "SELECT GEN.GENRE_ID, GEN.NAME " +

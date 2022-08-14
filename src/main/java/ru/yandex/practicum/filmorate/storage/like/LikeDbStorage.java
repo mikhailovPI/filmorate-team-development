@@ -1,10 +1,8 @@
 package ru.yandex.practicum.filmorate.storage.like;
 
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
-import ru.yandex.practicum.filmorate.model.Film;
 
 @Component
 public class LikeDbStorage implements LikeDaoStorage {
@@ -32,13 +30,5 @@ public class LikeDbStorage implements LikeDaoStorage {
         jdbcTemplate.update("DELETE FROM FILMS_LIKES WHERE USER_ID = ?", userId);
     }
 
-//    @Override
-//    public void loadLikes(Film film) {
-//        String sql = "SELECT USER_ID FROM FILMS_LIKES WHERE FILM_ID = ?";
-//        SqlRowSet sqlRowSet = jdbcTemplate.queryForRowSet(sql, film.getId());
-//        while (sqlRowSet.next()) {
-//            film.addLike(sqlRowSet.getLong("USER_ID"));
-//        }
-//    }
 }
 
