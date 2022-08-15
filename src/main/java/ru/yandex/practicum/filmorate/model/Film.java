@@ -1,42 +1,33 @@
 package ru.yandex.practicum.filmorate.model;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import org.hibernate.validator.constraints.Length;
-
-import javax.validation.constraints.*;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
+import lombok.EqualsAndHashCode;
 import java.time.LocalDate;
 import java.util.HashSet;
-import java.util.List;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
+@EqualsAndHashCode(of = "id")
 public class Film {
 
-    private long id;
+    private Set<Long> likes = new HashSet<>();
 
-    @NotNull(message = "Необходимо указать название фильма.")
-    @NotBlank(message = "Название фильма не может быть пустым.")
+    private Set<Genre> genres = new LinkedHashSet<>();
+
+    private Long id;
+
     private String name;
 
-    @NotNull(message = "Необходимо указать описание фильма.")
-    @NotBlank(message = "Описание фильма не может быть пустым.")
-    @Length(max = 200)
     private String description;
 
-    @NotNull(message = "Необходимо указать дату релиза фильма.")
     private LocalDate releaseDate;
 
-    @Min(1)
-    private long duration;
+    private Integer duration;
 
-    private final Set<Long> like = new HashSet<>();
-
-    @NotNull(message = "Необходимо указать возрастное ограничение фильма.")
-    private String mpa;
-
-    @NotNull(message = "Необходимо указать жанр фильма.")
-    private List<String> genreFilm;
-
+    private Mpa mpa;
 }
