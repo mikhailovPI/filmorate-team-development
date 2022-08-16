@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.storage.film;
 
-import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
@@ -12,6 +11,7 @@ import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.storage.Validator;
 import ru.yandex.practicum.filmorate.storage.user.UserDaoStorage;
+import ru.yandex.practicum.filmorate.utilities.Checker;
 
 import java.sql.Date;
 import java.sql.PreparedStatement;
@@ -24,32 +24,24 @@ import java.util.Set;
 public class FilmDbStorage implements FilmDaoStorage {
 
     private final JdbcTemplate jdbcTemplate;
-    private final UserDaoStorage userDaoStorage;
     private final Validator validator;
 
-    public FilmDbStorage(JdbcTemplate jdbcTemplate, UserDaoStorage userDaoStorage, Validator validator) {
+    public FilmDbStorage(JdbcTemplate jdbcTemplate, Validator validator) {
         this.jdbcTemplate = jdbcTemplate;
-        this.userDaoStorage = userDaoStorage;
         this.validator = validator;
     }
 
     @Override
     public Film getFilmById(Long id) {
-        if (id < 1) {
-            throw new InvalidValueException("Введен некорректный идентификатор фильма.");
-        }
+        Checker.checkFilmExists(id, jdbcTemplate);
         String sql =
                 "SELECT F.FILM_ID, F.NAME, F.DESCRIPTION, F.RELEASE_DATE,  " +
                         "F.DURATION, F.RATING_ID, R.RATING_NAME " +
                         "FROM FILMS F " +
                         "JOIN RATINGS AS R ON F.RATING_ID = R.RATING_ID " +
                         "WHERE F.FILM_ID = ?";
-        try {
-            return jdbcTemplate.query(sql, (rs, rowNum) -> makeFilm(rs), id)
-                    .stream().findAny().orElseThrow(ChangeSetPersister.NotFoundException::new);
-        } catch (ChangeSetPersister.NotFoundException e) {
-            throw new EntityNotFoundException("Фильм с таким id не найден");
-        }
+        return jdbcTemplate.query(sql, (rs, rowNum) -> makeFilm(rs), id)
+                .stream().findAny().orElse(null);
     }
 
     @Override
@@ -122,9 +114,7 @@ public class FilmDbStorage implements FilmDaoStorage {
 
     @Override
     public void deleteFilm(Long id) {
-        if (id < 1) {
-            throw new InvalidValueException("Введен некорректный идентификатор фильма.");
-        }
+        Checker.checkFilmExists(id, jdbcTemplate);
         String sql =
                 "DELETE " +
                         "FROM FILMS " +

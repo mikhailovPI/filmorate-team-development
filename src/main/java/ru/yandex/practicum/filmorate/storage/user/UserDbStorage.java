@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.storage.user;
 
-import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
@@ -9,6 +8,7 @@ import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.exception.InvalidValueException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.Validator;
+import ru.yandex.practicum.filmorate.utilities.Checker;
 
 import java.sql.Date;
 import java.sql.PreparedStatement;
@@ -29,20 +29,14 @@ public class UserDbStorage implements UserDaoStorage {
 
     @Override
     public User getUserById(Long id) {
-        if (id < 1) {
-            throw new InvalidValueException("Введен некорректный идентификатор пользователя.");
-        }
+        Checker.checkUserExists(id, jdbcTemplate);
         String sql =
                 "SELECT * " +
                         "FROM USERS " +
                         "WHERE USER_ID = ?";
-        try {
-            return jdbcTemplate.query(sql, (rs, rowNum) -> makeUser(rs), id)
-                    .stream()
-                    .findAny().orElseThrow(ChangeSetPersister.NotFoundException::new);
-        } catch (ChangeSetPersister.NotFoundException e) {
-            throw new EntityNotFoundException("Пользователь с таким id не найден");
-        }
+        return jdbcTemplate.query(sql, (rs, rowNum) -> makeUser(rs), id)
+                .stream()
+                .findAny().orElse(null);
     }
 
     @Override
@@ -75,7 +69,7 @@ public class UserDbStorage implements UserDaoStorage {
     @Override
     public User updateUser(User user) {
         validator.userValidator(user);
-        if (getUserById(user.getId())==null /*.contains(user.getId())*/) {
+        if (getUserById(user.getId()) == null /*.contains(user.getId())*/) {
             throw new EntityNotFoundException("Пользователь не найден для обновления.");
         }
         if (user.getId() < 1) {
@@ -92,9 +86,7 @@ public class UserDbStorage implements UserDaoStorage {
 
     @Override
     public void deleteUser(Long id) {
-        if (id < 1) {
-            throw new InvalidValueException("Введен некорректный идентификатор пользователя.");
-        }
+        Checker.checkUserExists(id, jdbcTemplate);
         String sql =
                 "DELETE FROM USERS " +
                         "WHERE USER_ID = ?";
