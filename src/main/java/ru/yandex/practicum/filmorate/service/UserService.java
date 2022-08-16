@@ -4,10 +4,13 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
+import ru.yandex.practicum.filmorate.model.Feed;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.feed.FeedDaoStorage;
 import ru.yandex.practicum.filmorate.storage.friends.FriendsDaoStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserDaoStorage;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -17,6 +20,8 @@ public class UserService {
 
     private final UserDaoStorage userDaoStorage;
     private final FriendsDaoStorage friendsDaoStorage;
+
+    private final FeedDaoStorage feedDaoStorage;
 
     public List<User> getAllUser() {
         return userDaoStorage.getAllUser();
@@ -59,5 +64,9 @@ public class UserService {
         return user.stream()
                 .filter(otherUser::contains)
                 .collect(Collectors.toList());
+    }
+
+    public Collection<Feed> getUserFeed(long userId) {
+        return feedDaoStorage.getUserFeed(userId);
     }
 }
