@@ -2,9 +2,11 @@ package ru.yandex.practicum.filmorate.storage;
 
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
+import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 
+import java.awt.image.DirectColorModel;
 import java.time.LocalDate;
 
 @Component
@@ -43,6 +45,13 @@ public class Validator {
 
         if(film.getMpa() == null){
             throw new ValidationException("Введен некорректный возрастной рейтинг. Добавьте возрастной рейтинг.");
+        }
+    }
+
+    public void directorValidator(Director director) throws ValidationException {
+        if(director.getName().isBlank() || director.getName() == null){
+            throw new ValidationException("Введено некорректное название режиссера." +
+                    " Имя режиссера не может быть пустым.");
         }
     }
 }

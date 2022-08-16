@@ -6,29 +6,34 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.exception.InvalidValueException;
+import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.storage.Validator;
 import ru.yandex.practicum.filmorate.storage.user.UserDaoStorage;
 import ru.yandex.practicum.filmorate.utilities.Checker;
+import ru.yandex.practicum.filmorate.storage.director.DirectorDaoStorage;
+import ru.yandex.practicum.filmorate.storage.genre.GenreDaoStorage;
 
+import java.sql.*;
 import java.sql.Date;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Component
 public class FilmDbStorage implements FilmDaoStorage {
 
     private final JdbcTemplate jdbcTemplate;
+    private final DirectorDaoStorage directorDaoStorage;
+    private final GenreDaoStorage genreDaoStorage;
     private final Validator validator;
 
-    public FilmDbStorage(JdbcTemplate jdbcTemplate, Validator validator) {
+    public FilmDbStorage(JdbcTemplate jdbcTemplate, UserDaoStorage userDaoStorage, Validator validator) {
         this.jdbcTemplate = jdbcTemplate;
+        this.userDaoStorage = userDaoStorage;
         this.validator = validator;
+        this.directorDaoStorage = directorDaoStorage;
+        this.genreDaoStorage = genreDaoStorage;
     }
 
     @Override
@@ -94,6 +99,21 @@ public class FilmDbStorage implements FilmDaoStorage {
     }
 
     @Override
+    public void createDirectorByFilm(Film film) {
+        validator.filmValidator(film);
+        String sql =
+                "INSERT INTO FILM_DIRECTOR (FILM_ID, DIRECTOR_ID) " +
+                        "VALUES(?, ?)";
+        Set<Director> directors = film.getDirectors();
+        if (directors == null) {
+            return;
+        }
+        for (Director director : directors) {
+            jdbcTemplate.update(sql, film.getId(), director.getId());
+        }
+    }
+
+    @Override
     public Film updateFilm(Film film) {
         validator.filmValidator(film);
         if (!getAllFilms().contains(film)) {
@@ -134,6 +154,38 @@ public class FilmDbStorage implements FilmDaoStorage {
                         "ORDER BY COUNT(L.USER_ID) DESC " +
                         "limit ?";
         return jdbcTemplate.query(sql, (rs, rowNum) -> makeFilm(rs), count);
+    }
+
+    @Override
+    public List<Film> getDirectorsFilmSortByYear(Integer directorId) {
+        String sqlQuery =
+                "SELECT f.FILM_ID, f.NAME, f.RELEASE_DATE, f.DESCRIPTION, f.DURATION, f.RATING_ID, r.RATING_NAME " +
+                        "FROM FILMS AS f " +
+                        "JOIN RATINGS r on r.RATING_ID = f.RATING_ID " +
+                        "INNER JOIN FILM_DIRECTOR AS fd on f.FILM_ID = fd.FILM_ID " +
+                        "WHERE fd.DIRECTOR_ID = ? " +
+                        "ORDER BY f.RELEASE_DATE";
+        List<Film> films = jdbcTemplate.query(sqlQuery, (rs, rowNum) -> makeFilm(rs), directorId);
+        films.forEach(f -> f.setDirectors(directorDaoStorage.getDirectorsByFilm(f)));
+        films.forEach(f -> f.setGenres(genreDaoStorage.getGenresByFilm(f)));
+        return films;
+    }
+
+    @Override
+    public List<Film> getDirectorsFilmSortByLikesCount(Integer directorId) {
+        String sqlQuery = "SELECT f.FILM_ID, f.NAME, f.RELEASE_DATE, f.DESCRIPTION, f.DURATION, " +
+                " f.RATING_ID, r.RATING_NAME " +
+                "FROM FILMS as f " +
+                "JOIN RATINGS r on r.RATING_ID = f.RATING_ID " +
+                "LEFT JOIN FILMS_LIKES fl on f.film_id = fl.film_id " +
+                "LEFT JOIN FILM_DIRECTOR fd on f.FILM_ID = fd.FILM_ID " +
+                "WHERE fd.DIRECTOR_ID = ? " +
+                "GROUP BY f.FILM_ID " +
+                "ORDER BY COUNT(fl.USER_ID) DESC";
+        List<Film> films = jdbcTemplate.query(sqlQuery, (rs, rowNum) -> makeFilm(rs), directorId);
+        films.forEach(f -> f.setDirectors(directorDaoStorage.getDirectorsByFilm(f)));
+        films.forEach(f -> f.setGenres(genreDaoStorage.getGenresByFilm(f)));
+        return films;
     }
 
     private Film makeFilm(ResultSet rs) throws SQLException {

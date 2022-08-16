@@ -21,5 +21,11 @@ public interface FilmDaoStorage {
 
     List<Film> getTopLikeFilm(Integer count);
 
+    void createDirectorByFilm(Film film);
+
+    List<Film> getDirectorsFilmSortByYear(Integer directorId);
+
+    List<Film> getDirectorsFilmSortByLikesCount(Integer directorId);
+
 }
 
