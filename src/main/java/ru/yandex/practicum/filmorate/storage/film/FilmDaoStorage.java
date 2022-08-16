@@ -15,7 +15,7 @@ public interface FilmDaoStorage {
 
     Film updateFilm(Film film);
 
-    void deleteFilm(Film film);
+    void deleteFilm(Long id);
 
     void createGenreByFilm(Film film);
 

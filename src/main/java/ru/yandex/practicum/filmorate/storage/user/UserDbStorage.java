@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.storage.user;
 
+import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
@@ -9,8 +10,10 @@ import ru.yandex.practicum.filmorate.exception.InvalidValueException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.Validator;
 
-import java.sql.*;
-import java.util.ArrayList;
+import java.sql.Date;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.List;
 
 @Component
@@ -33,9 +36,13 @@ public class UserDbStorage implements UserDaoStorage {
                 "SELECT * " +
                         "FROM USERS " +
                         "WHERE USER_ID = ?";
-        return jdbcTemplate.query(sql, (rs, rowNum) -> makeUser(rs), id)
-                .stream()
-                .findAny().orElse(null);
+        try {
+            return jdbcTemplate.query(sql, (rs, rowNum) -> makeUser(rs), id)
+                    .stream()
+                    .findAny().orElseThrow(ChangeSetPersister.NotFoundException::new);
+        } catch (ChangeSetPersister.NotFoundException e) {
+            throw new EntityNotFoundException("Пользователь с таким id не найден");
+        }
     }
 
     @Override
@@ -84,18 +91,14 @@ public class UserDbStorage implements UserDaoStorage {
     }
 
     @Override
-    public void deleteUser(User user) {
-        validator.userValidator(user);
-        if (getAllUser().contains(user)) {
-            throw new EntityNotFoundException("Пользователь не найден для удаления.");
-        }
-        if (user.getId() < 1) {
+    public void deleteUser(Long id) {
+        if (id < 1) {
             throw new InvalidValueException("Введен некорректный идентификатор пользователя.");
         }
         String sql =
                 "DELETE FROM USERS " +
                         "WHERE USER_ID = ?";
-        jdbcTemplate.update(sql, user.getId());
+        jdbcTemplate.update(sql, id);
     }
 
     private User makeUser(ResultSet rs) throws SQLException {
