@@ -10,6 +10,7 @@ import ru.yandex.practicum.filmorate.exception.InvalidValueException;
 import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.Validator;
+import ru.yandex.practicum.filmorate.utilities.Checker;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -39,9 +40,7 @@ public class DirectorDbStorage implements DirectorDaoStorage {
 
     @Override
     public Director findDirectorById(Integer id) {
-        if (id < 1) {
-            throw new InvalidValueException("Введен некорректный идентификатор режиссера.");
-        }
+        Checker.checkDirectorExists(id, jdbcTemplate);
         Director director = jdbcTemplate.query("SELECT * FROM DIRECTORS WHERE DIRECTOR_ID = ?", (rs, rowNum) ->
                         makeDirector(rs), id)
                 .stream().findAny().orElse(null);
@@ -67,7 +66,7 @@ public class DirectorDbStorage implements DirectorDaoStorage {
 
     @Override
     public Director updateDirector(Director director) {
-        findDirectorById(director.getId());
+        Checker.checkDirectorExists(director.getId(), jdbcTemplate);
         jdbcTemplate.update("UPDATE DIRECTORS SET DIRECTOR_NAME = ? WHERE DIRECTOR_ID = ?"
                 , director.getName()
                 , director.getId());
@@ -76,6 +75,7 @@ public class DirectorDbStorage implements DirectorDaoStorage {
 
     @Override
     public void deleteDirector(Integer id) {
+        Checker.checkDirectorExists(id, jdbcTemplate);
         jdbcTemplate.update("DELETE FROM FILM_DIRECTOR WHERE director_id = ?", id);
         jdbcTemplate.update("DELETE FROM DIRECTORS WHERE director_id = ?", id);
     }

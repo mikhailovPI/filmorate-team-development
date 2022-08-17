@@ -26,9 +26,11 @@ public class FilmDbStorage implements FilmDaoStorage {
     private final JdbcTemplate jdbcTemplate;
     private final DirectorDaoStorage directorDaoStorage;
     private final GenreDaoStorage genreDaoStorage;
+    UserDaoStorage userDaoStorage;
     private final Validator validator;
 
-    public FilmDbStorage(JdbcTemplate jdbcTemplate, UserDaoStorage userDaoStorage, Validator validator) {
+    public FilmDbStorage(JdbcTemplate jdbcTemplate, UserDaoStorage userDaoStorage, Validator validator,
+                         GenreDaoStorage genreDaoStorage, DirectorDaoStorage directorDaoStorage) {
         this.jdbcTemplate = jdbcTemplate;
         this.userDaoStorage = userDaoStorage;
         this.validator = validator;
