@@ -8,9 +8,12 @@ import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.exception.InvalidValueException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.Validator;
+import ru.yandex.practicum.filmorate.utilities.Checker;
 
-import java.sql.*;
-import java.util.ArrayList;
+import java.sql.Date;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.List;
 
 @Component
@@ -26,9 +29,7 @@ public class UserDbStorage implements UserDaoStorage {
 
     @Override
     public User getUserById(Long id) {
-        if (id < 1) {
-            throw new InvalidValueException("Введен некорректный идентификатор пользователя.");
-        }
+        Checker.checkUserExists(id, jdbcTemplate);
         String sql =
                 "SELECT * " +
                         "FROM USERS " +
@@ -68,7 +69,7 @@ public class UserDbStorage implements UserDaoStorage {
     @Override
     public User updateUser(User user) {
         validator.userValidator(user);
-        if (getUserById(user.getId())==null /*.contains(user.getId())*/) {
+        if (getUserById(user.getId()) == null /*.contains(user.getId())*/) {
             throw new EntityNotFoundException("Пользователь не найден для обновления.");
         }
         if (user.getId() < 1) {
@@ -84,18 +85,12 @@ public class UserDbStorage implements UserDaoStorage {
     }
 
     @Override
-    public void deleteUser(User user) {
-        validator.userValidator(user);
-        if (getAllUser().contains(user)) {
-            throw new EntityNotFoundException("Пользователь не найден для удаления.");
-        }
-        if (user.getId() < 1) {
-            throw new InvalidValueException("Введен некорректный идентификатор пользователя.");
-        }
+    public void deleteUser(Long id) {
+        Checker.checkUserExists(id, jdbcTemplate);
         String sql =
                 "DELETE FROM USERS " +
                         "WHERE USER_ID = ?";
-        jdbcTemplate.update(sql, user.getId());
+        jdbcTemplate.update(sql, id);
     }
 
     private User makeUser(ResultSet rs) throws SQLException {

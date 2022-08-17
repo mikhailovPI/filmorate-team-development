@@ -11,29 +11,29 @@ import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.storage.Validator;
 import ru.yandex.practicum.filmorate.storage.user.UserDaoStorage;
+import ru.yandex.practicum.filmorate.utilities.Checker;
 
-import java.sql.*;
 import java.sql.Date;
-import java.util.*;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.List;
+import java.util.Set;
 
 @Component
 public class FilmDbStorage implements FilmDaoStorage {
 
     private final JdbcTemplate jdbcTemplate;
-    private final UserDaoStorage userDaoStorage;
     private final Validator validator;
 
-    public FilmDbStorage(JdbcTemplate jdbcTemplate, UserDaoStorage userDaoStorage, Validator validator) {
+    public FilmDbStorage(JdbcTemplate jdbcTemplate, Validator validator) {
         this.jdbcTemplate = jdbcTemplate;
-        this.userDaoStorage = userDaoStorage;
         this.validator = validator;
     }
 
     @Override
     public Film getFilmById(Long id) {
-        if (id < 1) {
-            throw new InvalidValueException("Введен некорректный идентификатор фильма.");
-        }
+        Checker.checkFilmExists(id, jdbcTemplate);
         String sql =
                 "SELECT F.FILM_ID, F.NAME, F.DESCRIPTION, F.RELEASE_DATE,  " +
                         "F.DURATION, F.RATING_ID, R.RATING_NAME " +
@@ -113,19 +113,13 @@ public class FilmDbStorage implements FilmDaoStorage {
     }
 
     @Override
-    public void deleteFilm(Film film) {
-        validator.filmValidator(film);
-        if (!getAllFilms().contains(film)) {
-            throw new EntityNotFoundException("Фильм не найден для удаления.");
-        }
-        if (film.getId() < 1) {
-            throw new InvalidValueException("Введен некорректный идентификатор фильма.");
-        }
+    public void deleteFilm(Long id) {
+        Checker.checkFilmExists(id, jdbcTemplate);
         String sql =
                 "DELETE " +
                         "FROM FILMS " +
                         "WHERE FILM_ID = ?";
-        jdbcTemplate.update(sql, film.getId());
+        jdbcTemplate.update(sql, id);
     }
 
     @Override

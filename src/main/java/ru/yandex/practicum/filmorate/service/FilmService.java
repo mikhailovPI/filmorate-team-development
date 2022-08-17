@@ -8,6 +8,7 @@ import ru.yandex.practicum.filmorate.storage.film.FilmDaoStorage;
 import ru.yandex.practicum.filmorate.storage.genre.GenreDaoStorage;
 import ru.yandex.practicum.filmorate.storage.like.LikeDaoStorage;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -48,8 +49,8 @@ public class FilmService {
         return filmDaoStorage.updateFilm(film);
     }
 
-    public void removeFilm(Film film) throws ValidationException {
-        filmDaoStorage.deleteFilm(film);
+    public void removeFilm(Long id) throws ValidationException {
+        filmDaoStorage.deleteFilm(id);
     }
 
     public void putLike(Long id, Long userId) {
@@ -61,6 +62,11 @@ public class FilmService {
     }
 
     public List<Film> getTopLikeFilm(Integer count) {
-        return filmDaoStorage.getTopLikeFilm(count);
+        List<Film> topFilmsWithGenre = new ArrayList<>();
+        for (Film film : filmDaoStorage.getTopLikeFilm(count)) {
+            loadData(film);
+            topFilmsWithGenre.add(film);
+        }
+        return topFilmsWithGenre;
     }
 }

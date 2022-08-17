@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.friends.FriendsDaoStorage;
@@ -33,8 +34,8 @@ public class UserService {
         return userDaoStorage.updateUser(user);
     }
 
-    public void removeUser(User user) throws ValidationException {
-        userDaoStorage.deleteUser(user);
+    public void removeUser(Long id) throws ValidationException {
+        userDaoStorage.deleteUser(id);
     }
 
     public void addFriends(Long userId, Long friendId) {
@@ -46,6 +47,9 @@ public class UserService {
     }
 
     public List<User> getAllFriendsUser(Long id) {
+        if (userDaoStorage.getUserById(id) == null) {
+            throw new EntityNotFoundException("Пользователя с таким id не существует");
+        }
         return friendsDaoStorage.getAllFriendsUser(id);
     }
 
