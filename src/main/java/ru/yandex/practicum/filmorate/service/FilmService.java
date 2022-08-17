@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.service;
 
+import lombok.extern.slf4j.Slf4j;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
@@ -13,6 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class FilmService {
 
@@ -67,12 +69,29 @@ public class FilmService {
         likeDaoStorage.removeLikes(id, userId);
     }
 
-    public List<Film> getTopLikeFilm(Integer count) {
-        List<Film> topFilmsWithGenre = new ArrayList<>();
-        for (Film film : filmDaoStorage.getTopLikeFilm(count)) {
-            loadData(film);
-            topFilmsWithGenre.add(film);
+//    public List<Film> getTopLikeFilm(Integer count) {
+//        List<Film> topFilmsWithGenre = new ArrayList<>();
+//        for (Film film : filmDaoStorage.getTopLikeFilm(count)) {
+//            loadData(film);
+//            topFilmsWithGenre.add(film);
+//        }
+//        return topFilmsWithGenre;
+//    }
+
+    public List<Film> getTopFilmsGenreYear(Integer limit, Integer genreId, Integer year) {
+        if (genreId == null && year == null) {
+            List<Film> topFilmsWithGenre = new ArrayList<>();
+            for (Film film : filmDaoStorage.getTopLikeFilm(limit)) {
+                loadData(film);
+                topFilmsWithGenre.add(film);
+            }
+            return topFilmsWithGenre;
+        } else if (genreId != null && year == null) {
+            return filmDaoStorage.getTopFilmsGenre(limit, genreId);
+        } else if (year != null && genreId == null) {
+            return filmDaoStorage.getTopFilmsYear(limit, year);
+        } else {
+            return filmDaoStorage.getTopFilmsGenreYear(limit, genreId, year);
         }
-        return topFilmsWithGenre;
     }
 }
