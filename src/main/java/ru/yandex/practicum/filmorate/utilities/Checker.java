@@ -22,4 +22,12 @@ public class Checker {
             throw new EntityNotFoundException((String.format("Фильм с id: %s не найден.", id)));
         }
     }
+
+    public static void checkDirectorExists(Integer id, JdbcTemplate jdbcTemplate) {
+        String sql = "SELECT * FROM DIRECTORS WHERE DIRECTOR_ID =?";
+        if (!jdbcTemplate.queryForRowSet(sql, id).next()) {
+            log.debug("Режиссер с id: {} не найден.", id);
+            throw new EntityNotFoundException((String.format("Режиссер с id: %s не найден.", id)));
+        }
+    }
 }

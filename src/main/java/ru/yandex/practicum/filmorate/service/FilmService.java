@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.storage.director.DirectorDaoStorage;
 import ru.yandex.practicum.filmorate.storage.film.FilmDaoStorage;
 import ru.yandex.practicum.filmorate.storage.genre.GenreDaoStorage;
 import ru.yandex.practicum.filmorate.storage.like.LikeDaoStorage;
@@ -18,9 +19,11 @@ public class FilmService {
     private final FilmDaoStorage filmDaoStorage;
     private final LikeDaoStorage likeDaoStorage;
     private final GenreDaoStorage genreDaoStorage;
+    private final DirectorDaoStorage directorDaoStorage;
 
     private void loadData(Film film) {
         film.setGenres(genreDaoStorage.getGenresByFilm(film));
+        film.setDirectors(directorDaoStorage.getDirectorsByFilm(film));
     }
 
     public List<Film> getFilms() {
@@ -40,12 +43,15 @@ public class FilmService {
     public Film createFilm(Film film) throws ValidationException {
         Film createFilm = filmDaoStorage.createFilm(film);
         filmDaoStorage.createGenreByFilm(createFilm);
+        filmDaoStorage.createDirectorByFilm(createFilm);
         return createFilm;
     }
 
     public Film updateFilm(Film film) throws ValidationException {
         genreDaoStorage.updateGenreFilm(film);
         filmDaoStorage.createGenreByFilm(film);
+        directorDaoStorage.updateDirectorFilm(film);
+        filmDaoStorage.createDirectorByFilm(film);
         return filmDaoStorage.updateFilm(film);
     }
 
