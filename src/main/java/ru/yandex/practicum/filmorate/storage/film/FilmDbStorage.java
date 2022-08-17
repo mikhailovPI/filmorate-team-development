@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.storage.film;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
@@ -17,6 +18,7 @@ import java.sql.Date;
 import java.util.*;
 
 @Component
+@Slf4j
 public class FilmDbStorage implements FilmDaoStorage {
 
     private final JdbcTemplate jdbcTemplate;
@@ -140,6 +142,59 @@ public class FilmDbStorage implements FilmDaoStorage {
                         "ORDER BY COUNT(L.USER_ID) DESC " +
                         "limit ?";
         return jdbcTemplate.query(sql, (rs, rowNum) -> makeFilm(rs), count);
+    }
+
+    @Override
+    public List<Film> getTopFilmsGenreYear(Integer limit, Integer genreId, Integer year) {
+        String sql =
+                "SELECT F.FILM_ID, F.NAME, YEAR(F.RELEASE_DATE), F.DESCRIPTION,  " +
+                        "F.DURATION, F.RATING_ID, R.RATING_NAME, GEN.NAME " +
+                        "FROM FILMS F " +
+                        "JOIN RATINGS AS R ON f.RATING_ID = R.RATING_ID " +
+                        "LEFT JOIN FILMS_LIKES L ON F.FILM_ID = L.FILM_ID " +
+                        "LEFT JOIN FILMS_GENRES FG ON F.FILM_ID = L.FILM_ID " +
+                        "JOIN GENRES GEN ON FG.GENRE_ID = GEN.GENRE_ID " +
+                        "GROUP BY F.FILM_ID " +
+                        "HAVING YEAR(F.RELEASE_DATE) = ? OR GEN.GENRE_ID = ?  " +
+                        "ORDER BY COUNT(L.USER_ID) DESC " +
+                        "LIMIT ?";
+        List<Film> list = jdbcTemplate.query(sql, (rs, rowNum) -> makeFilm(rs), year, genreId, limit);
+        log.debug("Создан список: {}.", list);
+        return list;
+    }
+
+    @Override
+    public List<Film> getTopFilmsGenre(Integer limit, Integer genreId) {
+        String sql =
+                "SELECT F.FILM_ID, F.NAME, F.RELEASE_DATE, F.DESCRIPTION,  " +
+                        "F.DURATION, F.RATING_ID, R.RATING_NAME, GEN.NAME " +
+                        "FROM FILMS F " +
+                        "JOIN RATINGS AS R ON f.RATING_ID = R.RATING_ID " +
+                        "LEFT JOIN FILMS_LIKES L on F.FILM_ID = L.FILM_ID " +
+                        "LEFT JOIN FILMS_GENRES FG on F.FILM_ID = L.FILM_ID " +
+                        "JOIN GENRES GEN on FG.GENRE_ID = GEN.GENRE_ID " +
+                        "GROUP BY F.FILM_ID " +
+                        "HAVING GEN.GENRE_ID = ? " +
+                        "ORDER BY COUNT(L.USER_ID) DESC " +
+                        "LIMIT ?";
+        return jdbcTemplate.query(sql, (rs, rowNum) -> makeFilm(rs), genreId, limit);
+    }
+
+    @Override
+    public List<Film> getTopFilmsYear(Integer limit, Integer year) {
+        String sql =
+                "SELECT F.FILM_ID, F.NAME, F.RELEASE_DATE, F.DESCRIPTION,  " +
+                        "F.DURATION, F.RATING_ID, R.RATING_NAME, GEN.NAME " +
+                        "FROM FILMS F " +
+                        "JOIN RATINGS AS R ON f.RATING_ID = R.RATING_ID " +
+                        "LEFT JOIN FILMS_LIKES L on F.FILM_ID = L.FILM_ID " +
+                        "LEFT JOIN FILMS_GENRES FG on F.FILM_ID = L.FILM_ID " +
+                        "JOIN GENRES GEN on FG.GENRE_ID = GEN.GENRE_ID " +
+                        "GROUP BY F.FILM_ID " +
+                        "HAVING YEAR(RELEASE_DATE) = ? " +
+                        "ORDER BY COUNT(L.USER_ID) DESC " +
+                        "LIMIT ?";
+        return jdbcTemplate.query(sql, (rs, rowNum) -> makeFilm(rs), year, limit);
     }
 
     private Film makeFilm(ResultSet rs) throws SQLException {

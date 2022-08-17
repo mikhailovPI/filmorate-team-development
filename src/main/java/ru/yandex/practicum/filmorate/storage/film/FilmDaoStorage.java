@@ -21,5 +21,10 @@ public interface FilmDaoStorage {
 
     List<Film> getTopLikeFilm(Integer count);
 
+    List<Film> getTopFilmsGenreYear(Integer limit, Integer genreId, Integer year);
+
+    List<Film> getTopFilmsGenre(Integer limit, Integer genreId);
+
+    List<Film> getTopFilmsYear(Integer limit, Integer year);
 }
 
