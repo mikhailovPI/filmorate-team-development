@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.service;
 
+import lombok.extern.slf4j.Slf4j;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
@@ -13,6 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class FilmService {
 
@@ -67,12 +69,36 @@ public class FilmService {
         likeDaoStorage.removeLikes(id, userId);
     }
 
-    public List<Film> getTopLikeFilm(Integer count) {
-        List<Film> topFilmsWithGenre = new ArrayList<>();
-        for (Film film : filmDaoStorage.getTopLikeFilm(count)) {
-            loadData(film);
-            topFilmsWithGenre.add(film);
+    public List<Film> getTopFilmsGenreYear(Integer count, Integer genreId, Integer year) {
+        if (genreId == null && year == null) {
+            List<Film> topFilms = new ArrayList<>();
+            for (Film film : filmDaoStorage.getTopLikeFilm(count)) {
+                loadData(film);
+                topFilms.add(film);
+            }
+            return topFilms;
         }
-        return topFilmsWithGenre;
+        else if (year == null) {
+            List<Film> topFilmsWithGenre = new ArrayList<>();
+            for (Film film : filmDaoStorage.getTopFilmsGenre(count, genreId)) {
+                loadData(film);
+                topFilmsWithGenre.add(film);
+            }
+            return topFilmsWithGenre;
+        } else if (genreId == null) {
+            List<Film> topFilmsWithYear = new ArrayList<>();
+            for (Film film : filmDaoStorage.getTopFilmsYear(count, year)) {
+                loadData(film);
+                topFilmsWithYear.add(film);
+            }
+            return topFilmsWithYear;
+        } else {
+            List<Film> topFilmsWithYearAndGenre = new ArrayList<>();
+            for (Film film : filmDaoStorage.getTopFilmsGenreYear(count, genreId, year)) {
+                loadData(film);
+                topFilmsWithYearAndGenre.add(film);
+            }
+            return topFilmsWithYearAndGenre;
+        }
     }
 }
