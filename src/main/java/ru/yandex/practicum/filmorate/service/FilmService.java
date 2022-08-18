@@ -101,4 +101,8 @@ public class FilmService {
             return topFilmsWithYearAndGenre;
         }
     }
+
+    public List<Film> getCommonFilms(Long userId, Long friendId) {
+        return filmDaoStorage.getCommonFilms(userId, friendId);
+    }
 }

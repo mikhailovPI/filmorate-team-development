@@ -12,14 +12,16 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.storage.Validator;
-import ru.yandex.practicum.filmorate.storage.user.UserDaoStorage;
-import ru.yandex.practicum.filmorate.utilities.Checker;
 import ru.yandex.practicum.filmorate.storage.director.DirectorDaoStorage;
 import ru.yandex.practicum.filmorate.storage.genre.GenreDaoStorage;
+import ru.yandex.practicum.filmorate.utilities.Checker;
 
-import java.sql.*;
 import java.sql.Date;
-import java.util.*;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.List;
+import java.util.Set;
 
 @Component
 @Slf4j
@@ -28,13 +30,11 @@ public class FilmDbStorage implements FilmDaoStorage {
     private final JdbcTemplate jdbcTemplate;
     private final DirectorDaoStorage directorDaoStorage;
     private final GenreDaoStorage genreDaoStorage;
-    private final UserDaoStorage userDaoStorage;
     private final Validator validator;
 
-    public FilmDbStorage(JdbcTemplate jdbcTemplate, UserDaoStorage userDaoStorage, Validator validator,
+    public FilmDbStorage(JdbcTemplate jdbcTemplate, Validator validator,
                          GenreDaoStorage genreDaoStorage, DirectorDaoStorage directorDaoStorage) {
         this.jdbcTemplate = jdbcTemplate;
-        this.userDaoStorage = userDaoStorage;
         this.validator = validator;
         this.directorDaoStorage = directorDaoStorage;
         this.genreDaoStorage = genreDaoStorage;
@@ -206,7 +206,7 @@ public class FilmDbStorage implements FilmDaoStorage {
                         "GROUP BY F.FILM_ID " +
                         "ORDER BY COUNT(l.USER_ID) DESC " +
                         "LIMIT ?";
-        return jdbcTemplate.query(sql, (rs, rowNum) -> makeFilm(rs), year, genreId,  count);
+        return jdbcTemplate.query(sql, (rs, rowNum) -> makeFilm(rs), year, genreId, count);
     }
 
     @Override
@@ -243,6 +243,18 @@ public class FilmDbStorage implements FilmDaoStorage {
         return jdbcTemplate.query(sql, (rs, rowNum) -> makeFilm(rs), year, count);
     }
 
+    public List<Film> getCommonFilms(Long userId, Long friendId) {
+        Checker.checkUserExists(userId, jdbcTemplate);
+        Checker.checkUserExists(friendId, jdbcTemplate);
+        String sqlQuery = "SELECT distinct F.film_id, name, description, release_date, duration, R.rating_id, " +
+                "RATING_NAME, director_id FROM FILMS F " +
+                "LEFT JOIN FILMS_LIKES FL on F.FILM_ID = FL.FILM_ID " +
+                "LEFT JOIN RATINGS R on F.RATING_ID = R.RATING_ID " +
+                "WHERE USER_ID IN (?, ?) " +
+                "HAVING COUNT(USER_ID) > 1;";
+        return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> makeFilm(rs), userId, friendId);
+    }
+
     private Film makeFilm(ResultSet rs) throws SQLException {
         Film film = new Film();
         film.setId(rs.getLong("FILM_ID"));
@@ -254,3 +266,4 @@ public class FilmDbStorage implements FilmDaoStorage {
         return film;
     }
 }
+
