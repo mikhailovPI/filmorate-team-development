@@ -27,5 +27,6 @@ public interface FilmDaoStorage {
 
     List<Film> getDirectorsFilmSortByLikesCount(Integer directorId);
 
+    List<Film> getCommonFilms(Long userId, Long friendId);
 }
 

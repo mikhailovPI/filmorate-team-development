@@ -190,6 +190,19 @@ public class FilmDbStorage implements FilmDaoStorage {
         return films;
     }
 
+    @Override
+    public List<Film> getCommonFilms(Long userId, Long friendId) {
+        Checker.checkUserExists(userId, jdbcTemplate);
+        Checker.checkUserExists(friendId, jdbcTemplate);
+        String sqlQuery = "SELECT distinct F.film_id, name, description, release_date, duration, R.rating_id, " +
+                "RATING_NAME, director_id FROM FILMS F " +
+                "LEFT JOIN FILMS_LIKES FL on F.FILM_ID = FL.FILM_ID " +
+                "LEFT JOIN RATINGS R on F.RATING_ID = R.RATING_ID " +
+                "WHERE USER_ID IN (?, ?) " +
+                "HAVING COUNT(USER_ID) > 1;";
+        return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> makeFilm(rs), userId, friendId);
+    }
+
     private Film makeFilm(ResultSet rs) throws SQLException {
         Film film = new Film();
         film.setId(rs.getLong("FILM_ID"));
