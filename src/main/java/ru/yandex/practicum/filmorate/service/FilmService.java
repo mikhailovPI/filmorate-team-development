@@ -69,30 +69,36 @@ public class FilmService {
         likeDaoStorage.removeLikes(id, userId);
     }
 
-//    public List<Film> getTopLikeFilm(Integer count) {
-//        List<Film> topFilmsWithGenre = new ArrayList<>();
-//        for (Film film : filmDaoStorage.getTopLikeFilm(count)) {
-//            loadData(film);
-//            topFilmsWithGenre.add(film);
-//        }
-//        return topFilmsWithGenre;
-//    }
-
-    public List<Film> getTopFilmsGenreYear(Integer limit, Integer genreId, Integer year) {
+    public List<Film> getTopFilmsGenreYear(Integer count, Integer genreId, Integer year) {
         if (genreId == null && year == null) {
+            List<Film> topFilms = new ArrayList<>();
+            for (Film film : filmDaoStorage.getTopLikeFilm(count)) {
+                loadData(film);
+                topFilms.add(film);
+            }
+            return topFilms;
+        }
+        else if (year == null) {
             List<Film> topFilmsWithGenre = new ArrayList<>();
-            for (Film film : filmDaoStorage.getTopLikeFilm(limit)) {
+            for (Film film : filmDaoStorage.getTopFilmsGenre(count, genreId)) {
                 loadData(film);
                 topFilmsWithGenre.add(film);
             }
             return topFilmsWithGenre;
-        } else if (genreId != null && year == null) {
-            return filmDaoStorage.getTopFilmsGenre(limit, genreId);
-        } else if (year != null && genreId == null) {
-            return filmDaoStorage.getTopFilmsYear(limit, year);
+        } else if (genreId == null) {
+            List<Film> topFilmsWithYear = new ArrayList<>();
+            for (Film film : filmDaoStorage.getTopFilmsYear(count, year)) {
+                loadData(film);
+                topFilmsWithYear.add(film);
+            }
+            return topFilmsWithYear;
         } else {
-            return filmDaoStorage.getTopFilmsGenreYear(limit, genreId, year);
+            List<Film> topFilmsWithYearAndGenre = new ArrayList<>();
+            for (Film film : filmDaoStorage.getTopFilmsGenreYear(count, genreId, year)) {
+                loadData(film);
+                topFilmsWithYearAndGenre.add(film);
+            }
+            return topFilmsWithYearAndGenre;
         }
     }
-
 }

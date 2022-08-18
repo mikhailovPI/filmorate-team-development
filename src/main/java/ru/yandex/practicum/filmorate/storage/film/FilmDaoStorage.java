@@ -19,18 +19,18 @@ public interface FilmDaoStorage {
 
     void createGenreByFilm(Film film);
 
-    List<Film> getTopLikeFilm(Integer count);
-
     void createDirectorByFilm(Film film);
 
     List<Film> getDirectorsFilmSortByYear(Integer directorId);
 
     List<Film> getDirectorsFilmSortByLikesCount(Integer directorId);
 
-    List<Film> getTopFilmsGenreYear(Integer limit, Integer genreId, Integer year);
+    List<Film> getTopLikeFilm(Integer count);
 
-    List<Film> getTopFilmsGenre(Integer limit, Integer genreId);
+    List<Film> getTopFilmsGenreYear(Integer count, Integer genreId, Integer year);
 
-    List<Film> getTopFilmsYear(Integer limit, Integer year);
+    List<Film> getTopFilmsGenre(Integer count, Integer genreId);
+
+    List<Film> getTopFilmsYear(Integer count, Integer year);
 }
 
