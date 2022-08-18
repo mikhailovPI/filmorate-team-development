@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.storage.film;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
@@ -11,28 +12,29 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.storage.Validator;
-import ru.yandex.practicum.filmorate.storage.user.UserDaoStorage;
-import ru.yandex.practicum.filmorate.utilities.Checker;
 import ru.yandex.practicum.filmorate.storage.director.DirectorDaoStorage;
 import ru.yandex.practicum.filmorate.storage.genre.GenreDaoStorage;
+import ru.yandex.practicum.filmorate.utilities.Checker;
 
-import java.sql.*;
 import java.sql.Date;
-import java.util.*;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.List;
+import java.util.Set;
 
 @Component
+@Slf4j
 public class FilmDbStorage implements FilmDaoStorage {
 
     private final JdbcTemplate jdbcTemplate;
     private final DirectorDaoStorage directorDaoStorage;
     private final GenreDaoStorage genreDaoStorage;
-    UserDaoStorage userDaoStorage;
     private final Validator validator;
 
-    public FilmDbStorage(JdbcTemplate jdbcTemplate, UserDaoStorage userDaoStorage, Validator validator,
+    public FilmDbStorage(JdbcTemplate jdbcTemplate, Validator validator,
                          GenreDaoStorage genreDaoStorage, DirectorDaoStorage directorDaoStorage) {
         this.jdbcTemplate = jdbcTemplate;
-        this.userDaoStorage = userDaoStorage;
         this.validator = validator;
         this.directorDaoStorage = directorDaoStorage;
         this.genreDaoStorage = genreDaoStorage;
@@ -145,20 +147,6 @@ public class FilmDbStorage implements FilmDaoStorage {
     }
 
     @Override
-    public List<Film> getTopLikeFilm(Integer count) {
-        String sql =
-                "SELECT F.FILM_ID, F.NAME, F.RELEASE_DATE, F.DESCRIPTION,  " +
-                        "F.DURATION, F.RATING_ID, R.RATING_NAME " +
-                        "FROM FILMS F " +
-                        "JOIN RATINGS AS R ON f.RATING_ID = R.RATING_ID " +
-                        "LEFT JOIN FILMS_LIKES L on F.FILM_ID = L.FILM_ID " +
-                        "GROUP BY F.FILM_ID " +
-                        "ORDER BY COUNT(L.USER_ID) DESC " +
-                        "limit ?";
-        return jdbcTemplate.query(sql, (rs, rowNum) -> makeFilm(rs), count);
-    }
-
-    @Override
     public List<Film> getDirectorsFilmSortByYear(Integer directorId) {
         String sqlQuery =
                 "SELECT f.FILM_ID, f.NAME, f.RELEASE_DATE, f.DESCRIPTION, f.DURATION, f.RATING_ID, r.RATING_NAME " +
@@ -191,6 +179,70 @@ public class FilmDbStorage implements FilmDaoStorage {
     }
 
     @Override
+    public List<Film> getTopLikeFilm(Integer count) {
+        String sql =
+                "SELECT F.FILM_ID, F.NAME, F.RELEASE_DATE, F.DESCRIPTION,  " +
+                        "F.DURATION, F.RATING_ID, R.RATING_NAME " +
+                        "FROM FILMS F " +
+                        "JOIN RATINGS AS R ON f.RATING_ID = R.RATING_ID " +
+                        "LEFT JOIN FILMS_LIKES L on F.FILM_ID = L.FILM_ID " +
+                        "GROUP BY F.FILM_ID " +
+                        "ORDER BY COUNT(L.USER_ID) DESC " +
+                        "limit ?";
+        return jdbcTemplate.query(sql, (rs, rowNum) -> makeFilm(rs), count);
+    }
+
+    @Override
+    public List<Film> getTopFilmsGenreYear(Integer count, Integer genreId, Integer year) {
+        String sql =
+                "SELECT f.FILM_ID, f.NAME, f.RELEASE_DATE, f.DESCRIPTION, f.DURATION, " +
+                        " f.RATING_ID, r.RATING_NAME, GEN.GENRE_ID " +
+                        "FROM FILMS f " +
+                        "JOIN RATINGS AS r ON r.RATING_ID = f.RATING_ID " +
+                        "LEFT JOIN FILMS_LIKES l on f.FILM_ID = l.FILM_ID " +
+                        "LEFT JOIN FILMS_GENRES fg on f.FILM_ID = fg.FILM_ID " +
+                        "JOIN GENRES GEN on FG.GENRE_ID = GEN.GENRE_ID " +
+                        "WHERE YEAR(F.RELEASE_DATE) = ? AND GEN.GENRE_ID = ?  " +
+                        "GROUP BY F.FILM_ID " +
+                        "ORDER BY COUNT(l.USER_ID) DESC " +
+                        "LIMIT ?";
+        return jdbcTemplate.query(sql, (rs, rowNum) -> makeFilm(rs), year, genreId, count);
+    }
+
+    @Override
+    public List<Film> getTopFilmsGenre(Integer count, Integer genreId) {
+        String sql =
+                "SELECT f.FILM_ID, f.NAME, f.RELEASE_DATE, f.DESCRIPTION, f.DURATION, " +
+                        " f.RATING_ID, r.RATING_NAME " +
+                        "FROM FILMS f " +
+                        "JOIN RATINGS AS r ON r.RATING_ID = f.RATING_ID " +
+                        "LEFT JOIN FILMS_LIKES l on f.FILM_ID = l.FILM_ID " +
+                        "LEFT JOIN FILMS_GENRES fg on f.FILM_ID = fg.FILM_ID " +
+                        "JOIN GENRES GEN on FG.GENRE_ID = GEN.GENRE_ID " +
+                        "WHERE GEN.GENRE_ID = ? " +
+                        "GROUP BY F.FILM_ID " +
+                        "ORDER BY COUNT(l.USER_ID) DESC " +
+                        "LIMIT ?";
+        return jdbcTemplate.query(sql, (rs, rowNum) -> makeFilm(rs), genreId, count);
+    }
+
+    @Override
+    public List<Film> getTopFilmsYear(Integer count, Integer year) {
+        String sql =
+                "SELECT f.FILM_ID, f.NAME, f.RELEASE_DATE, f.DESCRIPTION, f.DURATION, " +
+                        " f.RATING_ID, r.RATING_NAME " +
+                        "FROM FILMS f " +
+                        "JOIN RATINGS AS r ON r.RATING_ID = f.RATING_ID " +
+                        "LEFT JOIN FILMS_LIKES l on f.FILM_ID = l.FILM_ID " +
+                        "LEFT JOIN FILMS_GENRES fg on f.FILM_ID = fg.FILM_ID " +
+                        "JOIN GENRES GEN on FG.GENRE_ID = GEN.GENRE_ID " +
+                        "WHERE YEAR(F.RELEASE_DATE) = ? " +
+                        "GROUP BY F.FILM_ID " +
+                        "ORDER BY COUNT(l.USER_ID) DESC " +
+                        "LIMIT ?";
+        return jdbcTemplate.query(sql, (rs, rowNum) -> makeFilm(rs), year, count);
+    }
+
     public List<Film> getCommonFilms(Long userId, Long friendId) {
         Checker.checkUserExists(userId, jdbcTemplate);
         Checker.checkUserExists(friendId, jdbcTemplate);
@@ -214,3 +266,4 @@ public class FilmDbStorage implements FilmDaoStorage {
         return film;
     }
 }
+
