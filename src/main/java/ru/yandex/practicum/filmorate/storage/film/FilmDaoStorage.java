@@ -25,7 +25,6 @@ public interface FilmDaoStorage {
 
     List<Film> getDirectorsFilmSortByLikesCount(Integer directorId);
 
-
     List<Film> getTopLikeFilm(Integer count);
 
     List<Film> getTopFilmsGenreYear(Integer count, Integer genreId, Integer year);
@@ -35,5 +34,7 @@ public interface FilmDaoStorage {
     List<Film> getTopFilmsYear(Integer count, Integer year);
 
     List<Film> getCommonFilms(Long userId, Long friendId);
+
+    List<Film> findFilmsLikedByUser(Long id);
 }
 
