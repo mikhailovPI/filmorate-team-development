@@ -38,9 +38,11 @@ public class ErrorHandler {
         return new ErrorResponse(e.getMessage());
     }
 
+    // Для обработки любых исключений Throwable в т.ч. --->
+    // RuntimeException метод "handleRuntimeException" заменил на handleTrowble.
     @ExceptionHandler
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ErrorResponse handleRuntimeException(final RuntimeException e) {
+    public ErrorResponse handleThrowable(final Throwable e) {
         log.info("500 {}", e.getMessage(), e);
         return new ErrorResponse(e.getMessage());
     }
