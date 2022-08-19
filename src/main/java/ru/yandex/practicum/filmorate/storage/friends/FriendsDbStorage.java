@@ -36,7 +36,7 @@ public class FriendsDbStorage implements FriendsDaoStorage {
                 "INSERT INTO FRIENDS (USER_ID, FRIEND_ID) " +
                         "VALUES (?, ?)";
         jdbcTemplate.update(sql, userId, friendId);
-        feedDaoStorage.addFeed(userId,friendId, EventType.FRIEND, OperationType.ADD);
+        feedDaoStorage.addFeed(userId, friendId, EventType.FRIEND, OperationType.ADD);
     }
 
     @Override
@@ -52,7 +52,7 @@ public class FriendsDbStorage implements FriendsDaoStorage {
                         "WHERE USER_ID = ? " +
                         "AND FRIEND_ID = ?";
         jdbcTemplate.update(sql, userId, friendId);
-        feedDaoStorage.addFeed(userId,friendId, EventType.FRIEND, OperationType.REMOVE);
+        feedDaoStorage.addFeed(userId, friendId, EventType.FRIEND, OperationType.REMOVE);
     }
 
     @Override
