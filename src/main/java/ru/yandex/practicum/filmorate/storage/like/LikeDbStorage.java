@@ -3,6 +3,9 @@ package ru.yandex.practicum.filmorate.storage.like;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
+import ru.yandex.practicum.filmorate.model.Film;
+
+import java.util.Collection;
 
 @Component
 public class LikeDbStorage implements LikeDaoStorage {
@@ -28,6 +31,10 @@ public class LikeDbStorage implements LikeDaoStorage {
     @Override
     public void removeLikes(Long id, Long userId) {
         jdbcTemplate.update("DELETE FROM FILMS_LIKES WHERE USER_ID = ?", userId);
+    }
+
+    public Collection<Film> getCommonFilms (long userId, long friendId) {
+        return null;
     }
 
 }
