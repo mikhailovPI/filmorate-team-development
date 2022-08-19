@@ -35,5 +35,11 @@ public interface FilmDaoStorage {
     List<Film> getTopFilmsYear(Integer count, Integer year);
 
     List<Film> getCommonFilms(Long userId, Long friendId);
+
+    List<Film> getSearchFilmsForTitle(String query);
+
+    List<Film> getSearchFilmsForDirector(String query);
+
+    List<Film> getSearchFilmsForTitleAndDirector(String query);
 }
 

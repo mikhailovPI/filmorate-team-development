@@ -70,7 +70,7 @@ public class FilmController {
     public void removeLike(
             @PathVariable @Min(1) Long id,
             @PathVariable @Min(1) Long userId) {
-       filmService.removeLike(id, userId);
+        filmService.removeLike(id, userId);
     }
 
     @GetMapping(value = "/films/popular")
@@ -86,5 +86,12 @@ public class FilmController {
     public List<Film> getCommonFilms(@RequestParam Long userId,
                                      @RequestParam Long friendId) {
         return filmService.getCommonFilms(userId, friendId);
+    }
+
+    @GetMapping(value = "/films/search")
+    public List<Film> getSearchFilms(
+            @RequestParam String query,
+            @RequestParam(required = false) String by) {
+        return filmService.getSearchFilms(query, by);
     }
 }
