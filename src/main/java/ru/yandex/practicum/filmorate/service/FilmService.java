@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.extern.slf4j.Slf4j;
 import lombok.RequiredArgsConstructor;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -82,8 +83,7 @@ public class FilmService {
                 topFilms.add(film);
             }
             return topFilms;
-        }
-        else if (year == null) {
+        } else if (year == null) {
             List<Film> topFilmsWithGenre = new ArrayList<>();
             for (Film film : filmDaoStorage.getTopFilmsGenre(count, genreId)) {
                 loadData(film);
@@ -142,5 +142,30 @@ public class FilmService {
         return differencesTable.stream()
                 .min(Comparator.comparing(List<Film>::size))
                 .orElse(new ArrayList<>());
+    }
+
+    public List<Film> getSearchFilms(String query, String by) {
+        if (by.equals("title")) {
+            List<Film> searchFilms = new ArrayList<>();
+            for (Film film : filmDaoStorage.getSearchFilmsForTitle(query)) {
+                loadData(film);
+                searchFilms.add(film);
+            }
+            return searchFilms;
+        } else if (by.equals("director")) {
+            List<Film> searchFilms = new ArrayList<>();
+            for (Film film : filmDaoStorage.getSearchFilmsForDirector(query)) {
+                loadData(film);
+                searchFilms.add(film);
+            }
+            return searchFilms;
+        } else {
+            List<Film> searchFilms = new ArrayList<>();
+            for (Film film : filmDaoStorage.getSearchFilmsForTitleAndDirector(query)) {
+                loadData(film);
+                searchFilms.add(film);
+            }
+            return searchFilms;
+        }
     }
 }

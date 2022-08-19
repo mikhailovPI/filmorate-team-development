@@ -255,6 +255,81 @@ public class FilmDbStorage implements FilmDaoStorage {
         return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> makeFilm(rs), userId, friendId);
     }
 
+    @Override
+    public List<Film> getSearchFilmsForTitle(String query) {
+        String sql =
+                "SELECT f.FILM_ID, f.NAME, f.RELEASE_DATE, f.DESCRIPTION, f.DURATION, " +
+                        "r.RATING_NAME, GEN.NAME, DIR.DIRECTOR_NAME " +
+                        "FROM FILMS f " +
+                        "JOIN RATINGS AS r ON f.RATING_ID = r.RATING_ID " +
+                        "LEFT JOIN FILMS_LIKES l on f.FILM_ID = l.FILM_ID " +
+                        "JOIN FILM_DIRECTOR fd on f.FILM_ID = fd.FILM_ID " +
+                        "JOIN DIRECTORS DIR on fd.DIRECTOR_ID = DIR.DIRECTOR_ID " +
+                        "LEFT JOIN FILMS_GENRES fg on f.FILM_ID = fg.FILM_ID " +
+                        "JOIN GENRES GEN on fg.GENRE_ID = GEN.GENRE_ID " +
+                        "WHERE LOWER(F.NAME) " +
+                        "LIKE '%' || LOWER(?) || '%' " +
+                        "GROUP BY F.NAME " +
+                        "ORDER BY COUNT(l.USER_ID) DESC";
+        List<Film> list = jdbcTemplate.query(sql, (rs, rowNum) -> makeFilm(rs), query);
+        log.info("Создан список:" + list);
+        return list;
+    }
+
+    @Override
+    public List<Film> getSearchFilmsForDirector(String query) {
+        String sql =
+                "SELECT f.FILM_ID, f.NAME, f.RELEASE_DATE, f.DESCRIPTION, f.DURATION, " +
+                        "r.RATING_NAME, GEN.NAME, DIR.DIRECTOR_NAME " +
+                        "FROM FILMS f " +
+                        "JOIN RATINGS AS r ON f.RATING_ID = r.RATING_ID " +
+                        "LEFT JOIN FILMS_LIKES l on f.FILM_ID = l.FILM_ID " +
+                        "JOIN FILM_DIRECTOR fd on f.FILM_ID = fd.FILM_ID " +
+                        "JOIN DIRECTORS DIR on fd.DIRECTOR_ID = DIR.DIRECTOR_ID " +
+                        "LEFT JOIN FILMS_GENRES fg on f.FILM_ID = fg.FILM_ID " +
+                        "JOIN GENRES GEN on fg.GENRE_ID = GEN.GENRE_ID " +
+                        "WHERE LOWER(DIR.DIRECTOR_NAME) " +
+                        "LIKE '%' || LOWER(?) || '%' " +
+                        "GROUP BY F.FILM_ID " +
+                        "ORDER BY COUNT(l.USER_ID) DESC";
+        List<Film> list = jdbcTemplate.query(sql, (rs, rowNum) -> makeFilm(rs), query);
+        log.info("Создан список:" + list);
+        return list;
+    }
+
+    @Override
+    public List<Film> getSearchFilmsForTitleAndDirector(String query) {
+        String sql =
+                "SELECT f.FILM_ID, f.NAME, f.RELEASE_DATE, f.DESCRIPTION, f.DURATION, " +
+                        "r.RATING_NAME, GEN.NAME, DIR.DIRECTOR_NAME " +
+                        "FROM FILMS f " +
+                        "JOIN RATINGS AS r ON f.RATING_ID = r.RATING_ID " +
+                        "LEFT JOIN FILMS_LIKES l on f.FILM_ID = l.FILM_ID " +
+                        "JOIN FILM_DIRECTOR fd on f.FILM_ID = fd.FILM_ID " +
+                        "JOIN DIRECTORS DIR on fd.DIRECTOR_ID = DIR.DIRECTOR_ID " +
+                        "LEFT JOIN FILMS_GENRES fg on f.FILM_ID = fg.FILM_ID " +
+                        "JOIN GENRES GEN on fg.GENRE_ID = GEN.GENRE_ID " +
+                        "WHERE LOWER(F.NAME) or LOWER(DIR.DIRECTOR_NAME) " +
+                        "GROUP BY F.FILM_ID " +
+                        "LIKE  '%' || LOWER(?) || '%' " +
+                        //"String query = '%'+query.toLow. +'%' " +
+//                        "WHERE (LOWER (DIR.DIRECTOR_NAME) LIKE '%' || LOWER(?) || '%' " +
+//                        "OR (LOWER (f.NAME)) LIKE '%' || LOWER(?) || '%')" +
+                        "ORDER BY COUNT(l.USER_ID) DESC";
+
+//        List<Film> list = jdbcTemplate.query(con -> {
+//            PreparedStatement stmt = con.prepareStatement(sql);
+//            stmt.setString(1, query);
+//            stmt.setString(2, query);
+//            stmt.executeQuery();
+//            return stmt;
+//        }, (rs, rowNum) -> makeFilm(rs));
+
+        List<Film> list = jdbcTemplate.query(sql, (rs, rowNum) -> makeFilm(rs), query);
+        log.info("Создан список:" + list);
+        return list;
+    }
+
     private Film makeFilm(ResultSet rs) throws SQLException {
         Film film = new Film();
         film.setId(rs.getLong("FILM_ID"));
