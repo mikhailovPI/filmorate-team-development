@@ -20,6 +20,8 @@ import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -257,75 +259,68 @@ public class FilmDbStorage implements FilmDaoStorage {
 
     @Override
     public List<Film> getSearchFilmsForTitle(String query) {
+        String query1 = query.toLowerCase();
         String sql =
-                "SELECT f.FILM_ID, f.NAME, f.RELEASE_DATE, f.DESCRIPTION, f.DURATION, " +
-                        "r.RATING_NAME, GEN.NAME, DIR.DIRECTOR_NAME " +
-                        "FROM FILMS f " +
-                        "JOIN RATINGS AS r ON f.RATING_ID = r.RATING_ID " +
-                        "LEFT JOIN FILMS_LIKES l on f.FILM_ID = l.FILM_ID " +
-                        "JOIN FILM_DIRECTOR fd on f.FILM_ID = fd.FILM_ID " +
-                        "JOIN DIRECTORS DIR on fd.DIRECTOR_ID = DIR.DIRECTOR_ID " +
-                        "LEFT JOIN FILMS_GENRES fg on f.FILM_ID = fg.FILM_ID " +
-                        "JOIN GENRES GEN on fg.GENRE_ID = GEN.GENRE_ID " +
-                        "WHERE LOWER(F.NAME) " +
-                        "LIKE '%' || LOWER(?) || '%' " +
-                        "GROUP BY F.NAME " +
-                        "ORDER BY COUNT(l.USER_ID) DESC";
-        List<Film> list = jdbcTemplate.query(sql, (rs, rowNum) -> makeFilm(rs), query);
+                "SELECT f.film_id, f.NAME, f.DESCRIPTION, f.RELEASE_DATE, f.DURATION, " +
+                        "f.RATING_ID, R.RATING_NAME " +
+                        "FROM films f " +
+                        "LEFT JOIN RATINGS R ON f.RATING_ID = R.RATING_ID " +
+                        "LEFT JOIN FILMS_LIKES l on l.FILM_ID = f.FILM_ID " +
+                        "WHERE LOWER(f.NAME) LIKE '%' || (?) || '%' " +
+                        "GROUP BY f.FILM_ID " +
+                        "ORDER BY count(l.USER_ID) DESC";
+
+        List<Film> list = jdbcTemplate.query(sql, (rs, rowNum) -> makeFilm(rs), query1);
         log.info("Создан список:" + list);
         return list;
     }
 
     @Override
     public List<Film> getSearchFilmsForDirector(String query) {
+        String query1 = query.toLowerCase();
         String sql =
-                "SELECT f.FILM_ID, f.NAME, f.RELEASE_DATE, f.DESCRIPTION, f.DURATION, " +
-                        "r.RATING_NAME, GEN.NAME, DIR.DIRECTOR_NAME " +
-                        "FROM FILMS f " +
-                        "JOIN RATINGS AS r ON f.RATING_ID = r.RATING_ID " +
-                        "LEFT JOIN FILMS_LIKES l on f.FILM_ID = l.FILM_ID " +
+                "SELECT f.film_id, f.NAME, f.DESCRIPTION, f.RELEASE_DATE, f.DURATION, " +
+                        "f.RATING_ID, R.RATING_NAME " +
+                        "FROM films f " +
+                        "LEFT JOIN RATINGS R ON f.RATING_ID = R.RATING_ID " +
+                        "LEFT JOIN FILMS_LIKES l on l.FILM_ID = f.FILM_ID " +
                         "JOIN FILM_DIRECTOR fd on f.FILM_ID = fd.FILM_ID " +
                         "JOIN DIRECTORS DIR on fd.DIRECTOR_ID = DIR.DIRECTOR_ID " +
-                        "LEFT JOIN FILMS_GENRES fg on f.FILM_ID = fg.FILM_ID " +
-                        "JOIN GENRES GEN on fg.GENRE_ID = GEN.GENRE_ID " +
-                        "WHERE LOWER(DIR.DIRECTOR_NAME) " +
-                        "LIKE '%' || LOWER(?) || '%' " +
-                        "GROUP BY F.FILM_ID " +
-                        "ORDER BY COUNT(l.USER_ID) DESC";
-        List<Film> list = jdbcTemplate.query(sql, (rs, rowNum) -> makeFilm(rs), query);
+
+                        "WHERE LOWER(DIR.DIRECTOR_NAME) LIKE '%' + ? + '%' " +
+                        "GROUP BY f.FILM_ID " +
+                        "ORDER BY count(l.USER_ID) DESC";
+
+        List<Film> list = jdbcTemplate.query(sql, (rs, rowNum) -> makeFilm(rs), query1);
         log.info("Создан список:" + list);
         return list;
     }
 
     @Override
     public List<Film> getSearchFilmsForTitleAndDirector(String query) {
+        String query1 = query.toLowerCase();
         String sql =
-                "SELECT f.FILM_ID, f.NAME, f.RELEASE_DATE, f.DESCRIPTION, f.DURATION, " +
-                        "r.RATING_NAME, GEN.NAME, DIR.DIRECTOR_NAME " +
-                        "FROM FILMS f " +
-                        "JOIN RATINGS AS r ON f.RATING_ID = r.RATING_ID " +
-                        "LEFT JOIN FILMS_LIKES l on f.FILM_ID = l.FILM_ID " +
+                "SELECT f.film_id, f.NAME, f.DESCRIPTION, f.RELEASE_DATE, f.DURATION, " +
+                        "f.RATING_ID, R.RATING_NAME " +
+                        "FROM films f " +
+                        "LEFT JOIN RATINGS R ON f.RATING_ID = R.RATING_ID " +
+                        "LEFT JOIN FILMS_LIKES l on l.FILM_ID = f.FILM_ID " +
                         "JOIN FILM_DIRECTOR fd on f.FILM_ID = fd.FILM_ID " +
                         "JOIN DIRECTORS DIR on fd.DIRECTOR_ID = DIR.DIRECTOR_ID " +
-                        "LEFT JOIN FILMS_GENRES fg on f.FILM_ID = fg.FILM_ID " +
-                        "JOIN GENRES GEN on fg.GENRE_ID = GEN.GENRE_ID " +
-                        "WHERE LOWER(F.NAME) or LOWER(DIR.DIRECTOR_NAME) " +
+
+                        "WHERE  LOWER(DIR.DIRECTOR_NAME) LIKE '%' + ? + '%' " +
+                        "OR  LOWER(f.NAME) LIKE '%' + ? + '%' " +
                         "GROUP BY F.FILM_ID " +
-                        "LIKE  '%' || LOWER(?) || '%' " +
-                        //"String query = '%'+query.toLow. +'%' " +
-//                        "WHERE (LOWER (DIR.DIRECTOR_NAME) LIKE '%' || LOWER(?) || '%' " +
-//                        "OR (LOWER (f.NAME)) LIKE '%' || LOWER(?) || '%')" +
                         "ORDER BY COUNT(l.USER_ID) DESC";
 
-//        List<Film> list = jdbcTemplate.query(con -> {
-//            PreparedStatement stmt = con.prepareStatement(sql);
-//            stmt.setString(1, query);
-//            stmt.setString(2, query);
-//            stmt.executeQuery();
-//            return stmt;
-//        }, (rs, rowNum) -> makeFilm(rs));
+        List<Film> list = jdbcTemplate.query(con -> {
+            PreparedStatement stmt = con.prepareStatement(sql);
+            stmt.setString(1, query1);
+            stmt.setString(2, query1);
+            stmt.executeQuery();
+            return stmt;
+        }, (rs, rowNum) -> makeFilm(rs));
 
-        List<Film> list = jdbcTemplate.query(sql, (rs, rowNum) -> makeFilm(rs), query);
         log.info("Создан список:" + list);
         return list;
     }
@@ -334,11 +329,10 @@ public class FilmDbStorage implements FilmDaoStorage {
         Film film = new Film();
         film.setId(rs.getLong("FILM_ID"));
         film.setName(rs.getString("NAME"));
-        film.setReleaseDate(rs.getDate("RELEASE_DATE").toLocalDate());
         film.setDescription(rs.getString("DESCRIPTION"));
+        film.setReleaseDate(rs.getDate("RELEASE_DATE").toLocalDate());
         film.setDuration(rs.getInt("DURATION"));
         film.setMpa(new Mpa(rs.getInt("RATING_ID"), rs.getString("RATING_NAME")));
         return film;
     }
 }
-
