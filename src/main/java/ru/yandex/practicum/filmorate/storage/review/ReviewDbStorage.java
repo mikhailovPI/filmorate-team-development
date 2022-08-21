@@ -7,7 +7,10 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.model.Review;
+import ru.yandex.practicum.filmorate.model.enums.EventType;
+import ru.yandex.practicum.filmorate.model.enums.OperationType;
 import ru.yandex.practicum.filmorate.storage.Validator;
+import ru.yandex.practicum.filmorate.storage.feed.FeedDaoStorage;
 import ru.yandex.practicum.filmorate.utilities.Checker;
 
 import java.sql.PreparedStatement;
@@ -22,9 +25,12 @@ public class ReviewDbStorage implements ReviewDaoStorage {
     private final JdbcTemplate jdbcTemplate;
     private final Validator validator;
 
-    public ReviewDbStorage(JdbcTemplate jdbcTemplate, Validator validator) {
+    private final FeedDaoStorage feedDaoStorage;
+
+    public ReviewDbStorage(JdbcTemplate jdbcTemplate, Validator validator, FeedDaoStorage feedDaoStorage) {
         this.jdbcTemplate = jdbcTemplate;
         this.validator = validator;
+        this.feedDaoStorage = feedDaoStorage;
     }
 
     @Override
@@ -52,6 +58,7 @@ public class ReviewDbStorage implements ReviewDaoStorage {
             return stmt;
         }, keyHolder);
         review.setReviewId(keyHolder.getKey().longValue());
+        feedDaoStorage.addFeed(review.getUserId(), review.getReviewId(), EventType.REVIEW, OperationType.ADD);
 
         return review;
     }
@@ -73,13 +80,24 @@ public class ReviewDbStorage implements ReviewDaoStorage {
                 review.getIsPositive(),
                 review.getReviewId());
 
-        return getReviewById(review.getReviewId());
+        var reviewUpdated = getReviewById(review.getReviewId());
+
+        feedDaoStorage.addFeed(reviewUpdated.getUserId(),
+                reviewUpdated.getReviewId(),
+                EventType.REVIEW,
+                OperationType.UPDATE);
+
+        return reviewUpdated;
     }
 
     @Override
     public void deleteReview(long reviewId) {
         checkReviewExists(reviewId);
+        var review = getReviewById(reviewId);
+
         final var sqlQuery = "DELETE FROM REVIEW WHERE REVIEW_ID =?";
+
+        feedDaoStorage.addFeed(review.getUserId(), review.getReviewId(), EventType.REVIEW, OperationType.REMOVE);
         jdbcTemplate.update(sqlQuery, reviewId);
     }
 

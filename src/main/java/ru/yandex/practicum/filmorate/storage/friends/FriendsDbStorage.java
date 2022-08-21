@@ -4,6 +4,9 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.model.enums.EventType;
+import ru.yandex.practicum.filmorate.storage.feed.FeedDaoStorage;
+import ru.yandex.practicum.filmorate.model.enums.OperationType;
 import ru.yandex.practicum.filmorate.storage.user.UserDaoStorage;
 
 import java.util.*;
@@ -14,10 +17,12 @@ public class FriendsDbStorage implements FriendsDaoStorage {
 
     private final JdbcTemplate jdbcTemplate;
     private final UserDaoStorage userDaoStorage;
+    private final FeedDaoStorage feedDaoStorage;
 
-    public FriendsDbStorage(JdbcTemplate jdbcTemplate, UserDaoStorage userDaoStorage) {
+    public FriendsDbStorage(JdbcTemplate jdbcTemplate, UserDaoStorage userDaoStorage, FeedDaoStorage feedDaoStorage) {
         this.jdbcTemplate = jdbcTemplate;
         this.userDaoStorage = userDaoStorage;
+        this.feedDaoStorage = feedDaoStorage;
     }
 
     @Override
@@ -31,6 +36,7 @@ public class FriendsDbStorage implements FriendsDaoStorage {
                 "INSERT INTO FRIENDS (USER_ID, FRIEND_ID) " +
                         "VALUES (?, ?)";
         jdbcTemplate.update(sql, userId, friendId);
+        feedDaoStorage.addFeed(userId, friendId, EventType.FRIEND, OperationType.ADD);
     }
 
     @Override
@@ -46,6 +52,7 @@ public class FriendsDbStorage implements FriendsDaoStorage {
                         "WHERE USER_ID = ? " +
                         "AND FRIEND_ID = ?";
         jdbcTemplate.update(sql, userId, friendId);
+        feedDaoStorage.addFeed(userId, friendId, EventType.FRIEND, OperationType.REMOVE);
     }
 
     @Override

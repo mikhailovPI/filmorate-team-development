@@ -10,11 +10,13 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import ru.yandex.practicum.filmorate.model.Feed;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
+import java.util.Collection;
 import java.util.List;
 
 @RestController
@@ -77,5 +79,10 @@ public class UserController {
             @PathVariable @Min(1) Long id,
             @PathVariable @Min(1) Long otherId) {
         return userService.getCommonFriends(id, otherId);
+    }
+
+    @GetMapping(value = "/users/{userId}/feed")
+    public Collection<Feed> getUserFeed(@PathVariable @Min(1) Long userId) {
+        return userService.getUserFeed(userId);
     }
 }
