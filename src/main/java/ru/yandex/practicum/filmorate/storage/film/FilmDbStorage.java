@@ -265,5 +265,12 @@ public class FilmDbStorage implements FilmDaoStorage {
         film.setMpa(new Mpa(rs.getInt("RATING_ID"), rs.getString("RATING_NAME")));
         return film;
     }
-}
 
+    @Override
+    public List<Film> findFilmsLikedByUser(Long id) {
+        String queryToFindUserFilms = "SELECT * FROM FILMS " +
+                "JOIN RATINGS R on R.RATING_ID = FILMS.RATING_ID " +
+                "WHERE FILMS.FILM_ID iN (SELECT FILM_ID FROM FILMS_LIKES WHERE USER_ID = ?)";
+        return jdbcTemplate.query(queryToFindUserFilms, (rs, rowNum) -> makeFilm(rs), id);
+    }
+}

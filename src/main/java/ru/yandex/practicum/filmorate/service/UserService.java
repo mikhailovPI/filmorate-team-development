@@ -10,8 +10,7 @@ import ru.yandex.practicum.filmorate.storage.feed.FeedDaoStorage;
 import ru.yandex.practicum.filmorate.storage.friends.FriendsDaoStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserDaoStorage;
 
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -20,7 +19,6 @@ public class UserService {
 
     private final UserDaoStorage userDaoStorage;
     private final FriendsDaoStorage friendsDaoStorage;
-
     private final FeedDaoStorage feedDaoStorage;
 
     public List<User> getAllUser() {
