@@ -5,10 +5,8 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Feed;
-import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.feed.FeedDaoStorage;
-import ru.yandex.practicum.filmorate.storage.film.FilmDaoStorage;
 import ru.yandex.practicum.filmorate.storage.friends.FriendsDaoStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserDaoStorage;
 
@@ -21,9 +19,6 @@ public class UserService {
 
     private final UserDaoStorage userDaoStorage;
     private final FriendsDaoStorage friendsDaoStorage;
-    private final FilmDaoStorage filmDaoStorage;
-    private final FilmService filmService;
-
     private final FeedDaoStorage feedDaoStorage;
 
     public List<User> getAllUser() {
@@ -71,38 +66,5 @@ public class UserService {
 
     public Collection<Feed> getUserFeed(long userId) {
         return feedDaoStorage.getUserFeed(userId);
-    }
-
-    public List<Film> findRecommendedFilms(Long id) {
-        HashMap<User, List<Film>> filmsTable = new HashMap<>();
-        List<Film> userFilms = filmDaoStorage.findFilmsLikedByUser(id);
-        List<User> users = getAllUser();
-
-        users.remove(userDaoStorage.getUserById(id));
-
-        for (User other : users) {
-            List<Film> otherFilms = filmDaoStorage.findFilmsLikedByUser(other.getId());
-            filmsTable.put(other, otherFilms);
-        }
-
-        List<List<Film>> differencesTable = new ArrayList<>();
-
-        for (List<Film> value : filmsTable.values()) {
-            List<Film> filmsPackage = new ArrayList<>();
-
-            for (Film film : value) {
-                film = filmService.getFilmById(film.getId());
-                if (!userFilms.contains(film)) {
-                    filmsPackage.add(film);
-                }
-            }
-            differencesTable.add(filmsPackage);
-        }
-
-        differencesTable.removeIf(List::isEmpty);
-
-        return differencesTable.stream()
-                .min(Comparator.comparing(List<Film>::size))
-                .orElse(new ArrayList<>());
     }
 }
