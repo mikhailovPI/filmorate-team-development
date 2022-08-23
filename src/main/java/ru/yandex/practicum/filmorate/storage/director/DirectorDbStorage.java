@@ -9,6 +9,7 @@ import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.Validator;
+import ru.yandex.practicum.filmorate.storage.film.FilmDbStorage;
 import ru.yandex.practicum.filmorate.utilities.Checker;
 
 import java.sql.PreparedStatement;
@@ -64,15 +65,6 @@ public class DirectorDbStorage implements DirectorDaoStorage {
     }
 
     @Override
-    public Director updateDirector(Director director) {
-        Checker.checkDirectorExists(director.getId(), jdbcTemplate);
-        jdbcTemplate.update("UPDATE DIRECTORS SET DIRECTOR_NAME = ? WHERE DIRECTOR_ID = ?"
-                , director.getName()
-                , director.getId());
-        return director;
-    }
-
-    @Override
     public void deleteDirector(Integer id) {
         Checker.checkDirectorExists(id, jdbcTemplate);
         jdbcTemplate.update("DELETE FROM FILM_DIRECTOR WHERE director_id = ?", id);
@@ -87,7 +79,7 @@ public class DirectorDbStorage implements DirectorDaoStorage {
     }
 
     public void updateDirectorFilm(Film film) {
-        String sql = "DELETE FROM FILM_DIRECTOR WHERE DIRECTOR_ID = ?";
+        String sql = "DELETE FROM FILM_DIRECTOR WHERE FILM_ID = ?";
         jdbcTemplate.update(sql, film.getId());
     }
 }

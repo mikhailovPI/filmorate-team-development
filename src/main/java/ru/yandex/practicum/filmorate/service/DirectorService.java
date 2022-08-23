@@ -7,8 +7,6 @@ import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.director.DirectorDaoStorage;
 import ru.yandex.practicum.filmorate.storage.film.FilmDaoStorage;
-import ru.yandex.practicum.filmorate.storage.genre.GenreDaoStorage;
-import ru.yandex.practicum.filmorate.storage.like.LikeDaoStorage;
 
 import java.util.List;
 
@@ -48,7 +46,7 @@ public class DirectorService {
     }
 
     public Director updateDirector(Director director) {
-        return directorDaoStorage.updateDirector(director);
+        return filmDaoStorage.updateDirector(director);
     }
 
     public void deleteDirector(Integer id) {

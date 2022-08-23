@@ -13,6 +13,7 @@ import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.storage.Validator;
 import ru.yandex.practicum.filmorate.storage.director.DirectorDaoStorage;
+import ru.yandex.practicum.filmorate.storage.director.DirectorDbStorage;
 import ru.yandex.practicum.filmorate.storage.genre.GenreDaoStorage;
 import ru.yandex.practicum.filmorate.utilities.Checker;
 
@@ -20,8 +21,6 @@ import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -29,13 +28,15 @@ import java.util.Set;
 @Slf4j
 public class FilmDbStorage implements FilmDaoStorage {
 
+    private final DirectorDbStorage directorDbStorage;
     private final JdbcTemplate jdbcTemplate;
     private final DirectorDaoStorage directorDaoStorage;
     private final GenreDaoStorage genreDaoStorage;
     private final Validator validator;
 
-    public FilmDbStorage(JdbcTemplate jdbcTemplate, Validator validator,
+    public FilmDbStorage(DirectorDbStorage directorDbStorage, JdbcTemplate jdbcTemplate, Validator validator,
                          GenreDaoStorage genreDaoStorage, DirectorDaoStorage directorDaoStorage) {
+        this.directorDbStorage = directorDbStorage;
         this.jdbcTemplate = jdbcTemplate;
         this.validator = validator;
         this.directorDaoStorage = directorDaoStorage;
@@ -259,7 +260,8 @@ public class FilmDbStorage implements FilmDaoStorage {
 
     @Override
     public List<Film> getSearchFilmsForTitle(String query) {
-        String query1 = query.toLowerCase();
+        String query1 = "'%'" + query + "'%'";
+        query1 = query1.toLowerCase();
         String sql =
                 "SELECT f.film_id, f.NAME, f.DESCRIPTION, f.RELEASE_DATE, f.DURATION, " +
                         "f.RATING_ID, R.RATING_NAME " +
@@ -298,7 +300,8 @@ public class FilmDbStorage implements FilmDaoStorage {
 
     @Override
     public List<Film> getSearchFilmsForTitleAndDirector(String query) {
-        String query1 = query.toLowerCase();
+        String query1 = "'%'" + query + "'%'";
+        query1 = query1.toLowerCase();
         String sql =
                 "SELECT f.film_id, f.NAME, f.DESCRIPTION, f.RELEASE_DATE, f.DURATION, " +
                         "f.RATING_ID, R.RATING_NAME " +
@@ -307,22 +310,37 @@ public class FilmDbStorage implements FilmDaoStorage {
                         "LEFT JOIN FILMS_LIKES l on l.FILM_ID = f.FILM_ID " +
                         "JOIN FILM_DIRECTOR fd on f.FILM_ID = fd.FILM_ID " +
                         "JOIN DIRECTORS DIR on fd.DIRECTOR_ID = DIR.DIRECTOR_ID " +
-
-                        "WHERE  LOWER(DIR.DIRECTOR_NAME) LIKE '%' + ? + '%' " +
-                        "OR  LOWER(f.NAME) LIKE '%' + ? + '%' " +
+                        "WHERE  LOWER(DIR.DIRECTOR_NAME) LIKE ? " +
+                        "OR  LOWER(f.NAME) LIKE ? " +
                         "GROUP BY F.FILM_ID " +
                         "ORDER BY COUNT(l.USER_ID) DESC";
 
+        String finalQuery = query1;
         List<Film> list = jdbcTemplate.query(con -> {
             PreparedStatement stmt = con.prepareStatement(sql);
-            stmt.setString(1, query1);
-            stmt.setString(2, query1);
+            stmt.setString(1, finalQuery);
+            stmt.setString(2, finalQuery);
             stmt.executeQuery();
             return stmt;
         }, (rs, rowNum) -> makeFilm(rs));
 
         log.info("Создан список:" + list);
         return list;
+    }
+
+    @Override
+    public Director updateDirector(Director director) {
+        Checker.checkDirectorExists(director.getId(), jdbcTemplate);
+        jdbcTemplate.update("UPDATE DIRECTORS SET DIRECTOR_NAME = ? WHERE DIRECTOR_ID = ?"
+                , director.getName()
+                , director.getId());
+//        Film film = getAllFilms().stream()
+//                .filter(film1 -> film1.getDirectors().contains(director))
+//                .findAny()
+//                .get();
+        jdbcTemplate.update("UPDATE FILM_DIRECTOR set DIRECTOR_ID = ? WHERE FILM_ID = 3",
+                director.getId());
+        return director;
     }
 
     private Film makeFilm(ResultSet rs) throws SQLException {

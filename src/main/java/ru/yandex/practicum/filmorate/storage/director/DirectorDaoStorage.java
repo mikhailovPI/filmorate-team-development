@@ -14,8 +14,6 @@ public interface DirectorDaoStorage {
 
     Director createDirector(Director director);
 
-    Director updateDirector(Director director);
-
     void deleteDirector(Integer id);
 
     Set<Director> getDirectorsByFilm(Film film);
