@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exception.InvalidValueException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.director.DirectorDaoStorage;
@@ -106,15 +107,15 @@ public class FilmService {
         return filmDaoStorage.getCommonFilms(userId, friendId);
     }
 
-    public List<Film> getSearchFilms(String query, String by) {
-        if (by.equals("title")) {
+    public List<Film> getSearchFilms(String query, List<String> by) {
+        if (by.contains("title") && by.size() == 1) {
             List<Film> searchFilms = new ArrayList<>();
             for (Film film : filmDaoStorage.getSearchFilmsForTitle(query)) {
                 loadData(film);
                 searchFilms.add(film);
             }
             return searchFilms;
-        } else if (by.equals("director")) {
+        } else if (by.contains("director") && by.size() == 1) {
             List<Film> searchFilms = new ArrayList<>();
             for (Film film : filmDaoStorage.getSearchFilmsForDirector(query)) {
                 loadData(film);
@@ -122,13 +123,15 @@ public class FilmService {
             }
             System.out.println(searchFilms);
             return searchFilms;
-        } else {
+        } else if (by.contains("title") && by.contains("director") && by.size() == 2){
             List<Film> searchFilms = new ArrayList<>();
             for (Film film : filmDaoStorage.getSearchFilmsForTitleAndDirector(query)) {
                 loadData(film);
                 searchFilms.add(film);
             }
             return searchFilms;
+        } else {
+            throw new InvalidValueException("Некорректные входные данные");
         }
     }
 }

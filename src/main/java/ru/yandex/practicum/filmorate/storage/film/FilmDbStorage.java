@@ -296,31 +296,18 @@ public class FilmDbStorage implements FilmDaoStorage {
 
     @Override
     public List<Film> getSearchFilmsForTitleAndDirector(String query) {
-        String query1 = "'%'" + query + "'%'";
-        query1 = query1.toLowerCase();
-        String sql =
-                "SELECT f.film_id, f.NAME, f.DESCRIPTION, f.RELEASE_DATE, f.DURATION, " +
-                        "f.RATING_ID, R.RATING_NAME " +
-                        "FROM films f " +
-                        "LEFT JOIN RATINGS R ON f.RATING_ID = R.RATING_ID " +
-                        "LEFT JOIN FILMS_LIKES l on l.FILM_ID = f.FILM_ID " +
-                        "JOIN FILM_DIRECTOR fd on f.FILM_ID = fd.FILM_ID " +
-                        "JOIN DIRECTORS DIR on fd.DIRECTOR_ID = DIR.DIRECTOR_ID " +
-                        "WHERE  LOWER(DIR.DIRECTOR_NAME) LIKE ? " +
-                        "OR  LOWER(f.NAME) LIKE ? " +
-                        "GROUP BY F.FILM_ID " +
-                        "ORDER BY COUNT(l.USER_ID) DESC";
+        String sql = "SELECT f.FILM_ID, f.NAME, f.DESCRIPTION, f.RATING_ID as RATING_ID, " +
+                "R.RATING_NAME, f.DURATION, f.RELEASE_DATE " +
+                "FROM films as f " +
+                "JOIN RATINGS R on R.RATING_ID = f.RATING_ID " +
+                "LEFT JOIN FILM_DIRECTOR FD on f.FILM_ID = FD.FILM_ID " +
+                "LEFT JOIN DIRECTORS D on D.DIRECTOR_ID = FD.DIRECTOR_ID " +
+                "LEFT JOIN FILMS_LIKES FL on f.FILM_ID = FL.FILM_ID " +
+                "WHERE f.NAME ilike '%' || (?) || '%' OR d.DIRECTOR_NAME ilike '%' || (?) || '%' " +
+                "GROUP BY f.film_id " +
+                "ORDER BY COUNT(FL.USER_ID) DESC";
 
-        String finalQuery = query1;
-        List<Film> list = jdbcTemplate.query(con -> {
-            PreparedStatement stmt = con.prepareStatement(sql);
-            stmt.setString(1, finalQuery);
-            stmt.setString(2, finalQuery);
-            stmt.executeQuery();
-            return stmt;
-        }, (rs, rowNum) -> makeFilm(rs));
-
-        log.info("Создан список:" + list);
+        List<Film> list = jdbcTemplate.query(sql, (rs, rowNum) -> makeFilm(rs), query, query);
         return list;
     }
 
@@ -330,10 +317,6 @@ public class FilmDbStorage implements FilmDaoStorage {
         jdbcTemplate.update("UPDATE DIRECTORS SET DIRECTOR_NAME = ? WHERE DIRECTOR_ID = ?"
                 , director.getName()
                 , director.getId());
-//        Film film = getAllFilms().stream()
-//                .filter(film1 -> film1.getDirectors().contains(director))
-//                .findAny()
-//                .get();
         jdbcTemplate.update("UPDATE FILM_DIRECTOR set DIRECTOR_ID = ? WHERE FILM_ID = 3",
                 director.getId());
         return director;
