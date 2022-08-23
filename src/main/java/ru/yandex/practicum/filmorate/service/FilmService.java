@@ -2,8 +2,8 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.extern.slf4j.Slf4j;
 import lombok.RequiredArgsConstructor;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exception.InvalidValueException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.director.DirectorDaoStorage;
@@ -120,15 +120,17 @@ public class FilmService {
                 loadData(film);
                 searchFilms.add(film);
             }
-            System.out.println(searchFilms);
             return searchFilms;
-        } else {
+        } else if (by.equals("director,title") || by.equals("title,director")) {
             List<Film> searchFilms = new ArrayList<>();
             for (Film film : filmDaoStorage.getSearchFilmsForTitleAndDirector(query)) {
                 loadData(film);
                 searchFilms.add(film);
             }
             return searchFilms;
+        }
+        else {
+            throw new InvalidValueException("Некорректные входные данные");
         }
     }
 }
