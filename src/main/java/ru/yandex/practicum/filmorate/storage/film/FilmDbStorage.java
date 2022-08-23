@@ -21,7 +21,6 @@ import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -323,6 +322,14 @@ public class FilmDbStorage implements FilmDaoStorage {
         return director;
     }
 
+    @Override
+    public List<Film> findFilmsLikedByUser(Long id) {
+        String queryToFindUserFilms = "SELECT * FROM FILMS " +
+                "JOIN RATINGS R on R.RATING_ID = FILMS.RATING_ID " +
+                "WHERE FILMS.FILM_ID iN (SELECT FILM_ID FROM FILMS_LIKES WHERE USER_ID = ?)";
+        return jdbcTemplate.query(queryToFindUserFilms, (rs, rowNum) -> makeFilm(rs), id);
+    }
+
     private Film makeFilm(ResultSet rs) throws SQLException {
         Film film = new Film();
         film.setId(rs.getLong("FILM_ID"));
@@ -332,13 +339,5 @@ public class FilmDbStorage implements FilmDaoStorage {
         film.setDuration(rs.getInt("DURATION"));
         film.setMpa(new Mpa(rs.getInt("RATING_ID"), rs.getString("RATING_NAME")));
         return film;
-    }
-
-    @Override
-    public List<Film> findFilmsLikedByUser(Long id) {
-        String queryToFindUserFilms = "SELECT * FROM FILMS " +
-                "JOIN RATINGS R on R.RATING_ID = FILMS.RATING_ID " +
-                "WHERE FILMS.FILM_ID iN (SELECT FILM_ID FROM FILMS_LIKES WHERE USER_ID = ?)";
-        return jdbcTemplate.query(queryToFindUserFilms, (rs, rowNum) -> makeFilm(rs), id);
     }
 }
