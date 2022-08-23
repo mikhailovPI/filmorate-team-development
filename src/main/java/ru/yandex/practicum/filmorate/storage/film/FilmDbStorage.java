@@ -260,41 +260,37 @@ public class FilmDbStorage implements FilmDaoStorage {
 
     @Override
     public List<Film> getSearchFilmsForTitle(String query) {
-        String query1 = "'%'" + query + "'%'";
-        query1 = query1.toLowerCase();
         String sql =
                 "SELECT f.film_id, f.NAME, f.DESCRIPTION, f.RELEASE_DATE, f.DURATION, " +
                         "f.RATING_ID, R.RATING_NAME " +
                         "FROM films f " +
                         "LEFT JOIN RATINGS R ON f.RATING_ID = R.RATING_ID " +
                         "LEFT JOIN FILMS_LIKES l on l.FILM_ID = f.FILM_ID " +
-                        "WHERE LOWER(f.NAME) LIKE '%' || (?) || '%' " +
+                        "WHERE (f.NAME) ILIKE '%' || (?) || '%' " +
                         "GROUP BY f.FILM_ID " +
                         "ORDER BY count(l.USER_ID) DESC";
 
-        List<Film> list = jdbcTemplate.query(sql, (rs, rowNum) -> makeFilm(rs), query1);
+        List<Film> list = jdbcTemplate.query(sql, (rs, rowNum) -> makeFilm(rs), query);
         log.info("Создан список:" + list);
         return list;
     }
 
     @Override
     public List<Film> getSearchFilmsForDirector(String query) {
-        String query1 = query.toLowerCase();
-        String sql =
-                "SELECT f.film_id, f.NAME, f.DESCRIPTION, f.RELEASE_DATE, f.DURATION, " +
-                        "f.RATING_ID, R.RATING_NAME " +
-                        "FROM films f " +
-                        "LEFT JOIN RATINGS R ON f.RATING_ID = R.RATING_ID " +
-                        "LEFT JOIN FILMS_LIKES l on l.FILM_ID = f.FILM_ID " +
-                        "JOIN FILM_DIRECTOR fd on f.FILM_ID = fd.FILM_ID " +
-                        "JOIN DIRECTORS DIR on fd.DIRECTOR_ID = DIR.DIRECTOR_ID " +
+                String sql =
+        "SELECT f.FILM_ID, f.NAME, f.DESCRIPTION, f.RATING_ID as RATING_ID, " +
+                "mr.RATING_NAME, f.DURATION, f.RELEASE_DATE " +
+                "FROM films as f " +
+                "JOIN RATINGS MR on MR.RATING_ID = f.RATING_ID " +
+                "JOIN FILM_DIRECTOR FD on f.FILM_ID = FD.FILM_ID " +
+                "JOIN DIRECTORS D on D.DIRECTOR_ID = FD.DIRECTOR_ID " +
+                "LEFT JOIN FILMS_LIKES L on f.FILM_ID = L.FILM_ID " +
+                "WHERE d.DIRECTOR_NAME ilike '%' || (?) || '%' " +
+                "GROUP BY f.film_id " +
+                "ORDER BY COUNT(l.USER_ID) DESC";
 
-                        "WHERE LOWER(DIR.DIRECTOR_NAME) LIKE '%' + ? + '%' " +
-                        "GROUP BY f.FILM_ID " +
-                        "ORDER BY count(l.USER_ID) DESC";
-
-        List<Film> list = jdbcTemplate.query(sql, (rs, rowNum) -> makeFilm(rs), query1);
-        log.info("Создан список:" + list);
+        List<Film> list = jdbcTemplate.query(sql, (rs, rowNum) -> makeFilm(rs), query);
+        log.info("Создан список. Сортировка по режиссерам:" + list);
         return list;
     }
 
