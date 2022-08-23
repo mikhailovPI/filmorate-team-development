@@ -120,6 +120,7 @@ public class FilmService {
                 loadData(film);
                 searchFilms.add(film);
             }
+            System.out.println(searchFilms);
             return searchFilms;
         } else {
             List<Film> searchFilms = new ArrayList<>();
