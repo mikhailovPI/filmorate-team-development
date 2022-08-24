@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.extern.slf4j.Slf4j;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exception.InvalidValueException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
@@ -75,35 +76,31 @@ public class FilmService {
     }
 
     public List<Film> getTopFilmsGenreYear(Integer count, Integer genreId, Integer year) {
+        List<Film> topFilms = new ArrayList<>();
         if (genreId == null && year == null) {
-            List<Film> topFilms = new ArrayList<>();
             for (Film film : filmDaoStorage.getTopLikeFilm(count)) {
                 loadData(film);
                 topFilms.add(film);
             }
             return topFilms;
-        }
-        else if (year == null) {
-            List<Film> topFilmsWithGenre = new ArrayList<>();
+        } else if (year == null) {
             for (Film film : filmDaoStorage.getTopFilmsGenre(count, genreId)) {
                 loadData(film);
-                topFilmsWithGenre.add(film);
+                topFilms.add(film);
             }
-            return topFilmsWithGenre;
+            return topFilms;
         } else if (genreId == null) {
-            List<Film> topFilmsWithYear = new ArrayList<>();
             for (Film film : filmDaoStorage.getTopFilmsYear(count, year)) {
                 loadData(film);
-                topFilmsWithYear.add(film);
+                topFilms.add(film);
             }
-            return topFilmsWithYear;
+            return topFilms;
         } else {
-            List<Film> topFilmsWithYearAndGenre = new ArrayList<>();
             for (Film film : filmDaoStorage.getTopFilmsGenreYear(count, genreId, year)) {
                 loadData(film);
-                topFilmsWithYearAndGenre.add(film);
+                topFilms.add(film);
             }
-            return topFilmsWithYearAndGenre;
+            return topFilms;
         }
     }
 
@@ -142,5 +139,31 @@ public class FilmService {
         return differencesTable.stream()
                 .min(Comparator.comparing(List<Film>::size))
                 .orElse(new ArrayList<>());
+    }
+
+    public List<Film> getSearchFilms(String query, String by) {
+        List<Film> searchFilms = new ArrayList<>();
+        if (by.equals("title")) {
+            for (Film film : filmDaoStorage.getSearchFilmsForTitle(query)) {
+                loadData(film);
+                searchFilms.add(film);
+            }
+            return searchFilms;
+        } else if (by.equals("director")) {
+            for (Film film : filmDaoStorage.getSearchFilmsForDirector(query)) {
+                loadData(film);
+                searchFilms.add(film);
+            }
+            return searchFilms;
+        } else if (by.equals("director,title") || by.equals("title,director")) {
+            for (Film film : filmDaoStorage.getSearchFilmsForTitleAndDirector(query)) {
+                loadData(film);
+                searchFilms.add(film);
+            }
+            return searchFilms;
+        }
+        else {
+            throw new InvalidValueException("Некорректные входные данные");
+        }
     }
 }

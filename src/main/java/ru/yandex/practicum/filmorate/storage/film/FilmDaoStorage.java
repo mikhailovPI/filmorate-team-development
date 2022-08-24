@@ -1,6 +1,7 @@
 
 package ru.yandex.practicum.filmorate.storage.film;
 
+import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import java.util.List;
@@ -36,5 +37,12 @@ public interface FilmDaoStorage {
     List<Film> getCommonFilms(Long userId, Long friendId);
 
     List<Film> findFilmsLikedByUser(Long id);
+
+    List<Film> getSearchFilmsForTitle(String query);
+
+    List<Film> getSearchFilmsForDirector(String query);
+
+    List<Film> getSearchFilmsForTitleAndDirector(String query);
+
 }
 

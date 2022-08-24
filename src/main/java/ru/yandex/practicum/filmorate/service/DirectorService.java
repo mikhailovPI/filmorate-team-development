@@ -7,8 +7,6 @@ import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.director.DirectorDaoStorage;
 import ru.yandex.practicum.filmorate.storage.film.FilmDaoStorage;
-import ru.yandex.practicum.filmorate.storage.genre.GenreDaoStorage;
-import ru.yandex.practicum.filmorate.storage.like.LikeDaoStorage;
 
 import java.util.List;
 

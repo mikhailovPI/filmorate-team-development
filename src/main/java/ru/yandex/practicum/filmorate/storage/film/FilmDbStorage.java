@@ -255,16 +255,61 @@ public class FilmDbStorage implements FilmDaoStorage {
         return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> makeFilm(rs), userId, friendId);
     }
 
-    private Film makeFilm(ResultSet rs) throws SQLException {
-        Film film = new Film();
-        film.setId(rs.getLong("FILM_ID"));
-        film.setName(rs.getString("NAME"));
-        film.setReleaseDate(rs.getDate("RELEASE_DATE").toLocalDate());
-        film.setDescription(rs.getString("DESCRIPTION"));
-        film.setDuration(rs.getInt("DURATION"));
-        film.setMpa(new Mpa(rs.getInt("RATING_ID"), rs.getString("RATING_NAME")));
-        return film;
+    @Override
+    public List<Film> getSearchFilmsForTitle(String query) {
+        String sql =
+                "SELECT f.film_id, f.NAME, f.DESCRIPTION, f.RELEASE_DATE, f.DURATION, " +
+                        "f.RATING_ID, R.RATING_NAME " +
+                        "FROM films f " +
+                        "LEFT JOIN RATINGS R ON f.RATING_ID = R.RATING_ID " +
+                        "LEFT JOIN FILMS_LIKES l on l.FILM_ID = f.FILM_ID " +
+                        "WHERE (f.NAME) ILIKE '%' || (?) || '%' " +
+                        "GROUP BY f.FILM_ID " +
+                        "ORDER BY count(l.USER_ID) DESC";
+
+        List<Film> list = jdbcTemplate.query(sql, (rs, rowNum) -> makeFilm(rs), query);
+        log.info("Создан список:" + list);
+        return list;
     }
+
+    @Override
+    public List<Film> getSearchFilmsForDirector(String query) {
+        String sql =
+                "SELECT f.FILM_ID, f.NAME, f.DESCRIPTION, f.RATING_ID as RATING_ID, " +
+                        "mr.RATING_NAME, f.DURATION, f.RELEASE_DATE " +
+                        "FROM films as f " +
+                        "JOIN RATINGS MR on MR.RATING_ID = f.RATING_ID " +
+                        "JOIN FILM_DIRECTOR FD on f.FILM_ID = FD.FILM_ID " +
+                        "JOIN DIRECTORS D on D.DIRECTOR_ID = FD.DIRECTOR_ID " +
+                        "LEFT JOIN FILMS_LIKES L on f.FILM_ID = L.FILM_ID " +
+                        "WHERE d.DIRECTOR_NAME ilike '%' || (?) || '%' " +
+                        "GROUP BY f.film_id " +
+                        "ORDER BY COUNT(l.USER_ID) DESC";
+
+        List<Film> list = jdbcTemplate.query(sql, (rs, rowNum) -> makeFilm(rs), query);
+        log.info("Создан список:" + list);
+        return list;
+    }
+
+    @Override
+    public List<Film> getSearchFilmsForTitleAndDirector(String query) {
+        String sql = "SELECT f.FILM_ID, f.NAME, f.DESCRIPTION, f.RATING_ID as RATING_ID, " +
+                "R.RATING_NAME, f.DURATION, f.RELEASE_DATE " +
+                "FROM films as f " +
+                "JOIN RATINGS R on R.RATING_ID = f.RATING_ID " +
+                "LEFT JOIN FILM_DIRECTOR FD on f.FILM_ID = FD.FILM_ID " +
+                "LEFT JOIN DIRECTORS D on D.DIRECTOR_ID = FD.DIRECTOR_ID " +
+                "LEFT JOIN FILMS_LIKES FL on f.FILM_ID = FL.FILM_ID " +
+                "WHERE f.NAME ilike '%' || (?) || '%' OR d.DIRECTOR_NAME ilike '%' || (?) || '%' " +
+                "GROUP BY f.film_id " +
+                "ORDER BY COUNT(FL.USER_ID) DESC";
+
+        List<Film> list = jdbcTemplate.query(sql, (rs, rowNum) -> makeFilm(rs), query, query);
+        log.info("Создан список:" + list);
+        return list;
+    }
+
+
 
     @Override
     public List<Film> findFilmsLikedByUser(Long id) {
@@ -272,5 +317,16 @@ public class FilmDbStorage implements FilmDaoStorage {
                 "JOIN RATINGS R on R.RATING_ID = FILMS.RATING_ID " +
                 "WHERE FILMS.FILM_ID iN (SELECT FILM_ID FROM FILMS_LIKES WHERE USER_ID = ?)";
         return jdbcTemplate.query(queryToFindUserFilms, (rs, rowNum) -> makeFilm(rs), id);
+    }
+
+    private Film makeFilm(ResultSet rs) throws SQLException {
+        Film film = new Film();
+        film.setId(rs.getLong("FILM_ID"));
+        film.setName(rs.getString("NAME"));
+        film.setDescription(rs.getString("DESCRIPTION"));
+        film.setReleaseDate(rs.getDate("RELEASE_DATE").toLocalDate());
+        film.setDuration(rs.getInt("DURATION"));
+        film.setMpa(new Mpa(rs.getInt("RATING_ID"), rs.getString("RATING_NAME")));
+        return film;
     }
 }
