@@ -46,7 +46,7 @@ public class DirectorService {
     }
 
     public Director updateDirector(Director director) {
-        return filmDaoStorage.updateDirector(director);
+        return directorDaoStorage.updateDirector(director);
     }
 
     public void deleteDirector(Integer id) {

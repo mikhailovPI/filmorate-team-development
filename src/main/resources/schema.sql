@@ -1,15 +1,3 @@
-drop table if exists DIRECTORS cascade;
-drop table if exists film_director cascade;
-drop table if exists FILMS cascade;
-drop table if exists FILMS_GENRES cascade;
-drop table if exists FILMS_LIKES cascade;
-drop table if exists FRIENDS cascade;
-drop table if exists GENRES cascade;
-drop table if exists RATINGS cascade;
-drop table if exists REVIEW cascade;
-drop table if exists REVIEW_LIKES cascade;
-drop table if exists USERS cascade;
-
 
 create table DIRECTORS
 (

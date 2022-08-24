@@ -13,7 +13,6 @@ import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.storage.Validator;
 import ru.yandex.practicum.filmorate.storage.director.DirectorDaoStorage;
-import ru.yandex.practicum.filmorate.storage.director.DirectorDbStorage;
 import ru.yandex.practicum.filmorate.storage.genre.GenreDaoStorage;
 import ru.yandex.practicum.filmorate.utilities.Checker;
 
@@ -28,15 +27,13 @@ import java.util.Set;
 @Slf4j
 public class FilmDbStorage implements FilmDaoStorage {
 
-    private final DirectorDbStorage directorDbStorage;
     private final JdbcTemplate jdbcTemplate;
     private final DirectorDaoStorage directorDaoStorage;
     private final GenreDaoStorage genreDaoStorage;
     private final Validator validator;
 
-    public FilmDbStorage(DirectorDbStorage directorDbStorage, JdbcTemplate jdbcTemplate, Validator validator,
+    public FilmDbStorage(JdbcTemplate jdbcTemplate, Validator validator,
                          GenreDaoStorage genreDaoStorage, DirectorDaoStorage directorDaoStorage) {
-        this.directorDbStorage = directorDbStorage;
         this.jdbcTemplate = jdbcTemplate;
         this.validator = validator;
         this.directorDaoStorage = directorDaoStorage;
@@ -290,7 +287,7 @@ public class FilmDbStorage implements FilmDaoStorage {
                         "ORDER BY COUNT(l.USER_ID) DESC";
 
         List<Film> list = jdbcTemplate.query(sql, (rs, rowNum) -> makeFilm(rs), query);
-        log.info("Создан список. Сортировка по режиссерам:" + list);
+        log.info("Создан список:" + list);
         return list;
     }
 
@@ -308,19 +305,11 @@ public class FilmDbStorage implements FilmDaoStorage {
                 "ORDER BY COUNT(FL.USER_ID) DESC";
 
         List<Film> list = jdbcTemplate.query(sql, (rs, rowNum) -> makeFilm(rs), query, query);
+        log.info("Создан список:" + list);
         return list;
     }
 
-    @Override
-    public Director updateDirector(Director director) {
-        Checker.checkDirectorExists(director.getId(), jdbcTemplate);
-        jdbcTemplate.update("UPDATE DIRECTORS SET DIRECTOR_NAME = ? WHERE DIRECTOR_ID = ?"
-                , director.getName()
-                , director.getId());
-        jdbcTemplate.update("UPDATE FILM_DIRECTOR set DIRECTOR_ID = ? WHERE FILM_ID = 3",
-                director.getId());
-        return director;
-    }
+
 
     @Override
     public List<Film> findFilmsLikedByUser(Long id) {

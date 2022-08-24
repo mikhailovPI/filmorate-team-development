@@ -13,9 +13,14 @@ import ru.yandex.practicum.filmorate.model.enums.OperationType;
 @EqualsAndHashCode(of = "eventId")
 public class Feed {
     private Long eventId;
+
     private Long userId;
+
     private Long entityId;
+
     private EventType eventType;
+
     private OperationType operation;
+
     private Long timestamp;
 }

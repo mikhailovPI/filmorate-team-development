@@ -44,6 +44,5 @@ public interface FilmDaoStorage {
 
     List<Film> getSearchFilmsForTitleAndDirector(String query);
 
-    Director updateDirector(Director director);
 }
 
