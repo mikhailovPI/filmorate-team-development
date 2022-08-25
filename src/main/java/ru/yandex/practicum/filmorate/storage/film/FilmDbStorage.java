@@ -5,16 +5,13 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
-import ru.yandex.practicum.filmorate.exception.InvalidValueException;
 import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
-import ru.yandex.practicum.filmorate.storage.Validator;
+import ru.yandex.practicum.filmorate.utilities.Validator;
 import ru.yandex.practicum.filmorate.storage.director.DirectorDaoStorage;
 import ru.yandex.practicum.filmorate.storage.genre.GenreDaoStorage;
-import ru.yandex.practicum.filmorate.utilities.Checker;
 
 import java.sql.Date;
 import java.sql.PreparedStatement;
@@ -22,6 +19,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Set;
+
+import static ru.yandex.practicum.filmorate.utilities.Checker.checkFilmExists;
+import static ru.yandex.practicum.filmorate.utilities.Checker.checkUserExists;
 
 @Component
 @Slf4j
@@ -42,7 +42,7 @@ public class FilmDbStorage implements FilmDaoStorage {
 
     @Override
     public Film getFilmById(Long id) {
-        Checker.checkFilmExists(id, jdbcTemplate);
+        checkFilmExists(id, jdbcTemplate);
         String sql =
                 "SELECT F.FILM_ID, F.NAME, F.DESCRIPTION, F.RELEASE_DATE,  " +
                         "F.DURATION, F.RATING_ID, R.RATING_NAME " +
@@ -50,7 +50,7 @@ public class FilmDbStorage implements FilmDaoStorage {
                         "JOIN RATINGS AS R ON F.RATING_ID = R.RATING_ID " +
                         "WHERE F.FILM_ID = ?";
         return jdbcTemplate.query(sql, (rs, rowNum) -> makeFilm(rs), id)
-                .stream().findAny().orElse(null);
+                .stream().findFirst().get();
     }
 
     @Override
@@ -67,9 +67,6 @@ public class FilmDbStorage implements FilmDaoStorage {
     @Override
     public Film createFilm(Film film) {
         validator.filmValidator(film);
-        if (film == null) {
-            throw new EntityNotFoundException("Невозможно создать фильм. Передан пустой фильм.");
-        }
 
         String sqlQuery = "INSERT INTO films (NAME, RELEASE_DATE, DESCRIPTION, DURATION, RATING_ID) " +
                 "VALUES (?, ?, ?, ?, ?);";
@@ -120,12 +117,7 @@ public class FilmDbStorage implements FilmDaoStorage {
     @Override
     public Film updateFilm(Film film) {
         validator.filmValidator(film);
-        if (!getAllFilms().contains(film)) {
-            throw new EntityNotFoundException("Фильм не найден для обновления.");
-        }
-        if (film.getId() < 1) {
-            throw new InvalidValueException("Введен некорректный идентификатор фильма.");
-        }
+        checkFilmExists(film.getId(), jdbcTemplate);
         String sql =
                 "UPDATE FILMS " +
                         "SET NAME = ?, RELEASE_DATE = ?, DESCRIPTION = ?, " +
@@ -138,7 +130,7 @@ public class FilmDbStorage implements FilmDaoStorage {
 
     @Override
     public void deleteFilm(Long id) {
-        Checker.checkFilmExists(id, jdbcTemplate);
+        checkFilmExists(id, jdbcTemplate);
         String sql =
                 "DELETE " +
                         "FROM FILMS " +
@@ -244,8 +236,8 @@ public class FilmDbStorage implements FilmDaoStorage {
     }
 
     public List<Film> getCommonFilms(Long userId, Long friendId) {
-        Checker.checkUserExists(userId, jdbcTemplate);
-        Checker.checkUserExists(friendId, jdbcTemplate);
+        checkUserExists(userId, jdbcTemplate);
+        checkUserExists(friendId, jdbcTemplate);
         String sqlQuery = "SELECT distinct F.film_id, name, description, release_date, duration, R.rating_id, " +
                 "RATING_NAME, director_id FROM FILMS F " +
                 "LEFT JOIN FILMS_LIKES FL on F.FILM_ID = FL.FILM_ID " +

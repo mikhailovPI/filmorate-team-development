@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.storage;
+package ru.yandex.practicum.filmorate.utilities;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -58,9 +58,8 @@ public class Validator {
     }
 
     public void validateReview(Review review) {
-
-        var isValidate = false;
-        var message = "";
+        boolean isValidate = false;
+        String message = "";
 
         if (review.getContent() == null || review.getContent().isBlank()) {
             message = "Содержание отзыва не указано.";
@@ -73,6 +72,7 @@ public class Validator {
         } else {
             isValidate = true;
         }
+
         if (!isValidate) {
             log.debug(message);
             throw new ValidationException(message);

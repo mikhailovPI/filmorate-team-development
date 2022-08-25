@@ -1,8 +1,9 @@
 package ru.yandex.practicum.filmorate.storage.genre;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.exception.InvalidValueException;
+import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 
@@ -12,6 +13,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+@Slf4j
 @Component
 public class GenreDbStorage implements GenreDaoStorage {
 
@@ -22,10 +24,8 @@ public class GenreDbStorage implements GenreDaoStorage {
     }
 
     @Override
-    public Genre getGenreById(Long genreId) {
-        if (genreId < 1) {
-            throw new InvalidValueException("Введен некорректный идентификатор жанра.");
-        }
+    public Genre getGenreById(Integer genreId) {
+        checkGenreExists(genreId);
         String sql =
                 "SELECT * " +
                         "FROM GENRES " +
@@ -60,6 +60,14 @@ public class GenreDbStorage implements GenreDaoStorage {
 
     private Genre makeGenre(ResultSet rs) throws SQLException {
         return new Genre(rs.getInt("GENRE_ID"), rs.getString("NAME"));
+    }
+
+    private void checkGenreExists(Integer id) {
+        String sql = "SELECT * FROM GENRES WHERE GENRE_ID = ?";
+        if (!jdbcTemplate.queryForRowSet(sql, id).next()) {
+            log.debug("Жанр с id: {} не найден.", id);
+            throw new EntityNotFoundException((String.format("Жанр с id: %s не найден.", id)));
+        }
     }
 }
 

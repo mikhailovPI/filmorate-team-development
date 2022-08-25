@@ -29,7 +29,7 @@ public class FeedDbStorage implements FeedDaoStorage {
 
     @Override
     public void addFeed(long userId, long entityId, EventType eventType, OperationType operationType) {
-        var sqlQuery = "INSERT INTO FEED (EVENT_TIMESTAMP, " +
+        String sqlQuery = "INSERT INTO FEED (EVENT_TIMESTAMP, " +
                 "USER_ID, " +
                 "EVENT_TYPE, " +
                 "OPERATION," +

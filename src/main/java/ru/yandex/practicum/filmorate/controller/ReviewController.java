@@ -31,12 +31,12 @@ public class ReviewController {
         return reviewService.updateReview(review);
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping(value = "/{id}")
     public void deleteReview (@PathVariable Long id) {
         reviewService.deleteReview(id);
     }
 
-    @GetMapping("/{id}")
+    @GetMapping(value = "/{id}")
     public Review getReviewById (@PathVariable Long id) {
         return reviewService.getReviewById(id);
     }

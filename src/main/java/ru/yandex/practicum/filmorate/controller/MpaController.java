@@ -11,6 +11,7 @@ import java.util.List;
 
 @Slf4j
 @RestController
+@RequestMapping("/mpa")
 public class MpaController {
 
     private final MpaDaoStorage mpaDaoStorage;
@@ -20,22 +21,22 @@ public class MpaController {
         this.mpaDaoStorage = mpaDaoStorage;
     }
 
-    @GetMapping("/mpa/{id}")
+    @GetMapping("/{id}")
     public Mpa findById(@PathVariable Integer id) {
         return mpaDaoStorage.getMpaById(id);
     }
 
-    @GetMapping("/mpa")
+    @GetMapping()
     public List<Mpa> findAll() {
         return mpaDaoStorage.getAllMpa();
     }
 
-    @PostMapping("/mpa")
+    @PostMapping()
     public Mpa create(@Valid @RequestBody Mpa mpa) {
         return mpaDaoStorage.createMpa(mpa);
     }
 
-    @PutMapping("/mpa")
+    @PutMapping()
     public Mpa update(@Valid @RequestBody Mpa mpa) {
         return mpaDaoStorage.updateMpa(mpa);
     }
