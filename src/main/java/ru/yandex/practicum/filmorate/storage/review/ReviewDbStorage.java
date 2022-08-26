@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.storage.review;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -9,7 +10,6 @@ import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.model.Review;
 import ru.yandex.practicum.filmorate.model.enums.EventType;
 import ru.yandex.practicum.filmorate.model.enums.OperationType;
-import ru.yandex.practicum.filmorate.utilities.Validator;
 import ru.yandex.practicum.filmorate.storage.feed.FeedDaoStorage;
 import ru.yandex.practicum.filmorate.utilities.Checker;
 
@@ -18,25 +18,20 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collection;
 import java.util.List;
+import static ru.yandex.practicum.filmorate.utilities.Validator.validateReview;
+
 
 @Repository
 @Slf4j
+@RequiredArgsConstructor
 public class ReviewDbStorage implements ReviewDaoStorage {
 
     private final JdbcTemplate jdbcTemplate;
-    private final Validator validator;
-
     private final FeedDaoStorage feedDaoStorage;
-
-    public ReviewDbStorage(JdbcTemplate jdbcTemplate, Validator validator, FeedDaoStorage feedDaoStorage) {
-        this.jdbcTemplate = jdbcTemplate;
-        this.validator = validator;
-        this.feedDaoStorage = feedDaoStorage;
-    }
 
     @Override
     public Review addReview(Review review) {
-        validator.validateReview(review);
+        validateReview(review);
         review.setUseful(0);
 
         Checker.checkUserExists(review.getUserId(), jdbcTemplate);
@@ -66,7 +61,7 @@ public class ReviewDbStorage implements ReviewDaoStorage {
 
     @Override
     public Review updateReview(Review review) {
-        validator.validateReview(review);
+        validateReview(review);
         checkReviewExists(review.getReviewId());
 
         Checker.checkUserExists(review.getUserId(), jdbcTemplate);

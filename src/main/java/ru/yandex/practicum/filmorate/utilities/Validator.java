@@ -14,7 +14,7 @@ import java.time.LocalDate;
 @Slf4j
 public class Validator {
 
-    public void userValidator(User user) throws ValidationException {
+    public static void userValidator(User user) throws ValidationException {
         if (user.getEmail() == null || user.getEmail().isBlank() || !user.getEmail().contains("@")) {
             throw new ValidationException("Введен некорректный email.");
         }
@@ -29,7 +29,7 @@ public class Validator {
         }
     }
 
-    public void filmValidator(Film film) throws ValidationException {
+    public static void filmValidator(Film film) throws ValidationException {
         if (film.getName().isBlank() || film.getName() == null) {
             throw new ValidationException("Введено некорректное название фильма. Название фильма не может быть пустым.");
         }
@@ -50,14 +50,14 @@ public class Validator {
         }
     }
 
-    public void directorValidator(Director director) throws ValidationException {
+    public static void directorValidator(Director director) throws ValidationException {
         if (director.getName().isBlank() || director.getName() == null) {
             throw new ValidationException("Введено некорректное название режиссера." +
                     " Имя режиссера не может быть пустым.");
         }
     }
 
-    public void validateReview(Review review) {
+    public static void validateReview(Review review) {
         boolean isValidate = false;
         String message = "";
 

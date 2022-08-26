@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.storage.friends;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
@@ -13,17 +14,12 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Component
+@RequiredArgsConstructor
 public class FriendsDbStorage implements FriendsDaoStorage {
 
     private final JdbcTemplate jdbcTemplate;
     private final UserDaoStorage userDaoStorage;
     private final FeedDaoStorage feedDaoStorage;
-
-    public FriendsDbStorage(JdbcTemplate jdbcTemplate, UserDaoStorage userDaoStorage, FeedDaoStorage feedDaoStorage) {
-        this.jdbcTemplate = jdbcTemplate;
-        this.userDaoStorage = userDaoStorage;
-        this.feedDaoStorage = feedDaoStorage;
-    }
 
     @Override
     public void addFriend(Long userId, Long friendId) {
