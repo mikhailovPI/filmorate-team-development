@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.storage.Validator;
+import ru.yandex.practicum.filmorate.utilities.Validator;
 import ru.yandex.practicum.filmorate.utilities.Checker;
 
 import java.sql.PreparedStatement;

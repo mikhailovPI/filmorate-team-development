@@ -2,10 +2,11 @@ package ru.yandex.practicum.filmorate.storage.like;
 
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.model.enums.EventType;
 import ru.yandex.practicum.filmorate.storage.feed.FeedDaoStorage;
 import ru.yandex.practicum.filmorate.model.enums.OperationType;
+
+import static ru.yandex.practicum.filmorate.utilities.Checker.*;
 
 @Component
 public class LikeDbStorage implements LikeDaoStorage {
@@ -20,19 +21,19 @@ public class LikeDbStorage implements LikeDaoStorage {
 
     @Override
     public void saveLikes(Long filmId, Long userId) {
-        String sql =
-                "merge into FILMS_LIKES(FILM_ID, USER_ID) " +
-                        "VALUES (?, ?)";
+        checkFilmExists(filmId, jdbcTemplate);
+        checkUserExists(userId, jdbcTemplate);
 
-        if (jdbcTemplate.update(sql, filmId, userId) == 0) {
-            throw new EntityNotFoundException(
-                    String.format("Ошибка при добавлении в БД LIKES, filmID=%s, userID=%s.", filmId, userId));
-        }
+        String sql = "MERGE INTO FILMS_LIKES(FILM_ID, USER_ID) VALUES (?, ?)";
+        jdbcTemplate.update(sql, filmId, userId);
         feedDaoStorage.addFeed(userId, filmId, EventType.LIKE, OperationType.ADD);
     }
 
     @Override
     public void removeLikes(Long filmId, Long userId) {
+        checkFilmExists(filmId, jdbcTemplate);
+        checkUserExists(userId, jdbcTemplate);
+
         jdbcTemplate.update("DELETE FROM FILMS_LIKES WHERE USER_ID = ?", userId);
         feedDaoStorage.addFeed(userId, filmId, EventType.LIKE, OperationType.REMOVE);
     }

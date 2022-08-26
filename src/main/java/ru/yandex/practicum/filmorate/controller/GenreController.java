@@ -28,7 +28,7 @@ public class GenreController {
     }
 
     @GetMapping("{id}")
-    public Genre getGenre(@PathVariable Long id) {
+    public Genre getGenre(@PathVariable Integer id) {
         return genreDaoStorage.getGenreById(id);
     }
 }

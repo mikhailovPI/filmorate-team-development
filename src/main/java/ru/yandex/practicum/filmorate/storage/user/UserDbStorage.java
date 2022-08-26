@@ -4,17 +4,16 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
-import ru.yandex.practicum.filmorate.exception.InvalidValueException;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.Validator;
-import ru.yandex.practicum.filmorate.utilities.Checker;
+import ru.yandex.practicum.filmorate.utilities.Validator;
 
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
+
+import static ru.yandex.practicum.filmorate.utilities.Checker.*;
 
 @Component
 public class UserDbStorage implements UserDaoStorage {
@@ -29,14 +28,13 @@ public class UserDbStorage implements UserDaoStorage {
 
     @Override
     public User getUserById(Long id) {
-        Checker.checkUserExists(id, jdbcTemplate);
+        checkUserExists(id, jdbcTemplate);
         String sql =
                 "SELECT * " +
                         "FROM USERS " +
                         "WHERE USER_ID = ?";
         return jdbcTemplate.query(sql, (rs, rowNum) -> makeUser(rs), id)
-                .stream()
-                .findAny().orElse(null);
+                .stream().findFirst().get();
     }
 
     @Override
@@ -49,9 +47,6 @@ public class UserDbStorage implements UserDaoStorage {
     @Override
     public User createUser(User user) {
         validator.userValidator(user);
-        if (user == null) {
-            throw new EntityNotFoundException("Передан пустой пользователь.");
-        }
         KeyHolder keyHolder = new GeneratedKeyHolder();
         final String sql = "INSERT INTO USERS(EMAIL, LOGIN, USER_NAME, BIRTHDAY) values (?, ?, ?, ?)";
         jdbcTemplate.update(connection -> {
@@ -69,12 +64,7 @@ public class UserDbStorage implements UserDaoStorage {
     @Override
     public User updateUser(User user) {
         validator.userValidator(user);
-        if (getUserById(user.getId()) == null /*.contains(user.getId())*/) {
-            throw new EntityNotFoundException("Пользователь не найден для обновления.");
-        }
-        if (user.getId() < 1) {
-            throw new InvalidValueException("Введен некорректный идентификатор пользователя.");
-        }
+        checkUserExists(user.getId(), jdbcTemplate);
         String sql =
                 "UPDATE USERS " +
                         "SET EMAIL = ?,  LOGIN = ?, USER_NAME = ?, BIRTHDAY = ?" +
@@ -86,7 +76,7 @@ public class UserDbStorage implements UserDaoStorage {
 
     @Override
     public void deleteUser(Long id) {
-        Checker.checkUserExists(id, jdbcTemplate);
+        checkUserExists(id, jdbcTemplate);
         String sql =
                 "DELETE FROM USERS " +
                         "WHERE USER_ID = ?";

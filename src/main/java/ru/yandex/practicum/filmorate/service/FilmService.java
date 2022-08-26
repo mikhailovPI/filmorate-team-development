@@ -3,7 +3,6 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.extern.slf4j.Slf4j;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.exception.InvalidValueException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
@@ -143,7 +142,6 @@ public class FilmService {
 
     public List<Film> getSearchFilms(String query, String by) {
         List<Film> searchFilms = new ArrayList<>();
-
         switch (by) {
             case "title":
                 for (Film film : filmDaoStorage.getSearchFilmsForTitle(query)) {
