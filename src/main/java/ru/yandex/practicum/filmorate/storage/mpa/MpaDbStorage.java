@@ -4,12 +4,13 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.model.Mpa;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
+
+import static ru.yandex.practicum.filmorate.utilities.Checker.checkMpaExists;
 
 @Slf4j
 @Component
@@ -20,7 +21,7 @@ public class MpaDbStorage implements MpaDaoStorage {
 
     @Override
     public Mpa getMpaById(Integer id) {
-        checkMpaExists(id);
+        checkMpaExists(id, jdbcTemplate);
         String sql =
                 "SELECT * " +
                         "FROM RATINGS " +
@@ -50,7 +51,7 @@ public class MpaDbStorage implements MpaDaoStorage {
 
     @Override
     public Mpa updateMpa(Mpa mpa) {
-        checkMpaExists(mpa.getId());
+        checkMpaExists(mpa.getId(), jdbcTemplate);
         String sql =
                 "UPDATE RATINGS " +
                         "SET RATING_NAME = ? " +
@@ -62,13 +63,5 @@ public class MpaDbStorage implements MpaDaoStorage {
     private Mpa makeMpa(ResultSet rs) throws SQLException {
         return new Mpa(rs.getInt("RATING_ID"),
                 rs.getString("RATING_NAME"));
-    }
-
-    private void checkMpaExists(Integer id) {
-        String sql = "SELECT * FROM RATINGS WHERE RATING_ID = ?";
-        if (!jdbcTemplate.queryForRowSet(sql, id).next()) {
-            log.debug("MPA с id: {} не найден.", id);
-            throw new EntityNotFoundException((String.format("MPA с id: %s не найден.", id)));
-        }
     }
 }

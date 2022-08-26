@@ -6,18 +6,18 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
-import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.model.Review;
 import ru.yandex.practicum.filmorate.model.enums.EventType;
 import ru.yandex.practicum.filmorate.model.enums.OperationType;
 import ru.yandex.practicum.filmorate.storage.feed.FeedDaoStorage;
-import ru.yandex.practicum.filmorate.utilities.Checker;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collection;
 import java.util.List;
+
+import static ru.yandex.practicum.filmorate.utilities.Checker.*;
 import static ru.yandex.practicum.filmorate.utilities.Validator.validateReview;
 
 
@@ -34,8 +34,8 @@ public class ReviewDbStorage implements ReviewDaoStorage {
         validateReview(review);
         review.setUseful(0);
 
-        Checker.checkUserExists(review.getUserId(), jdbcTemplate);
-        Checker.checkFilmExists(review.getFilmId(), jdbcTemplate);
+        checkUserExists(review.getUserId(), jdbcTemplate);
+        checkFilmExists(review.getFilmId(), jdbcTemplate);
 
         final String sqlQuery = "INSERT INTO REVIEW (REVIEW_CONTENT, " +
                 "REVIEW_IS_POSITIVE, " +
@@ -62,10 +62,10 @@ public class ReviewDbStorage implements ReviewDaoStorage {
     @Override
     public Review updateReview(Review review) {
         validateReview(review);
-        checkReviewExists(review.getReviewId());
+        checkReviewExists(review.getReviewId(), jdbcTemplate);
 
-        Checker.checkUserExists(review.getUserId(), jdbcTemplate);
-        Checker.checkFilmExists(review.getFilmId(), jdbcTemplate);
+        checkUserExists(review.getUserId(), jdbcTemplate);
+        checkFilmExists(review.getFilmId(), jdbcTemplate);
 
         final String sqlQuery = "UPDATE REVIEW " +
                 "SET REVIEW_CONTENT = ?, " +
@@ -88,7 +88,7 @@ public class ReviewDbStorage implements ReviewDaoStorage {
 
     @Override
     public void deleteReview(long reviewId) {
-        checkReviewExists(reviewId);
+        checkReviewExists(reviewId, jdbcTemplate);
         Review review = getReviewById(reviewId);
 
         final String sqlQuery = "DELETE FROM REVIEW WHERE REVIEW_ID =?";
@@ -99,7 +99,7 @@ public class ReviewDbStorage implements ReviewDaoStorage {
 
     @Override
     public Review getReviewById(long reviewId) {
-        checkReviewExists(reviewId);
+        checkReviewExists(reviewId, jdbcTemplate);
         final String sqlQuery = "SELECT * FROM REVIEW WHERE REVIEW_ID = ?";
         return jdbcTemplate.queryForObject(sqlQuery, (rs, rowNum) -> makeReview(rs), reviewId);
     }
@@ -107,7 +107,7 @@ public class ReviewDbStorage implements ReviewDaoStorage {
     @Override
     public Collection<Review> getReviewsOfFilm(long filmId, int count) {
         if (filmId != 0) {
-            Checker.checkFilmExists(filmId, jdbcTemplate);
+            checkFilmExists(filmId, jdbcTemplate);
             final String sqlQuery = "SELECT * FROM REVIEW WHERE FILM_ID = ? ORDER BY REVIEW_USEFUL DESC LIMIT ?";
             return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> makeReview(rs), filmId, count);
         } else {
@@ -208,17 +208,9 @@ public class ReviewDbStorage implements ReviewDaoStorage {
         return review;
     }
 
-    private void checkReviewExists(Long reviewID) {
-        String sqlQuery = "SELECT * FROM REVIEW WHERE REVIEW_ID =?";
-        if (!jdbcTemplate.queryForRowSet(sqlQuery, reviewID).next()) {
-            log.debug("Отзыв с id: {} не найден.", reviewID);
-            throw new EntityNotFoundException((String.format("Отзыв с id: %s не найден.", reviewID)));
-        }
-    }
-
     private Boolean getEstimate(long reviewId, long userId) {
-        checkReviewExists(reviewId);
-        Checker.checkUserExists(userId, jdbcTemplate);
+        checkReviewExists(reviewId, jdbcTemplate);
+        checkUserExists(userId, jdbcTemplate);
 
         final String sqlQuery = "SELECT IS_LIKE FROM REVIEW_LIKES WHERE REVIEW_ID=? AND USER_ID=?";
 

@@ -140,10 +140,7 @@ public class FilmDbStorage implements FilmDaoStorage {
                         "INNER JOIN FILM_DIRECTOR AS fd on f.FILM_ID = fd.FILM_ID " +
                         "WHERE fd.DIRECTOR_ID = ? " +
                         "ORDER BY f.RELEASE_DATE";
-        List<Film> films = jdbcTemplate.query(sqlQuery, (rs, rowNum) -> makeFilm(rs), directorId);
-        films.forEach(f -> f.setDirectors(directorDaoStorage.getDirectorsByFilm(f)));
-        films.forEach(f -> f.setGenres(genreDaoStorage.getGenresByFilm(f)));
-        return films;
+        return getSortedFilmsList(directorId, sqlQuery);
     }
 
     @Override
@@ -157,10 +154,7 @@ public class FilmDbStorage implements FilmDaoStorage {
                 "WHERE fd.DIRECTOR_ID = ? " +
                 "GROUP BY f.FILM_ID " +
                 "ORDER BY COUNT(fl.USER_ID) DESC";
-        List<Film> films = jdbcTemplate.query(sqlQuery, (rs, rowNum) -> makeFilm(rs), directorId);
-        films.forEach(f -> f.setDirectors(directorDaoStorage.getDirectorsByFilm(f)));
-        films.forEach(f -> f.setGenres(genreDaoStorage.getGenresByFilm(f)));
-        return films;
+        return getSortedFilmsList(directorId, sqlQuery);
     }
 
     @Override
@@ -232,7 +226,7 @@ public class FilmDbStorage implements FilmDaoStorage {
         checkUserExists(userId, jdbcTemplate);
         checkUserExists(friendId, jdbcTemplate);
         String sqlQuery = "SELECT distinct F.film_id, name, description, release_date, duration, R.rating_id, " +
-                "RATING_NAME, director_id FROM FILMS F " +
+                "RATING_NAME FROM FILMS F " +
                 "LEFT JOIN FILMS_LIKES FL on F.FILM_ID = FL.FILM_ID " +
                 "LEFT JOIN RATINGS R on F.RATING_ID = R.RATING_ID " +
                 "WHERE USER_ID IN (?, ?) " +
@@ -294,8 +288,6 @@ public class FilmDbStorage implements FilmDaoStorage {
         return list;
     }
 
-
-
     @Override
     public List<Film> findFilmsLikedByUser(Long id) {
         String queryToFindUserFilms = "SELECT * FROM FILMS " +
@@ -313,5 +305,12 @@ public class FilmDbStorage implements FilmDaoStorage {
         film.setDuration(rs.getInt("DURATION"));
         film.setMpa(new Mpa(rs.getInt("RATING_ID"), rs.getString("RATING_NAME")));
         return film;
+    }
+
+    private List<Film> getSortedFilmsList(Integer directorId, String sqlQuery) {
+        List<Film> films = jdbcTemplate.query(sqlQuery, (rs, rowNum) -> makeFilm(rs), directorId);
+        films.forEach(f -> f.setDirectors(directorDaoStorage.getDirectorsByFilm(f)));
+        films.forEach(f -> f.setGenres(genreDaoStorage.getGenresByFilm(f)));
+        return films;
     }
 }

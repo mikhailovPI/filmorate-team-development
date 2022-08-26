@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 
@@ -13,6 +12,9 @@ import java.sql.SQLException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import static ru.yandex.practicum.filmorate.utilities.Checker.checkFilmExists;
+import static ru.yandex.practicum.filmorate.utilities.Checker.checkGenreExists;
 
 @Slf4j
 @Component
@@ -23,13 +25,13 @@ public class GenreDbStorage implements GenreDaoStorage {
 
     @Override
     public Genre getGenreById(Integer genreId) {
-        checkGenreExists(genreId);
+        checkGenreExists(genreId, jdbcTemplate);
         String sql =
                 "SELECT * " +
                         "FROM GENRES " +
                         "WHERE GENRE_ID = ?";
         return jdbcTemplate.query(sql, (rs, rowNum) -> makeGenre(rs), genreId)
-                .stream().findAny().orElse(null);
+                .stream().findFirst().get();
     }
 
     @Override
@@ -43,6 +45,7 @@ public class GenreDbStorage implements GenreDaoStorage {
 
     @Override
     public Set<Genre> getGenresByFilm(Film film) {
+        checkFilmExists(film.getId(), jdbcTemplate);
         String sql =
                 "SELECT GEN.GENRE_ID, GEN.NAME " +
                         "FROM GENRES GEN " +
@@ -52,20 +55,13 @@ public class GenreDbStorage implements GenreDaoStorage {
     }
 
     public void updateGenreFilm(Film film) {
+        checkFilmExists(film.getId(), jdbcTemplate);
         String sql = "DELETE FROM FILMS_GENRES WHERE FILM_ID = ?";
         jdbcTemplate.update(sql, film.getId());
     }
 
     private Genre makeGenre(ResultSet rs) throws SQLException {
         return new Genre(rs.getInt("GENRE_ID"), rs.getString("NAME"));
-    }
-
-    private void checkGenreExists(Integer id) {
-        String sql = "SELECT * FROM GENRES WHERE GENRE_ID = ?";
-        if (!jdbcTemplate.queryForRowSet(sql, id).next()) {
-            log.debug("Жанр с id: {} не найден.", id);
-            throw new EntityNotFoundException((String.format("Жанр с id: %s не найден.", id)));
-        }
     }
 }
 
