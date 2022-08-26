@@ -143,27 +143,29 @@ public class FilmService {
 
     public List<Film> getSearchFilms(String query, String by) {
         List<Film> searchFilms = new ArrayList<>();
-        if (by.equals("title")) {
-            for (Film film : filmDaoStorage.getSearchFilmsForTitle(query)) {
-                loadData(film);
-                searchFilms.add(film);
-            }
-            return searchFilms;
-        } else if (by.equals("director")) {
-            for (Film film : filmDaoStorage.getSearchFilmsForDirector(query)) {
-                loadData(film);
-                searchFilms.add(film);
-            }
-            return searchFilms;
-        } else if (by.equals("director,title") || by.equals("title,director")) {
-            for (Film film : filmDaoStorage.getSearchFilmsForTitleAndDirector(query)) {
-                loadData(film);
-                searchFilms.add(film);
-            }
-            return searchFilms;
-        }
-        else {
-            throw new InvalidValueException("Некорректные входные данные");
+
+        switch (by) {
+            case "title":
+                for (Film film : filmDaoStorage.getSearchFilmsForTitle(query)) {
+                    loadData(film);
+                    searchFilms.add(film);
+                }
+                return searchFilms;
+            case "director":
+                for (Film film : filmDaoStorage.getSearchFilmsForDirector(query)) {
+                    loadData(film);
+                    searchFilms.add(film);
+                }
+                return searchFilms;
+            case "director,title":
+            case "title,director":
+                for (Film film : filmDaoStorage.getSearchFilmsForTitleAndDirector(query)) {
+                    loadData(film);
+                    searchFilms.add(film);
+                }
+                return searchFilms;
+            default:
+                throw new InvalidValueException("Некорректные входные данные");
         }
     }
 }
