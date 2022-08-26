@@ -3,7 +3,6 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.extern.slf4j.Slf4j;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.exception.InvalidValueException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
@@ -28,11 +27,6 @@ public class FilmService {
     private final GenreDaoStorage genreDaoStorage;
     private final DirectorDaoStorage directorDaoStorage;
     private final UserDaoStorage userDaoStorage;
-
-    private void loadData(Film film) {
-        film.setGenres(genreDaoStorage.getGenresByFilm(film));
-        film.setDirectors(directorDaoStorage.getDirectorsByFilm(film));
-    }
 
     public List<Film> getFilms() {
         List<Film> films = filmDaoStorage.getAllFilms();
@@ -143,27 +137,33 @@ public class FilmService {
 
     public List<Film> getSearchFilms(String query, String by) {
         List<Film> searchFilms = new ArrayList<>();
-        if (by.equals("title")) {
-            for (Film film : filmDaoStorage.getSearchFilmsForTitle(query)) {
-                loadData(film);
-                searchFilms.add(film);
-            }
-            return searchFilms;
-        } else if (by.equals("director")) {
-            for (Film film : filmDaoStorage.getSearchFilmsForDirector(query)) {
-                loadData(film);
-                searchFilms.add(film);
-            }
-            return searchFilms;
-        } else if (by.equals("director,title") || by.equals("title,director")) {
-            for (Film film : filmDaoStorage.getSearchFilmsForTitleAndDirector(query)) {
-                loadData(film);
-                searchFilms.add(film);
-            }
-            return searchFilms;
+        switch (by) {
+            case "title":
+                for (Film film : filmDaoStorage.getSearchFilmsForTitle(query)) {
+                    loadData(film);
+                    searchFilms.add(film);
+                }
+                return searchFilms;
+            case "director":
+                for (Film film : filmDaoStorage.getSearchFilmsForDirector(query)) {
+                    loadData(film);
+                    searchFilms.add(film);
+                }
+                return searchFilms;
+            case "director,title":
+            case "title,director":
+                for (Film film : filmDaoStorage.getSearchFilmsForTitleAndDirector(query)) {
+                    loadData(film);
+                    searchFilms.add(film);
+                }
+                return searchFilms;
+            default:
+                throw new IllegalArgumentException("Некорректные входные данные");
         }
-        else {
-            throw new InvalidValueException("Некорректные входные данные");
-        }
+    }
+
+    private void loadData(Film film) {
+        film.setGenres(genreDaoStorage.getGenresByFilm(film));
+        film.setDirectors(directorDaoStorage.getDirectorsByFilm(film));
     }
 }

@@ -30,4 +30,28 @@ public class Checker {
             throw new EntityNotFoundException((String.format("Режиссер с id: %s не найден.", id)));
         }
     }
+
+    public static void checkReviewExists(Long reviewID, JdbcTemplate jdbcTemplate) {
+        String sqlQuery = "SELECT * FROM REVIEW WHERE REVIEW_ID =?";
+        if (!jdbcTemplate.queryForRowSet(sqlQuery, reviewID).next()) {
+            log.debug("Отзыв с id: {} не найден.", reviewID);
+            throw new EntityNotFoundException((String.format("Отзыв с id: %s не найден.", reviewID)));
+        }
+    }
+
+    public static void checkMpaExists(Integer id, JdbcTemplate jdbcTemplate) {
+        String sql = "SELECT * FROM RATINGS WHERE RATING_ID = ?";
+        if (!jdbcTemplate.queryForRowSet(sql, id).next()) {
+            log.debug("MPA с id: {} не найден.", id);
+            throw new EntityNotFoundException((String.format("MPA с id: %s не найден.", id)));
+        }
+    }
+
+    public static void checkGenreExists(Integer id, JdbcTemplate jdbcTemplate) {
+        String sql = "SELECT * FROM GENRES WHERE GENRE_ID = ?";
+        if (!jdbcTemplate.queryForRowSet(sql, id).next()) {
+            log.debug("Жанр с id: {} не найден.", id);
+            throw new EntityNotFoundException((String.format("Жанр с id: %s не найден.", id)));
+        }
+    }
 }

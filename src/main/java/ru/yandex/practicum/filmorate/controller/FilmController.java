@@ -3,77 +3,73 @@ package ru.yandex.practicum.filmorate.controller;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
-import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.service.DirectorService;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
 import javax.validation.Valid;
-import javax.validation.constraints.Min;
 import java.util.List;
 
-@RestController
+
 @Slf4j
 @Validated
+@RestController
+@RequestMapping("/films")
 public class FilmController {
 
     private final FilmService filmService;
+    private final DirectorService directorService;
 
     @Autowired
-    public FilmController(FilmService filmService) {
+    public FilmController(FilmService filmService, DirectorService directorService) {
         this.filmService = filmService;
+        this.directorService = directorService;
     }
 
-    @GetMapping("/films")
+    @GetMapping()
     public List<Film> getFilms() {
         return filmService.getFilms();
     }
 
-    @GetMapping("/films/{filmId}")
+    @GetMapping("/{filmId}")
 
-    public Film getFilmById(@PathVariable @Min(1) Long filmId) {
+    public Film getFilmById(@PathVariable Long filmId) {
         return filmService.getFilmById(filmId);
     }
 
-    @PostMapping(value = "/films")
+    @PostMapping()
     public Film createFilm(@Valid @RequestBody Film film) throws EntityNotFoundException, ValidationException {
         return filmService.createFilm(film);
     }
 
-    @PutMapping(value = "/films")
+    @PutMapping()
     public Film updateFilm(@Valid @RequestBody Film film) {
         return filmService.updateFilm(film);
     }
 
-    @DeleteMapping(value = "/films/{id}")
+    @DeleteMapping(value = "/{id}")
     public void removeFilm(@Valid @RequestBody @PathVariable Long id) {
         filmService.removeFilm(id);
     }
 
-    @PutMapping(value = "/films/{id}/like/{userId}")
+    @PutMapping(value = "/{id}/like/{userId}")
     public void putLike(
-            @PathVariable @Min(1) Long id,
-            @PathVariable @Min(1) Long userId) {
+            @PathVariable Long id,
+            @PathVariable Long userId) {
         filmService.putLike(id, userId);
     }
 
-    @DeleteMapping(value = "/films/{id}/like/{userId}")
+    @DeleteMapping(value = "/{id}/like/{userId}")
     public void removeLike(
-            @PathVariable @Min(1) Long id,
-            @PathVariable @Min(1) Long userId) {
+            @PathVariable Long id,
+            @PathVariable Long userId) {
         filmService.removeLike(id, userId);
     }
 
-    @GetMapping(value = "/films/popular")
+    @GetMapping(value = "/popular")
     public List<Film> getTopFilmsGenreYear(
             @RequestParam(required = false) Integer year,
             @RequestParam(required = false) Integer genreId,
@@ -82,16 +78,24 @@ public class FilmController {
         return filmService.getTopFilmsGenreYear(count, genreId, year);
     }
 
-    @GetMapping(value = "/films/common")
+    @GetMapping(value = "/common")
     public List<Film> getCommonFilms(@RequestParam Long userId,
                                      @RequestParam Long friendId) {
         return filmService.getCommonFilms(userId, friendId);
     }
 
-    @GetMapping(value = "/films/search")
+    @GetMapping(value = "/search")
     public List<Film> getSearchFilms(
             @RequestParam String query,
             @RequestParam(required = false) String by) {
         return filmService.getSearchFilms(query, by);
+    }
+
+    @GetMapping(value = "/director/{directorId}")
+    public List<Film> getDirectorsFilms(
+            @PathVariable Integer directorId,
+            @RequestParam String sortBy) {
+        log.info("Все фильмы режиссера");
+        return directorService.getDirectorsFilm(directorId, sortBy);
     }
 }

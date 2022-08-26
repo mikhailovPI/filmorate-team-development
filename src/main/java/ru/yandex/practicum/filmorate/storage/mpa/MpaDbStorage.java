@@ -1,35 +1,33 @@
 package ru.yandex.practicum.filmorate.storage.mpa;
 
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
-import ru.yandex.practicum.filmorate.exception.InvalidValueException;
 import ru.yandex.practicum.filmorate.model.Mpa;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
+import static ru.yandex.practicum.filmorate.utilities.Checker.checkMpaExists;
+
+@Slf4j
 @Component
+@RequiredArgsConstructor
 public class MpaDbStorage implements MpaDaoStorage {
 
     private final JdbcTemplate jdbcTemplate;
 
-    public MpaDbStorage(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
-    }
-
     @Override
     public Mpa getMpaById(Integer id) {
-        if (id < 1) {
-            throw new InvalidValueException("Некорректный идентификатор возрастного ограничения");
-        }
+        checkMpaExists(id, jdbcTemplate);
         String sql =
                 "SELECT * " +
                         "FROM RATINGS " +
                         "WHERE RATING_ID = ?";
         return jdbcTemplate.query(sql, (rs, rowNum) -> makeMpa(rs), id)
-                .stream().findAny().orElse(null);
+                .stream().findFirst().get();
     }
 
     @Override
@@ -48,14 +46,12 @@ public class MpaDbStorage implements MpaDaoStorage {
                         "FROM RATINGS " +
                         "WHERE RATING_ID = ?";
         return jdbcTemplate.query(sql, (rs, rowNum) -> makeMpa(rs), mpa.getName())
-                .stream().findAny().orElse(null);
+                .stream().findFirst().get();
     }
 
     @Override
     public Mpa updateMpa(Mpa mpa) {
-        if (getMpaById(mpa.getId()) == null) {
-            throw new EntityNotFoundException("MPA не найден для обновления");
-        }
+        checkMpaExists(mpa.getId(), jdbcTemplate);
         String sql =
                 "UPDATE RATINGS " +
                         "SET RATING_NAME = ? " +
@@ -65,6 +61,7 @@ public class MpaDbStorage implements MpaDaoStorage {
     }
 
     private Mpa makeMpa(ResultSet rs) throws SQLException {
-        return new Mpa(rs.getInt("RATING_ID"), rs.getString("RATING_NAME"));
+        return new Mpa(rs.getInt("RATING_ID"),
+                rs.getString("RATING_NAME"));
     }
 }

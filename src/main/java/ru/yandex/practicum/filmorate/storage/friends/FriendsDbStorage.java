@@ -1,8 +1,8 @@
 package ru.yandex.practicum.filmorate.storage.friends;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.model.enums.EventType;
 import ru.yandex.practicum.filmorate.storage.feed.FeedDaoStorage;
@@ -12,26 +12,21 @@ import ru.yandex.practicum.filmorate.storage.user.UserDaoStorage;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static ru.yandex.practicum.filmorate.utilities.Checker.checkUserExists;
+
 @Component
+@RequiredArgsConstructor
 public class FriendsDbStorage implements FriendsDaoStorage {
 
     private final JdbcTemplate jdbcTemplate;
     private final UserDaoStorage userDaoStorage;
     private final FeedDaoStorage feedDaoStorage;
 
-    public FriendsDbStorage(JdbcTemplate jdbcTemplate, UserDaoStorage userDaoStorage, FeedDaoStorage feedDaoStorage) {
-        this.jdbcTemplate = jdbcTemplate;
-        this.userDaoStorage = userDaoStorage;
-        this.feedDaoStorage = feedDaoStorage;
-    }
-
     @Override
     public void addFriend(Long userId, Long friendId) {
-        if (userDaoStorage.getAllUser().stream().noneMatch(u -> Objects.equals(u.getId(), userId))) {
-            throw new EntityNotFoundException("Идентификатор пользователя не найден");
-        } else if (userDaoStorage.getAllUser().stream().noneMatch(u -> Objects.equals(u.getId(), friendId))) {
-            throw new EntityNotFoundException("Идентификатор друга не найден");
-        }
+        checkUserExists(userId, jdbcTemplate);
+        checkUserExists(friendId, jdbcTemplate);
+
         String sql =
                 "INSERT INTO FRIENDS (USER_ID, FRIEND_ID) " +
                         "VALUES (?, ?)";
@@ -41,11 +36,9 @@ public class FriendsDbStorage implements FriendsDaoStorage {
 
     @Override
     public void deleteFriend(Long userId, Long friendId) {
-        if (userDaoStorage.getAllUser().stream().noneMatch(u -> Objects.equals(u.getId(), userId))) {
-            throw new EntityNotFoundException("Идентификатор пользователя не найден");
-        } else if (userDaoStorage.getAllUser().stream().noneMatch(u -> Objects.equals(u.getId(), friendId))) {
-            throw new EntityNotFoundException("Идентификатор друга не найден");
-        }
+        checkUserExists(userId, jdbcTemplate);
+        checkUserExists(friendId, jdbcTemplate);
+
         String sql =
                 "DELETE " +
                         "FROM FRIENDS " +

@@ -15,7 +15,6 @@ import java.util.List;
 public class DirectorService {
 
     private final FilmDaoStorage filmDaoStorage;
-
     private final DirectorDaoStorage directorDaoStorage;
 
     public List<Film> getDirectorsFilm(Integer directorId, String sortBy) {
