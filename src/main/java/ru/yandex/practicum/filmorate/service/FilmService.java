@@ -163,7 +163,7 @@ public class FilmService {
                 }
                 return searchFilms;
             default:
-                throw new InvalidValueException("Некорректные входные данные");
+                throw new IllegalArgumentException("Некорректные входные данные");
         }
     }
 }
