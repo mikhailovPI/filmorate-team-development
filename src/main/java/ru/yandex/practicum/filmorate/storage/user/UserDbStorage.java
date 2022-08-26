@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.storage.user;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
@@ -14,17 +15,14 @@ import java.sql.SQLException;
 import java.util.List;
 
 import static ru.yandex.practicum.filmorate.utilities.Checker.*;
+import static ru.yandex.practicum.filmorate.utilities.Validator.userValidator;
+
 
 @Component
+@RequiredArgsConstructor
 public class UserDbStorage implements UserDaoStorage {
 
     private final JdbcTemplate jdbcTemplate;
-    private final Validator validator;
-
-    public UserDbStorage(JdbcTemplate jdbcTemplate, Validator validator) {
-        this.jdbcTemplate = jdbcTemplate;
-        this.validator = validator;
-    }
 
     @Override
     public User getUserById(Long id) {
@@ -46,7 +44,7 @@ public class UserDbStorage implements UserDaoStorage {
 
     @Override
     public User createUser(User user) {
-        validator.userValidator(user);
+        userValidator(user);
         KeyHolder keyHolder = new GeneratedKeyHolder();
         final String sql = "INSERT INTO USERS(EMAIL, LOGIN, USER_NAME, BIRTHDAY) values (?, ?, ?, ?)";
         jdbcTemplate.update(connection -> {
@@ -63,7 +61,7 @@ public class UserDbStorage implements UserDaoStorage {
 
     @Override
     public User updateUser(User user) {
-        validator.userValidator(user);
+        userValidator(user);
         checkUserExists(user.getId(), jdbcTemplate);
         String sql =
                 "UPDATE USERS " +

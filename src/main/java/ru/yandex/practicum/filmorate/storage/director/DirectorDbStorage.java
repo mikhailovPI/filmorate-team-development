@@ -8,7 +8,6 @@ import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.utilities.Validator;
 import ru.yandex.practicum.filmorate.utilities.Checker;
 
 import java.sql.PreparedStatement;
@@ -17,20 +16,14 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import static ru.yandex.practicum.filmorate.utilities.Validator.directorValidator;
+
 
 @Component
 @RequiredArgsConstructor
 public class DirectorDbStorage implements DirectorDaoStorage {
 
     private final JdbcTemplate jdbcTemplate;
-    private final Validator validator;
-
-    private Director makeDirector(ResultSet rs) throws SQLException {
-        Director director = new Director();
-        director.setId(rs.getInt("DIRECTOR_ID"));
-        director.setName(rs.getString("DIRECTOR_NAME"));
-        return director;
-    }
 
     @Override
     public List<Director> allDirectors() {
@@ -51,7 +44,7 @@ public class DirectorDbStorage implements DirectorDaoStorage {
 
     @Override
     public Director createDirector(Director director) {
-        validator.directorValidator(director);
+        directorValidator(director);
         String sqlQuery = "INSERT INTO DIRECTORS (DIRECTOR_NAME) VALUES (?)";
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(connection -> {
@@ -90,6 +83,13 @@ public class DirectorDbStorage implements DirectorDaoStorage {
                 , director.getId());
         jdbcTemplate.update("UPDATE FILM_DIRECTOR set DIRECTOR_ID = ? WHERE FILM_ID",
                 director.getId());
+        return director;
+    }
+
+    private Director makeDirector(ResultSet rs) throws SQLException {
+        Director director = new Director();
+        director.setId(rs.getInt("DIRECTOR_ID"));
+        director.setName(rs.getString("DIRECTOR_NAME"));
         return director;
     }
 }

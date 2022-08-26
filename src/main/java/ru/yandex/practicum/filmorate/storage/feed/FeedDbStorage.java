@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.storage.feed;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
@@ -16,16 +17,11 @@ import java.util.Collection;
 import java.util.Objects;
 
 @Repository
+@RequiredArgsConstructor
 public class FeedDbStorage implements FeedDaoStorage {
 
     private final JdbcTemplate jdbcTemplate;
-
     private final UserDaoStorage userDaoStorage;
-
-    public FeedDbStorage(JdbcTemplate jdbcTemplate, UserDaoStorage userDaoStorage) {
-        this.jdbcTemplate = jdbcTemplate;
-        this.userDaoStorage = userDaoStorage;
-    }
 
     @Override
     public void addFeed(long userId, long entityId, EventType eventType, OperationType operationType) {

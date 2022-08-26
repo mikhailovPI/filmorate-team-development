@@ -28,11 +28,6 @@ public class FilmService {
     private final DirectorDaoStorage directorDaoStorage;
     private final UserDaoStorage userDaoStorage;
 
-    private void loadData(Film film) {
-        film.setGenres(genreDaoStorage.getGenresByFilm(film));
-        film.setDirectors(directorDaoStorage.getDirectorsByFilm(film));
-    }
-
     public List<Film> getFilms() {
         List<Film> films = filmDaoStorage.getAllFilms();
         for (Film film : films) {
@@ -163,7 +158,12 @@ public class FilmService {
                 }
                 return searchFilms;
             default:
-                throw new InvalidValueException("Некорректные входные данные");
+                throw new IllegalArgumentException("Некорректные входные данные");
         }
+    }
+
+    private void loadData(Film film) {
+        film.setGenres(genreDaoStorage.getGenresByFilm(film));
+        film.setDirectors(directorDaoStorage.getDirectorsByFilm(film));
     }
 }

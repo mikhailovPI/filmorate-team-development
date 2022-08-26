@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.storage.film;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -9,7 +10,6 @@ import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
-import ru.yandex.practicum.filmorate.utilities.Validator;
 import ru.yandex.practicum.filmorate.storage.director.DirectorDaoStorage;
 import ru.yandex.practicum.filmorate.storage.genre.GenreDaoStorage;
 
@@ -22,23 +22,16 @@ import java.util.Set;
 
 import static ru.yandex.practicum.filmorate.utilities.Checker.checkFilmExists;
 import static ru.yandex.practicum.filmorate.utilities.Checker.checkUserExists;
+import static ru.yandex.practicum.filmorate.utilities.Validator.filmValidator;
 
 @Component
 @Slf4j
+@RequiredArgsConstructor
 public class FilmDbStorage implements FilmDaoStorage {
 
     private final JdbcTemplate jdbcTemplate;
     private final DirectorDaoStorage directorDaoStorage;
     private final GenreDaoStorage genreDaoStorage;
-    private final Validator validator;
-
-    public FilmDbStorage(JdbcTemplate jdbcTemplate, Validator validator,
-                         GenreDaoStorage genreDaoStorage, DirectorDaoStorage directorDaoStorage) {
-        this.jdbcTemplate = jdbcTemplate;
-        this.validator = validator;
-        this.directorDaoStorage = directorDaoStorage;
-        this.genreDaoStorage = genreDaoStorage;
-    }
 
     @Override
     public Film getFilmById(Long id) {
@@ -66,7 +59,7 @@ public class FilmDbStorage implements FilmDaoStorage {
 
     @Override
     public Film createFilm(Film film) {
-        validator.filmValidator(film);
+        filmValidator(film);
 
         String sqlQuery = "INSERT INTO films (NAME, RELEASE_DATE, DESCRIPTION, DURATION, RATING_ID) " +
                 "VALUES (?, ?, ?, ?, ?);";
@@ -86,7 +79,7 @@ public class FilmDbStorage implements FilmDaoStorage {
 
     @Override
     public void createGenreByFilm(Film film) {
-        validator.filmValidator(film);
+        filmValidator(film);
         String sql =
                 "INSERT INTO FILMS_GENRES (FILM_ID, GENRE_ID) " +
                         "VALUES(?, ?)";
@@ -101,7 +94,7 @@ public class FilmDbStorage implements FilmDaoStorage {
 
     @Override
     public void createDirectorByFilm(Film film) {
-        validator.filmValidator(film);
+        filmValidator(film);
         String sql =
                 "INSERT INTO FILM_DIRECTOR (FILM_ID, DIRECTOR_ID) " +
                         "VALUES(?, ?)";
@@ -116,7 +109,7 @@ public class FilmDbStorage implements FilmDaoStorage {
 
     @Override
     public Film updateFilm(Film film) {
-        validator.filmValidator(film);
+        filmValidator(film);
         checkFilmExists(film.getId(), jdbcTemplate);
         String sql =
                 "UPDATE FILMS " +

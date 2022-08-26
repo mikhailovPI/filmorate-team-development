@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.storage.like;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.enums.EventType;
@@ -9,15 +10,11 @@ import ru.yandex.practicum.filmorate.model.enums.OperationType;
 import static ru.yandex.practicum.filmorate.utilities.Checker.*;
 
 @Component
+@RequiredArgsConstructor
 public class LikeDbStorage implements LikeDaoStorage {
 
     private final JdbcTemplate jdbcTemplate;
     private final FeedDaoStorage feedDaoStorage;
-
-    public LikeDbStorage(JdbcTemplate jdbcTemplate, FeedDaoStorage feedDaoStorage) {
-        this.jdbcTemplate = jdbcTemplate;
-        this.feedDaoStorage = feedDaoStorage;
-    }
 
     @Override
     public void saveLikes(Long filmId, Long userId) {
