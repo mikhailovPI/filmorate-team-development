@@ -272,7 +272,7 @@ public class FilmDbStorage implements FilmDaoStorage {
     public List<Film> findFilmsLikedByUser(Long id) {
         String queryToFindUserFilms = "SELECT * FROM FILMS " +
                 "JOIN MPA M ON M.MPA_ID = FILMS.MPA_ID " +
-                "WHERE FILMS.FILM_ID IN (SELECT FILM_ID FROM FILMS_LIKES WHERE USER_ID = ?)";
+                "WHERE FILMS.FILM_ID IN (SELECT FILM_ID FROM FILMS_LIKES WHERE (USER_ID = ? AND FILMS.RATE > 5))";
         return jdbcTemplate.query(queryToFindUserFilms, (rs, rowNum) -> makeFilm(rs), id);
     }
 
