@@ -1,7 +1,6 @@
 
 package ru.yandex.practicum.filmorate.storage.film;
 
-import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import java.util.List;
@@ -24,7 +23,7 @@ public interface FilmDaoStorage {
 
     List<Film> getDirectorsFilmSortByYear(Integer directorId);
 
-    List<Film> getDirectorsFilmSortByLikesCount(Integer directorId);
+    List<Film> getDirectorsFilmSortByRate(Integer directorId);
 
     List<Film> getTopLikeFilm(Integer count);
 

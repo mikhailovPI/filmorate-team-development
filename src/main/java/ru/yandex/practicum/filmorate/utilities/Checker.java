@@ -40,7 +40,7 @@ public class Checker {
     }
 
     public static void checkMpaExists(Integer id, JdbcTemplate jdbcTemplate) {
-        String sql = "SELECT * FROM RATINGS WHERE RATING_ID = ?";
+        String sql = "SELECT * FROM MPA WHERE MPA_ID = ?";
         if (!jdbcTemplate.queryForRowSet(sql, id).next()) {
             log.debug("MPA с id: {} не найден.", id);
             throw new EntityNotFoundException((String.format("MPA с id: %s не найден.", id)));

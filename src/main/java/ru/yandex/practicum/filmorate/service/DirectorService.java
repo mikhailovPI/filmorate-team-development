@@ -23,7 +23,7 @@ public class DirectorService {
             return filmDaoStorage.getDirectorsFilmSortByYear(directorId);
         }
         if(sortBy.equals("likes")) {
-            return filmDaoStorage.getDirectorsFilmSortByLikesCount(directorId);
+            return filmDaoStorage.getDirectorsFilmSortByRate(directorId);
         }
         throw new EntityNotFoundException("Некорректные входные данные");
     }

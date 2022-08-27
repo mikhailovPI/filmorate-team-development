@@ -15,12 +15,6 @@ import java.util.Set;
 @EqualsAndHashCode(of = "id")
 public class Film {
 
-    private Set<Long> likes = new HashSet<>();
-
-    private Set<Director> directors = new HashSet<>();
-
-    private Set<Genre> genres = new LinkedHashSet<>();
-
     private Long id;
 
     private String name;
@@ -31,5 +25,11 @@ public class Film {
 
     private Integer duration;
 
+    private Double rate;
+
     private Mpa mpa;
+
+    private Set<Director> directors = new HashSet<>();
+
+    private Set<Genre> genres = new LinkedHashSet<>();
 }
