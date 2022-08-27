@@ -14,5 +14,5 @@ public interface UserDaoStorage {
 
     User updateUser(User user);
 
-    void deleteUser(User user);
+    void deleteUser(Long id);
 }

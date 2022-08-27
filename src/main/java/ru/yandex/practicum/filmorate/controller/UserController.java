@@ -3,79 +3,89 @@ package ru.yandex.practicum.filmorate.controller;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.model.Feed;
+import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.FilmService;
 import ru.yandex.practicum.filmorate.service.UserService;
 
 import javax.validation.Valid;
-import javax.validation.constraints.Min;
+import java.util.Collection;
 import java.util.List;
 
 @RestController
+@RequestMapping("/users")
 @Slf4j
 @Validated
 public class UserController {
-    private UserService userService;
+    private final UserService userService;
+    private final FilmService filmService;
 
     @Autowired
-    public UserController(UserService userService) {
+    public UserController(UserService userService, FilmService filmService) {
         this.userService = userService;
+        this.filmService = filmService;
     }
 
-    @GetMapping("/users")
+    @GetMapping()
     public List<User> getUser() {
         return userService.getAllUser();
     }
 
-    @GetMapping(value = "/users/{id}")
-    public User getUserById(@PathVariable @Min(1) Long id) {
+    @GetMapping(value = "/{id}")
+    public User getUserById(@PathVariable Long id) {
         return userService.getUserById(id);
     }
 
-    @PostMapping(value = "/users")
+    @PostMapping()
     public User createUser(@Valid @RequestBody User user) {
         return userService.createUser(user);
     }
 
-    @PutMapping(value = "/users")
+    @PutMapping()
     public User updateUser(@Valid @RequestBody User user) {
         return userService.updateUser(user);
     }
 
-    @DeleteMapping(value = "/users")
-    public void removeUser(@Valid @RequestBody User user) {
-        userService.removeUser(user);
+    @DeleteMapping(value = "/{id}")
+    public void removeUser(@Valid @RequestBody @PathVariable Long id) {
+        userService.removeUser(id);
     }
 
-    @PutMapping(value = "/users/{id}/friends/{friendId}")
+    @PutMapping(value = "/{id}/friends/{friendId}")
     public void addFriends(
-            @PathVariable @Min(1) Long id,
-            @PathVariable @Min(1) Long friendId) {
+            @PathVariable Long id,
+            @PathVariable Long friendId) {
         userService.addFriends(id, friendId);
     }
 
-    @DeleteMapping(value = "/users/{id}/friends/{friendId}")
+    @DeleteMapping(value = "/{id}/friends/{friendId}")
     public void removeFriends(
-            @PathVariable @Min(1) Long id,
-            @PathVariable @Min(1) Long friendId) {
+            @PathVariable Long id,
+            @PathVariable Long friendId) {
         userService.removeFriends(id, friendId);
     }
 
-    @GetMapping(value = "/users/{id}/friends")
-    public List<User> getAllFriendsUser(@PathVariable @Min(1) Long id) {
+    @GetMapping(value = "/{id}/friends")
+    public List<User> getAllFriendsUser(@PathVariable Long id) {
         return userService.getAllFriendsUser(id);
     }
 
-    @GetMapping(value = "/users/{id}/friends/common/{otherId}")
+    @GetMapping(value = "/{id}/friends/common/{otherId}")
     public List<User> getCommonListFriends(
-            @PathVariable @Min(1) Long id,
-             @PathVariable @Min(1) Long otherId) {
+            @PathVariable Long id,
+            @PathVariable Long otherId) {
         return userService.getCommonFriends(id, otherId);
+    }
+
+    @GetMapping(value = "/{userId}/feed")
+    public Collection<Feed> getUserFeed(@PathVariable Long userId) {
+        return userService.getUserFeed(userId);
+    }
+
+    @GetMapping(value = "/{id}/recommendations")
+    public List<Film> findRecommendedFilms(@PathVariable Long id) {
+        return filmService.findRecommendedFilms(id);
     }
 }

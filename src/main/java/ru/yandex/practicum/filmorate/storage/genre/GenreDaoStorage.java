@@ -8,7 +8,7 @@ import java.util.Set;
 
 public interface GenreDaoStorage {
 
-    Genre getGenreById(Long genreId);
+    Genre getGenreById(Integer genreId);
 
     List<Genre> getAllGenres();
 

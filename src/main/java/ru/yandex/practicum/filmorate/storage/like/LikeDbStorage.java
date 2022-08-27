@@ -1,34 +1,38 @@
 package ru.yandex.practicum.filmorate.storage.like;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
+import ru.yandex.practicum.filmorate.model.enums.EventType;
+import ru.yandex.practicum.filmorate.storage.feed.FeedDaoStorage;
+import ru.yandex.practicum.filmorate.model.enums.OperationType;
+
+import static ru.yandex.practicum.filmorate.utilities.Checker.*;
 
 @Component
+@RequiredArgsConstructor
 public class LikeDbStorage implements LikeDaoStorage {
 
     private final JdbcTemplate jdbcTemplate;
+    private final FeedDaoStorage feedDaoStorage;
 
-    public LikeDbStorage(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
+    @Override
+    public void saveLikes(Long filmId, Long userId) {
+        checkFilmExists(filmId, jdbcTemplate);
+        checkUserExists(userId, jdbcTemplate);
+
+        String sql = "MERGE INTO FILMS_LIKES(FILM_ID, USER_ID) VALUES (?, ?)";
+        jdbcTemplate.update(sql, filmId, userId);
+        feedDaoStorage.addFeed(userId, filmId, EventType.LIKE, OperationType.ADD);
     }
 
     @Override
-    public void saveLikes(Long id, Long userId) {
-        String sql =
-                "merge into FILMS_LIKES(FILM_ID, USER_ID) " +
-                "VALUES (?, ?)";
+    public void removeLikes(Long filmId, Long userId) {
+        checkFilmExists(filmId, jdbcTemplate);
+        checkUserExists(userId, jdbcTemplate);
 
-        if (jdbcTemplate.update(sql, id, userId) == 0) {
-            throw new EntityNotFoundException(
-                    String.format("Ошибка при добавлении в БД LIKES, filmID=%s, userID=%s.", id, userId));
-        }
-    }
-
-    @Override
-    public void removeLikes(Long id, Long userId) {
         jdbcTemplate.update("DELETE FROM FILMS_LIKES WHERE USER_ID = ?", userId);
+        feedDaoStorage.addFeed(userId, filmId, EventType.LIKE, OperationType.REMOVE);
     }
-
 }
 

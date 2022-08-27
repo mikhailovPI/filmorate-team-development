@@ -2,12 +2,15 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
+import ru.yandex.practicum.filmorate.model.Feed;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.feed.FeedDaoStorage;
 import ru.yandex.practicum.filmorate.storage.friends.FriendsDaoStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserDaoStorage;
 
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -16,6 +19,7 @@ public class UserService {
 
     private final UserDaoStorage userDaoStorage;
     private final FriendsDaoStorage friendsDaoStorage;
+    private final FeedDaoStorage feedDaoStorage;
 
     public List<User> getAllUser() {
         return userDaoStorage.getAllUser();
@@ -33,8 +37,8 @@ public class UserService {
         return userDaoStorage.updateUser(user);
     }
 
-    public void removeUser(User user) throws ValidationException {
-        userDaoStorage.deleteUser(user);
+    public void removeUser(Long id) throws ValidationException {
+        userDaoStorage.deleteUser(id);
     }
 
     public void addFriends(Long userId, Long friendId) {
@@ -46,6 +50,9 @@ public class UserService {
     }
 
     public List<User> getAllFriendsUser(Long id) {
+        if (userDaoStorage.getUserById(id) == null) {
+            throw new EntityNotFoundException("Пользователя с таким id не существует");
+        }
         return friendsDaoStorage.getAllFriendsUser(id);
     }
 
@@ -55,5 +62,9 @@ public class UserService {
         return user.stream()
                 .filter(otherUser::contains)
                 .collect(Collectors.toList());
+    }
+
+    public Collection<Feed> getUserFeed(long userId) {
+        return feedDaoStorage.getUserFeed(userId);
     }
 }

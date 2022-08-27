@@ -17,6 +17,8 @@ public class Film {
 
     private Set<Long> likes = new HashSet<>();
 
+    private Set<Director> directors = new HashSet<>();
+
     private Set<Genre> genres = new LinkedHashSet<>();
 
     private Long id;
