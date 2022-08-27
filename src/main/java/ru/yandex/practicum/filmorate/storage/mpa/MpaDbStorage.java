@@ -24,8 +24,8 @@ public class MpaDbStorage implements MpaDaoStorage {
         checkMpaExists(id, jdbcTemplate);
         String sql =
                 "SELECT * " +
-                        "FROM RATINGS " +
-                        "WHERE RATING_ID = ?";
+                        "FROM MPA " +
+                        "WHERE MPA_ID = ?";
         return jdbcTemplate.query(sql, (rs, rowNum) -> makeMpa(rs), id)
                 .stream().findFirst().get();
     }
@@ -34,8 +34,8 @@ public class MpaDbStorage implements MpaDaoStorage {
     public List<Mpa> getAllMpa() {
         String sql =
                 "SELECT * " +
-                        "FROM RATINGS " +
-                        "ORDER BY RATING_ID";
+                        "FROM MPA " +
+                        "ORDER BY MPA_ID";
         return jdbcTemplate.query(sql, (rs, rowNum) -> makeMpa(rs));
     }
 
@@ -43,8 +43,8 @@ public class MpaDbStorage implements MpaDaoStorage {
     public Mpa createMpa(Mpa mpa) {
         String sql =
                 "SELECT * " +
-                        "FROM RATINGS " +
-                        "WHERE RATING_ID = ?";
+                        "FROM MPA " +
+                        "WHERE MPA_ID = ?";
         return jdbcTemplate.query(sql, (rs, rowNum) -> makeMpa(rs), mpa.getName())
                 .stream().findFirst().get();
     }
@@ -53,15 +53,15 @@ public class MpaDbStorage implements MpaDaoStorage {
     public Mpa updateMpa(Mpa mpa) {
         checkMpaExists(mpa.getId(), jdbcTemplate);
         String sql =
-                "UPDATE RATINGS " +
-                        "SET RATING_NAME = ? " +
-                        "WHERE RATING_ID = ?";
+                "UPDATE MPA " +
+                        "SET MPA_NAME = ? " +
+                        "WHERE MPA_ID = ?";
         jdbcTemplate.update(sql, mpa.getName(), mpa.getId());
         return mpa;
     }
 
     private Mpa makeMpa(ResultSet rs) throws SQLException {
-        return new Mpa(rs.getInt("RATING_ID"),
-                rs.getString("RATING_NAME"));
+        return new Mpa(rs.getInt("MPA_ID"),
+                rs.getString("MPA_NAME"));
     }
 }
