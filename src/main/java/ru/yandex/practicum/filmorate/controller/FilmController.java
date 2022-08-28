@@ -9,8 +9,11 @@ import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.DirectorService;
 import ru.yandex.practicum.filmorate.service.FilmService;
+import ru.yandex.practicum.filmorate.service.RateService;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 import java.util.List;
 
 
@@ -23,10 +26,13 @@ public class FilmController {
     private final FilmService filmService;
     private final DirectorService directorService;
 
+    private final RateService rateService;
+
     @Autowired
-    public FilmController(FilmService filmService, DirectorService directorService) {
+    public FilmController(FilmService filmService, DirectorService directorService, RateService rateService) {
         this.filmService = filmService;
         this.directorService = directorService;
+        this.rateService = rateService;
     }
 
     @GetMapping()
@@ -67,6 +73,21 @@ public class FilmController {
             @PathVariable Long id,
             @PathVariable Long userId) {
         filmService.removeLike(id, userId);
+    }
+
+    @PutMapping(value = "/{id}/rate/{userId}/{rate}")
+    public void saveRate(
+            @PathVariable Long id,
+            @PathVariable Long userId,
+            @PathVariable @Min(1) @Max(10) Integer rate) {
+        rateService.saveRate(id, userId, rate);
+    }
+
+    @DeleteMapping(value = "/{id}/rate/{userId}")
+    public void removeRate(
+            @PathVariable Long id,
+            @PathVariable Long userId) {
+        rateService.removeRate(id, userId);
     }
 
     @GetMapping(value = "/popular")
