@@ -77,7 +77,7 @@ create table FILMS_LIKES
 (
     FILM_ID BIGINT not null,
     USER_ID BIGINT not null,
-    RATE BIGINT,
+    RATE INTEGER,
     constraint FILM_LIKE
         primary key (FILM_ID, USER_ID),
     constraint FILM_LIKE_FILM_ID
