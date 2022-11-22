@@ -2,7 +2,8 @@
 
 **Данная программа позволяет оценивать фильмы и получать топ-фильмов по запросу**
 
-Используемые стек: Java 11, Spring Boot, Maven
+Используемые стек: Java 11, Spring Boot, Maven, H2
+Данный проект дорабатывался в команде.   
 
 Модель фильма включает в себя:
 1. Название фильма
@@ -27,18 +28,29 @@ https://drawsql.app/yandex-7/diagrams/filmorate/embed
 
 ```java
 
-    @PostMapping(value = "/users")
-    public User createUser(@Valid @RequestBody User user) {
-        return userService.createUser(user);
+    public List<Film> getTopFilmsGenreYear(Integer count, Integer genreId, Integer year) {
+        List<Film> topFilms = new ArrayList<>();
+        if (genreId == null && year == null) {
+            for (Film film : filmDaoStorage.getTopLikeFilm(count)) {
+                loadData(film);
+                topFilms.add(film);
+            }
+            return topFilms;
+        } else if (year == null) {
+            for (Film film : filmDaoStorage.getTopFilmsGenre(count, genreId)) {
+                loadData(film);
+                topFilms.add(film);
+            }
+            return topFilms;
+        } else if (genreId == null) {
+            for (Film film : filmDaoStorage.getTopFilmsYear(count, year)) {
+                loadData(film);
+                topFilms.add(film);
+            }
+            return topFilms;
+        } 
+        ...
     }
-....
-    @PutMapping(value = "/films/{id}/like/{userId}")
-    public Integer putLikeFilm(
-            @PathVariable @Min(1) Long id,
-            @PathVariable @Min(1) Long userId) {
-        return filmService.putLike(id, userId);
-    }
-}
 ```
 
 Примеры запросов в БД (используемый язык: Java и SQL):
@@ -46,15 +58,14 @@ https://drawsql.app/yandex-7/diagrams/filmorate/embed
 ```java
 
     @Override
-    public Genre getGenreById(Long genreId) {
-        if (genreId < 1) {
-            throw new InvalidValueException("Введен некорректный идентификатор жанра.");
-        }
-        String sql =
-                "SELECT * " +
-                        "FROM GENRES " +
-                        "WHERE GENRE_ID = ?";
-        return jdbcTemplate.query(sql, (rs, rowNum) -> makeGenre(rs), genreId)
-                .stream().findAny().orElse(null);
+    public List<Film> getDirectorsFilmSortByRate(Integer directorId) {
+        String sqlQuery = "SELECT F.FILM_ID, F.NAME, F.RELEASE_DATE, F.DESCRIPTION, F.DURATION, F.RATE," +
+                "F.MPA_ID, M.MPA_NAME " +
+                "FROM FILMS AS F " +
+                "JOIN MPA M on M.MPA_ID = F.MPA_ID " +
+                "LEFT JOIN FILM_DIRECTOR FD on F.FILM_ID = FD.FILM_ID " +
+                "WHERE FD.DIRECTOR_ID = ? " +
+                "ORDER BY F.RATE DESC";
+        return getSortedFilmsList(directorId, sqlQuery);
     }
 ```
